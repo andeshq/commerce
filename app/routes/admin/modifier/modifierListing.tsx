@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
-import { Button, Card, Chip, Dropdown, Label, Link, SearchField, Table } from "@heroui/react";
+import { Button, Card, Chip, Dropdown, Label, SearchField, Table } from "@heroui/react";
+import { Link } from "@/lib/link";
 import type { SortDescriptor } from "@heroui/react";
 import { BarsDescendingAlignLeft, Plus } from "@gravity-ui/icons";
 import { useLoaderData, useNavigate } from "react-router";
@@ -135,7 +136,7 @@ export function ModifierListing() {
         title="Modifiers"
         description="Priced add-ons customers can pick at checkout."
         actions={
-          <Button size="sm" onPress={() => navigate("/admin/modifiers/new")}>
+          <Button size="sm" onPress={() => navigate("/modifiers/new")}>
             <Plus className="size-4" />
             New modifier
           </Button>
@@ -264,7 +265,7 @@ export function ModifierListing() {
                         <Table.Cell>
                           <Link
                             className="flex flex-col no-underline"
-                            href={`/admin/modifiers/${row.id}`}
+                            href={`/modifiers/${row.id}`}
                           >
                             <span className="font-medium text-foreground">{row.name}</span>
                             {row.required && (
@@ -295,7 +296,7 @@ export function ModifierListing() {
                         <Table.Cell className="text-end">
                           <Link
                             className="text-sm font-medium no-underline"
-                            href={`/admin/modifiers/${row.id}`}
+                            href={`/modifiers/${row.id}`}
                           >
                             Edit
                           </Link>

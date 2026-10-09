@@ -15,7 +15,7 @@ export type Env = z.infer<typeof envSchema>;
 const DEFAULTS = {
   domainSchema: "commerce",
   authSchema: "auth",
-  basePath: "/rest",
+  basePath: "/api/rest",
   anonRole: "web_anon",
   maxRows: 1000,
 } as const;

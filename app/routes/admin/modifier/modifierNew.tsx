@@ -38,7 +38,7 @@ export async function modifierNewAction({ request }: ActionFunctionArgs) {
         })),
       })
       .throwOnError();
-    return redirect("/admin/modifiers");
+    return redirect("/modifiers");
   } catch (error) {
     return { errors: pgbaseErrorMessages(error) };
   }

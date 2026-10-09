@@ -70,7 +70,7 @@ export async function productNewAction({ request }: ActionFunctionArgs) {
         ),
       )
       .throwOnError();
-    return redirect("/admin/products");
+    return redirect("/products");
   } catch (error) {
     return { errors: pgbaseErrorMessages(error) };
   }

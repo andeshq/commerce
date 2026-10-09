@@ -48,7 +48,7 @@ async function rpc(
   cookie?: string,
 ): Promise<{ status: number; body: Record<string, any> }> {
   const res = await app.fetch(
-    new Request("http://localhost/rest/rpc/adjust_inventory", json(body, cookie)),
+    new Request("http://localhost/api/rest/rpc/adjust_inventory", json(body, cookie)),
   );
   const text = await res.text();
   let parsed: unknown = text;
@@ -61,7 +61,7 @@ async function rpc(
 }
 
 async function rest(path: string, init?: RequestInit): Promise<{ status: number; body: unknown }> {
-  const res = await app.fetch(new Request(`http://localhost/rest${path}`, init));
+  const res = await app.fetch(new Request(`http://localhost/api/rest${path}`, init));
   const text = await res.text();
   let body: unknown = text;
   try {

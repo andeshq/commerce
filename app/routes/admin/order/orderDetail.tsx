@@ -59,7 +59,7 @@ export async function orderDetailLoader({ params }: { params: { id?: string } })
       .throwOnError(),
   ]);
 
-  if (!order.data) throw redirect("/admin/orders");
+  if (!order.data) throw redirect("/orders");
 
   return {
     order: order.data as Order,

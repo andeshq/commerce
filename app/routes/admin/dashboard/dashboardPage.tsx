@@ -1,15 +1,6 @@
 import { useMemo, useState } from "react";
-import {
-  Button,
-  Card,
-  Chip,
-  Dropdown,
-  Label,
-  Link,
-  ProgressBar,
-  SearchField,
-  Table,
-} from "@heroui/react";
+import { Button, Card, Chip, Dropdown, Label, ProgressBar, SearchField, Table } from "@heroui/react";
+import { Link } from "@/lib/link";
 import type { SortDescriptor } from "@heroui/react";
 import {
   Archive,
@@ -294,7 +285,7 @@ export function DashboardPage() {
                           <Table.Cell>
                             <Link
                               className="font-medium no-underline"
-                              href={`/admin/products/${product.id}`}
+                              href={`/products/${product.id}`}
                             >
                               {product.title}
                             </Link>

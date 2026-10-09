@@ -101,7 +101,7 @@ export async function productDetailLoader({ params }: LoaderFunctionArgs) {
       .throwOnError(),
   ]);
 
-  if (!product.data) throw redirect("/admin/products");
+  if (!product.data) throw redirect("/products");
 
   return {
     product: product.data as Product,
@@ -182,7 +182,7 @@ export async function productDetailAction({ request, params }: ActionFunctionArg
         await query.throwOnError();
       }
 
-      return redirect("/admin/products");
+      return redirect("/products");
     } catch (error) {
       return { errors: pgbaseErrorMessages(error) };
     }
@@ -191,7 +191,7 @@ export async function productDetailAction({ request, params }: ActionFunctionArg
   if (intent === "delete") {
     try {
       await pgbase.from("products").delete().eq("id", productId).throwOnError();
-      return redirect("/admin/products");
+      return redirect("/products");
     } catch (error) {
       return { errors: pgbaseErrorMessages(error) };
     }
@@ -200,7 +200,7 @@ export async function productDetailAction({ request, params }: ActionFunctionArg
   if (intent === "duplicate") {
     try {
       const newId = await duplicateProduct(productId);
-      return redirect(`/admin/products/${newId}`);
+      return redirect(`/products/${newId}`);
     } catch (error) {
       return { errors: pgbaseErrorMessages(error) };
     }

@@ -35,7 +35,7 @@ export async function modifierDetailLoader({ params }: LoaderFunctionArgs) {
     pgbase.from("product_modifier_groups").select("product_id").eq("group_id", id).throwOnError(),
   ]);
 
-  if (!group.data) throw redirect("/admin/modifiers");
+  if (!group.data) throw redirect("/modifiers");
 
   return {
     group: group.data as ModifierGroupWithValues,
@@ -139,7 +139,7 @@ export async function modifierDetailAction({ request, params }: ActionFunctionAr
         await pgbase.from("modifier_values").insert(added).throwOnError();
       }
 
-      return redirect("/admin/modifiers");
+      return redirect("/modifiers");
     } catch (error) {
       return { errors: pgbaseErrorMessages(error) };
     }
@@ -148,7 +148,7 @@ export async function modifierDetailAction({ request, params }: ActionFunctionAr
   if (intent === "delete") {
     try {
       await pgbase.from("modifier_groups").delete().eq("id", groupId).throwOnError();
-      return redirect("/admin/modifiers");
+      return redirect("/modifiers");
     } catch (error) {
       return { errors: pgbaseErrorMessages(error) };
     }

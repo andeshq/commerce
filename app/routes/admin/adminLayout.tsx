@@ -1,16 +1,8 @@
 import { useEffect, useRef, useState, type Key } from "react";
-import {
-  Avatar,
-  Button,
-  Dropdown,
-  Label,
-  Link,
-  SearchField,
-  Separator,
-} from "@heroui/react";
+import { Avatar, Button, Dropdown, Label, SearchField } from "@heroui/react";
+import { Link } from "@/lib/link";
 import {
   ArrowRightFromSquare,
-  ArrowUpRightFromSquare,
   Boxes3,
   ChevronDown,
   Cube,
@@ -57,27 +49,27 @@ export function useAdminStore(): Store | null {
 const NAV_GROUPS = [
   {
     label: "General",
-    links: [{ href: "/admin", label: "Dashboard", icon: LayoutHeaderCells }],
+    links: [{ href: "/", label: "Dashboard", icon: LayoutHeaderCells }],
   },
   {
     label: "Sales",
-    links: [{ href: "/admin/orders", label: "Orders", icon: Receipt }],
+    links: [{ href: "/orders", label: "Orders", icon: Receipt }],
   },
   {
     label: "Catalog",
     links: [
-      { href: "/admin/products", label: "Products", icon: Boxes3 },
-      { href: "/admin/inventory", label: "Inventory", icon: Cube },
-      { href: "/admin/options", label: "Options", icon: ListCheck },
-      { href: "/admin/modifiers", label: "Modifiers", icon: Sliders },
-      { href: "/admin/categories", label: "Categories", icon: FolderTree },
+      { href: "/products", label: "Products", icon: Boxes3 },
+      { href: "/inventory", label: "Inventory", icon: Cube },
+      { href: "/options", label: "Options", icon: ListCheck },
+      { href: "/modifiers", label: "Modifiers", icon: Sliders },
+      { href: "/categories", label: "Categories", icon: FolderTree },
     ],
   },
 ];
 
 const ADMIN_GROUP = {
   label: "System",
-  links: [{ href: "/admin/settings", label: "Settings", icon: Gear }],
+  links: [{ href: "/settings", label: "Settings", icon: Gear }],
 };
 
 export function AdminLayout() {
@@ -106,17 +98,16 @@ export function AdminLayout() {
   function handleSearch(value: string) {
     const term = value.trim();
     void navigate(
-      term ? `/admin/products?q=${encodeURIComponent(term)}` : "/admin/products",
+      term ? `/products?q=${encodeURIComponent(term)}` : "/products",
     );
   }
 
   function handleUserAction(key: Key) {
-    if (key === "storefront") window.open("/", "_blank", "noreferrer");
     if (key === "sign-out") void handleSignOut();
   }
 
   const isActive = (href: string) =>
-    href === "/admin" ? urlPathname === "/admin" : urlPathname.startsWith(href);
+    href === "/" ? urlPathname === "/" : urlPathname.startsWith(href);
 
   return (
     <div className="flex h-dvh flex-col overflow-hidden bg-background p-3 lg:p-5">
@@ -147,16 +138,6 @@ export function AdminLayout() {
           </div>
 
           <div className="ms-auto flex items-center gap-2">
-            <Link
-              className="flex items-center gap-1.5 rounded-full bg-surface-secondary px-3 py-2 text-sm font-medium text-foreground no-underline hover:bg-surface-tertiary"
-              href="/"
-              target="_blank"
-              rel="noreferrer"
-            >
-              <ArrowUpRightFromSquare className="size-4" />
-              <span className="hidden sm:inline">View store</span>
-            </Link>
-
             <Dropdown>
               <Button
                 className="h-auto gap-2 rounded-full py-1 pe-2 ps-1"
@@ -175,11 +156,6 @@ export function AdminLayout() {
               </Button>
               <Dropdown.Popover>
                 <Dropdown.Menu onAction={handleUserAction}>
-                  <Dropdown.Item id="storefront" textValue="Open storefront">
-                    <ArrowUpRightFromSquare className="size-4 shrink-0 text-muted" />
-                    <Label>Open storefront</Label>
-                  </Dropdown.Item>
-                  <Separator />
                   <Dropdown.Item id="sign-out" textValue="Sign out" variant="danger">
                     <ArrowRightFromSquare className="size-4 shrink-0 text-danger" />
                     <Label>Sign out</Label>

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { Button, Card, Chip, Dropdown, Label, Link, SearchField, Separator, Table } from "@heroui/react";
+import { Button, Card, Chip, Dropdown, Label, SearchField, Separator, Table } from "@heroui/react";
+import { Link } from "@/lib/link";
 import type { SortDescriptor } from "@heroui/react";
 import { BarsDescendingAlignLeft, EllipsisVertical, Picture } from "@gravity-ui/icons";
 import { useLoaderData, useRevalidator } from "react-router";
@@ -396,7 +397,7 @@ export function InventoryListing() {
                             )}
                             <Link
                               className="flex min-w-0 flex-1 flex-col items-start no-underline"
-                              href={`/admin/products/${row.productId}`}
+                              href={`/products/${row.productId}`}
                             >
                               <span className="truncate font-medium text-foreground">
                                 {row.productTitle}

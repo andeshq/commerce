@@ -31,7 +31,7 @@ export async function categoryDetailLoader({ params }: LoaderFunctionArgs) {
     pgbase.from("products").select("id").eq("category_id", id).throwOnError(),
   ]);
 
-  if (!category.data) throw redirect("/admin/categories");
+  if (!category.data) throw redirect("/categories");
 
   return {
     category: category.data as Category,
@@ -63,7 +63,7 @@ export async function categoryDetailAction({ request, params }: ActionFunctionAr
         })
         .eq("id", categoryId)
         .throwOnError();
-      return redirect("/admin/categories");
+      return redirect("/categories");
     } catch (error) {
       return { errors: pgbaseErrorMessages(error) };
     }
@@ -72,7 +72,7 @@ export async function categoryDetailAction({ request, params }: ActionFunctionAr
   if (intent === "delete") {
     try {
       await pgbase.from("categories").delete().eq("id", categoryId).throwOnError();
-      return redirect("/admin/categories");
+      return redirect("/categories");
     } catch (error) {
       return { errors: pgbaseErrorMessages(error) };
     }

@@ -69,34 +69,38 @@ the environment.
 
 ## API
 
-Everything is same-origin REST. Catalog and order reads (and every write that
-goes through the database) use **pgbase** under `/rest`, which speaks the
-PostgREST protocol — so use `@supabase/postgrest-js` unchanged. The few things
-pgbase doesn't cover (payments, media, setup) are plain **`fetch`** calls under
-`/api`.
+Everything is same-origin. The admin UI is served at `/_`; the API lives under
+`/api`. Catalog and order reads (and every write that goes through the database)
+use **pgbase** under `/api/rest`, which speaks the PostgREST protocol — so use
+`@supabase/postgrest-js` unchanged. The few things pgbase doesn't cover
+(payments, media, setup) are plain **`fetch`** calls under `/api`.
 
 | Endpoint | Purpose | Client |
 | --- | --- | --- |
-| `GET /rest/storefront_products` | Product list — filter, `order`, `limit`, `search=plfts(spanish).term` | postgrest-js `.from()` |
-| `GET /rest/storefront_categories` | Categories with product counts | postgrest-js `.from()` |
-| `POST /rest/rpc/storefront_product` `{ p_slug }` | Full product page (variants, options, modifiers) | postgrest-js `.rpc()` |
-| `POST /rest/rpc/cart_create` `{ p_email? }` | New cart → `{ id, token }` | postgrest-js `.rpc()` |
-| `POST /rest/rpc/cart_add_item` `{ p_token, p_variant, p_quantity? }` | Add or increment a line | postgrest-js `.rpc()` |
-| `POST /rest/rpc/cart_update_item` `{ p_token, p_item, p_quantity }` | Set a line's quantity (`0` removes it) | postgrest-js `.rpc()` |
-| `POST /rest/rpc/cart_remove_item` `{ p_token, p_item }` | Remove a line | postgrest-js `.rpc()` |
-| `POST /rest/rpc/cart_get` `{ p_token }` | Cart with live prices and availability | postgrest-js `.rpc()` |
-| `POST /rest/rpc/checkout` `{ p_cart_token, p_email?, p_shipping_address?, … }` | Cart → order (idempotent) | postgrest-js `.rpc()` |
-| `POST /rest/rpc/order_get` `{ p_token }` | An order by its access token | postgrest-js `.rpc()` |
+| `GET /api/rest/storefront_products` | Product list — filter, `order`, `limit`, `search=plfts(spanish).term` | postgrest-js `.from()` |
+| `GET /api/rest/storefront_categories` | Categories with product counts | postgrest-js `.from()` |
+| `POST /api/rest/rpc/storefront_product` `{ p_slug }` | Full product page (variants, options, modifiers) | postgrest-js `.rpc()` |
+| `POST /api/rest/rpc/cart_create` `{ p_email? }` | New cart → `{ id, token }` | postgrest-js `.rpc()` |
+| `POST /api/rest/rpc/cart_add_item` `{ p_token, p_variant, p_quantity? }` | Add or increment a line | postgrest-js `.rpc()` |
+| `POST /api/rest/rpc/cart_update_item` `{ p_token, p_item, p_quantity }` | Set a line's quantity (`0` removes it) | postgrest-js `.rpc()` |
+| `POST /api/rest/rpc/cart_remove_item` `{ p_token, p_item }` | Remove a line | postgrest-js `.rpc()` |
+| `POST /api/rest/rpc/cart_get` `{ p_token }` | Cart with live prices and availability | postgrest-js `.rpc()` |
+| `POST /api/rest/rpc/checkout` `{ p_cart_token, p_email?, p_shipping_address?, … }` | Cart → order (idempotent) | postgrest-js `.rpc()` |
+| `POST /api/rest/rpc/order_get` `{ p_token }` | An order by its access token | postgrest-js `.rpc()` |
+| `GET /api/setup/status` | Whether first-run setup is still needed | `fetch` |
+| `POST /api/setup` `{ email, password, name, storeName, … }` | First-run bootstrap (admin + store) | `fetch` |
+| `POST /api/media` (multipart) | Upload an image (staff) | `fetch` |
+| `GET /api/media/files/:file` | Image bytes (public) | `fetch` / `<img>` |
 | `GET /api/payments/methods` | Enabled gateways for a storefront | `fetch` |
 | `POST /api/checkout/:orderToken/pay` `{ provider?, method? }` | Start a payment → intent | `fetch` |
 | `POST /api/payments/:provider/webhook` | Gateway webhook (no session) | `fetch` (gateway) |
 | `POST /api/orders/:id/refund` | Refund an order (staff) | `fetch` |
-| `GET /rest/orders`, `/rest/products`, … | Admin reads/writes over exposed tables | postgrest-js |
+| `GET /api/rest/orders`, `/api/rest/products`, … | Admin reads/writes over exposed tables | postgrest-js |
 
 ```ts
 import { PostgrestClient } from "@supabase/postgrest-js";
 
-const db = new PostgrestClient("https://your.domain/rest");
+const db = new PostgrestClient("https://your.domain/api/rest");
 
 // Catalog: plain PostgREST query builders.
 const { data: products } = await db

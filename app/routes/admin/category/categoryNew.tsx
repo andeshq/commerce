@@ -42,7 +42,7 @@ export async function categoryNewAction({ request }: ActionFunctionArgs) {
         position: (siblings.data ?? []).length,
       })
       .throwOnError();
-    return redirect("/admin/categories");
+    return redirect("/categories");
   } catch (error) {
     return { errors: pgbaseErrorMessages(error) };
   }

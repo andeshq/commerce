@@ -31,7 +31,7 @@ async function rpc(
   body: Record<string, unknown>,
   cookie?: string,
 ): Promise<{ status: number; body: any }> {
-  const res = await app.fetch(new Request(`http://localhost/rest/rpc/${name}`, json(body, cookie)));
+  const res = await app.fetch(new Request(`http://localhost/api/rest/rpc/${name}`, json(body, cookie)));
   const text = await res.text();
   try {
     return { status: res.status, body: JSON.parse(text) };

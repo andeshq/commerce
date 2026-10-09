@@ -73,7 +73,7 @@ export class MediaService {
         .insertInto("media")
         .values({
           id,
-          url: `/media/${filename}`,
+          url: `/api/media/files/${filename}`,
           alt: typeof alt === "string" && alt.trim() ? alt.trim() : null,
           content_type: file.type,
           width: dimensions.width,

@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
-import { Button, Card, Dropdown, Label, Link, SearchField, Table } from "@heroui/react";
+import { Button, Card, Dropdown, Label, SearchField, Table } from "@heroui/react";
+import { Link } from "@/lib/link";
 import type { SortDescriptor } from "@heroui/react";
 import { BarsDescendingAlignLeft, ChevronRight, Plus } from "@gravity-ui/icons";
 import { useLoaderData, useNavigate } from "react-router";
@@ -130,7 +131,7 @@ export function CategoryListing() {
         title="Categories"
         description="Group products for your storefront and reports."
         actions={
-          <Button size="sm" onPress={() => navigate("/admin/categories/new")}>
+          <Button size="sm" onPress={() => navigate("/categories/new")}>
             <Plus className="size-4" />
             New category
           </Button>
@@ -256,7 +257,7 @@ export function CategoryListing() {
                               )}
                               <Link
                                 className="flex flex-col no-underline"
-                                href={`/admin/categories/${row.id}`}
+                                href={`/categories/${row.id}`}
                               >
                                 <span className="font-medium text-foreground">{row.name}</span>
                                 <span className="text-xs text-muted">{row.slug}</span>
@@ -270,7 +271,7 @@ export function CategoryListing() {
                           <Table.Cell className="text-end">
                             <Link
                               className="text-sm font-medium no-underline"
-                              href={`/admin/categories/${row.id}`}
+                              href={`/categories/${row.id}`}
                             >
                               Edit
                             </Link>

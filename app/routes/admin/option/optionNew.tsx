@@ -39,7 +39,7 @@ export async function optionNewAction({ request }: ActionFunctionArgs) {
         })),
       })
       .throwOnError();
-    return redirect("/admin/options");
+    return redirect("/options");
   } catch (error) {
     return { errors: pgbaseErrorMessages(error) };
   }

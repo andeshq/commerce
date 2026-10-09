@@ -1,15 +1,6 @@
 import { Fragment, useEffect, useMemo, useState } from "react";
-import {
-  Button,
-  Card,
-  Checkbox,
-  Chip,
-  Dropdown,
-  Label,
-  Link,
-  SearchField,
-  Table,
-} from "@heroui/react";
+import { Button, Card, Checkbox, Chip, Dropdown, Label, SearchField, Table } from "@heroui/react";
+import { Link } from "@/lib/link";
 import type { SortDescriptor } from "@heroui/react";
 import {
   ArrowDownToLine,
@@ -398,7 +389,7 @@ export function ProductListing() {
               <ArrowDownToLine className="size-4" />
               Export
             </Button>
-            <Button size="sm" onPress={() => navigate("/admin/products/new")}>
+            <Button size="sm" onPress={() => navigate("/products/new")}>
               <Plus className="size-4" />
               New product
             </Button>
@@ -654,7 +645,7 @@ export function ProductListing() {
                                 )}
                                 <Link
                                   className="flex min-w-0 flex-1 flex-col items-start no-underline"
-                                  href={`/admin/products/${product.id}`}
+                                  href={`/products/${product.id}`}
                                 >
                                   <span className="truncate font-medium text-foreground">
                                     {product.title}
@@ -692,7 +683,7 @@ export function ProductListing() {
                             <Table.Cell className="text-end">
                               <Link
                                 className="text-sm font-medium no-underline"
-                                href={`/admin/products/${product.id}`}
+                                href={`/products/${product.id}`}
                               >
                                 Edit
                               </Link>

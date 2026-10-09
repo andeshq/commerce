@@ -28,7 +28,7 @@ export async function optionDetailLoader({ params }: LoaderFunctionArgs) {
     pgbase.from("product_options").select("product_id").eq("option_id", id).throwOnError(),
   ]);
 
-  if (!option.data) throw redirect("/admin/options");
+  if (!option.data) throw redirect("/options");
 
   return {
     option: option.data as OptionWithValues,
@@ -108,7 +108,7 @@ export async function optionDetailAction({ request, params }: ActionFunctionArgs
         await pgbase.from("option_values").insert(added).throwOnError();
       }
 
-      return redirect("/admin/options");
+      return redirect("/options");
     } catch (error) {
       return { errors: pgbaseErrorMessages(error) };
     }
@@ -117,7 +117,7 @@ export async function optionDetailAction({ request, params }: ActionFunctionArgs
   if (intent === "delete") {
     try {
       await pgbase.from("options").delete().eq("id", optionId).throwOnError();
-      return redirect("/admin/options");
+      return redirect("/options");
     } catch (error) {
       return { errors: pgbaseErrorMessages(error) };
     }

@@ -44,6 +44,7 @@ export class App {
     });
 
     app.get("/health", (c) => c.json({ status: "ok" }));
+    app.get("/api/health", (c) => c.json({ status: "ok" }));
 
     // Bootstrap. Open until the first admin exists, then 409 forever.
     app.get("/api/setup/status", async (c) =>
@@ -67,7 +68,7 @@ export class App {
       await media.remove(c.req.param("id"));
       return c.body(null, 204);
     });
-    app.get("/media/:file", async (c) => {
+    app.get("/api/media/files/:file", async (c) => {
       const file = await media.file(c.req.param("file"));
       if (!file) return c.notFound();
       return new Response(file, {
@@ -114,10 +115,13 @@ export class App {
 
     app.all(`${config.basePath}/*`, (c) => pgbase.handler(c.req.raw));
 
-    // Production: serve the built admin UI from the same origin. Real files win;
-    // anything else falls back to index.html so client-side routes resolve.
+    // Production: serve the built admin UI (mounted at `/_`) from the same
+    // origin. Real files win; anything else falls back to index.html so
+    // client-side routes resolve.
     if (config.serveStatic) {
-      app.get("*", serveApp(config.staticDir));
+      app.get("/", (c) => c.redirect("/_/"));
+      app.get("/_", (c) => c.redirect("/_/"));
+      app.get("/_/*", serveApp(config.staticDir));
     }
 
     this.hono = app;
@@ -135,7 +139,8 @@ export class App {
 function serveApp(root: string) {
   return async (c: Context) => {
     const pathname = decodeURIComponent(new URL(c.req.url).pathname);
-    const relative = pathname.replace(/^\/+/, "");
+    // Requests arrive under the app mount (`/_`); strip it before resolving.
+    const relative = pathname.replace(/^\/_/, "").replace(/^\/+/, "");
     const target = normalize(join(root, relative));
     if (target !== root && !target.startsWith(root + sep)) return c.notFound();
 

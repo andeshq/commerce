@@ -29,7 +29,7 @@ function cookieFrom(res: Response): string {
 }
 
 async function rest(path: string, init?: RequestInit): Promise<{ status: number; body: any }> {
-  const res = await app.fetch(new Request(`http://localhost/rest${path}`, init));
+  const res = await app.fetch(new Request(`http://localhost/api/rest${path}`, init));
   const text = await res.text();
   try {
     return { status: res.status, body: JSON.parse(text) };

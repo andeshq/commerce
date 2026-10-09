@@ -52,7 +52,7 @@ describe("setup failure and concurrency", () => {
     expect(await status.json()).toEqual({ needsSetup: true });
 
     const settings = await app.fetch(
-      new Request("http://localhost/rest/store_settings?select=name"),
+      new Request("http://localhost/api/rest/store_settings?select=name"),
     );
     expect(settings.status).toBe(200);
     expect(await settings.json()).toEqual([]);

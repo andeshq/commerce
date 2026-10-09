@@ -5,7 +5,7 @@ import { PostgrestClient } from "@supabase/postgrest-js";
  * Requests hit the app origin (proxied to the API); fetch's default
  * `credentials: "same-origin"` sends the session cookie.
  */
-export const pgbase = new PostgrestClient(`${window.location.origin}/rest`);
+export const pgbase = new PostgrestClient(`${window.location.origin}/api/rest`);
 
 function isPostgrestError(
   error: unknown,

@@ -18,7 +18,7 @@ type SignInValues = z.infer<typeof signInSchema>;
 /** Signed-in staff skip the form. */
 export async function signInLoader() {
   const user = await getSession();
-  if (isStaff(user)) throw redirect("/admin");
+  if (isStaff(user)) throw redirect("/");
   return null;
 }
 
@@ -41,7 +41,7 @@ export function SignInPage() {
     setErrors([]);
     try {
       await signIn(values.email, values.password);
-      await navigate("/admin");
+      await navigate("/");
     } catch (error) {
       setErrors(authErrorMessages(error));
     }
@@ -126,12 +126,6 @@ export function SignInPage() {
               </Button>
             </form>
           </Card.Content>
-
-          <Card.Footer className="flex flex-col gap-3">
-            <a className="text-center text-sm text-muted hover:text-foreground" href="/">
-              Back to store
-            </a>
-          </Card.Footer>
         </Card>
       </div>
     </main>

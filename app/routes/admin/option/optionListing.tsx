@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
-import { Button, Card, Chip, Dropdown, Label, Link, SearchField, Table } from "@heroui/react";
+import { Button, Card, Chip, Dropdown, Label, SearchField, Table } from "@heroui/react";
+import { Link } from "@/lib/link";
 import type { SortDescriptor } from "@heroui/react";
 import { BarsDescendingAlignLeft, Plus } from "@gravity-ui/icons";
 import { useLoaderData, useNavigate } from "react-router";
@@ -96,7 +97,7 @@ export function OptionListing() {
         title="Options"
         description="Reusable attributes — define once, link from any product."
         actions={
-          <Button size="sm" onPress={() => navigate("/admin/options/new")}>
+          <Button size="sm" onPress={() => navigate("/options/new")}>
             <Plus className="size-4" />
             New option
           </Button>
@@ -199,7 +200,7 @@ export function OptionListing() {
                         <Table.Cell>
                           <Link
                             className="font-medium no-underline"
-                            href={`/admin/options/${option.id}`}
+                            href={`/options/${option.id}`}
                           >
                             {option.name}
                           </Link>
@@ -222,7 +223,7 @@ export function OptionListing() {
                         <Table.Cell className="text-end">
                           <Link
                             className="text-sm font-medium no-underline"
-                            href={`/admin/options/${option.id}`}
+                            href={`/options/${option.id}`}
                           >
                             Edit
                           </Link>

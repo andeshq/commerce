@@ -7,6 +7,7 @@ import { defineConfig } from "vite";
 const root = fileURLToPath(new URL(".", import.meta.url)).replace(/\/$/, "");
 
 export default defineConfig({
+  base: "/_/",
   plugins: [react(), tailwindcss()],
   resolve: {
     // `@/` → app root. Regex form keeps scoped packages like @heroui/react intact.
@@ -17,8 +18,6 @@ export default defineConfig({
     strictPort: true,
     proxy: {
       "/api": "http://localhost:8080",
-      "/media": "http://localhost:8080",
-      "/rest": "http://localhost:8080",
     },
   },
 });

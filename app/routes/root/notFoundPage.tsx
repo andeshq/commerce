@@ -12,7 +12,7 @@ export function NotFoundPage() {
           <Card.Description>That address does not exist in this app.</Card.Description>
         </Card.Header>
         <Card.Footer>
-          <Button onPress={() => navigate("/")}>Back to store</Button>
+          <Button onPress={() => navigate("/")}>Back to dashboard</Button>
         </Card.Footer>
       </Card>
     </main>

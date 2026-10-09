@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
-import { Button, Card, Chip, Dropdown, Label, Link, SearchField, Table } from "@heroui/react";
+import { Button, Card, Chip, Dropdown, Label, SearchField, Table } from "@heroui/react";
+import { Link } from "@/lib/link";
 import type { SortDescriptor } from "@heroui/react";
 import { BarsDescendingAlignLeft } from "@gravity-ui/icons";
 import { useLoaderData } from "react-router";
@@ -250,7 +251,7 @@ export function OrderListing() {
                         <Table.Cell>
                           <Link
                             className="font-medium no-underline"
-                            href={`/admin/orders/${order.id}`}
+                            href={`/orders/${order.id}`}
                           >
                             #{order.number}
                           </Link>
