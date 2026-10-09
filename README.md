@@ -67,6 +67,62 @@ Four environment variables, nothing else:
 Currency, locale, tax and the first admin are chosen at first-run setup, not from
 the environment.
 
+## API
+
+Everything is same-origin REST. Catalog and order reads (and every write that
+goes through the database) use **pgbase** under `/rest`, which speaks the
+PostgREST protocol — so use `@supabase/postgrest-js` unchanged. The few things
+pgbase doesn't cover (payments, media, setup) are plain **`fetch`** calls under
+`/api`.
+
+| Endpoint | Purpose | Client |
+| --- | --- | --- |
+| `GET /rest/storefront_products` | Product list — filter, `order`, `limit`, `search=plfts(spanish).term` | postgrest-js `.from()` |
+| `GET /rest/storefront_categories` | Categories with product counts | postgrest-js `.from()` |
+| `POST /rest/rpc/storefront_product` `{ p_slug }` | Full product page (variants, options, modifiers) | postgrest-js `.rpc()` |
+| `POST /rest/rpc/cart_create` `{ p_email? }` | New cart → `{ id, token }` | postgrest-js `.rpc()` |
+| `POST /rest/rpc/cart_add_item` `{ p_token, p_variant, p_quantity? }` | Add or increment a line | postgrest-js `.rpc()` |
+| `POST /rest/rpc/cart_update_item` `{ p_token, p_item, p_quantity }` | Set a line's quantity (`0` removes it) | postgrest-js `.rpc()` |
+| `POST /rest/rpc/cart_remove_item` `{ p_token, p_item }` | Remove a line | postgrest-js `.rpc()` |
+| `POST /rest/rpc/cart_get` `{ p_token }` | Cart with live prices and availability | postgrest-js `.rpc()` |
+| `POST /rest/rpc/checkout` `{ p_cart_token, p_email?, p_shipping_address?, … }` | Cart → order (idempotent) | postgrest-js `.rpc()` |
+| `POST /rest/rpc/order_get` `{ p_token }` | An order by its access token | postgrest-js `.rpc()` |
+| `GET /api/payments/methods` | Enabled gateways for a storefront | `fetch` |
+| `POST /api/checkout/:orderToken/pay` `{ provider?, method? }` | Start a payment → intent | `fetch` |
+| `POST /api/payments/:provider/webhook` | Gateway webhook (no session) | `fetch` (gateway) |
+| `POST /api/orders/:id/refund` | Refund an order (staff) | `fetch` |
+| `GET /rest/orders`, `/rest/products`, … | Admin reads/writes over exposed tables | postgrest-js |
+
+```ts
+import { PostgrestClient } from "@supabase/postgrest-js";
+
+const db = new PostgrestClient("https://your.domain/rest");
+
+// Catalog: plain PostgREST query builders.
+const { data: products } = await db
+  .from("storefront_products")
+  .select("slug,title,price_min_cents,image_url,in_stock")
+  .eq("category_slug", "ropa")
+  .order("price_min_cents", { ascending: true })
+  .limit(24);
+
+// Cart & checkout are database functions (RPC).
+const { data } = await db.rpc("cart_create", {});
+const token = data[0].token; // scalar jsonb/table results come back as an array
+await db.rpc("cart_add_item", { p_token: token, p_variant: variantId, p_quantity: 1 });
+
+// Payments are plain fetch under /api.
+const res = await fetch(`https://your.domain/api/checkout/${accessToken}/pay`, {
+  method: "POST",
+  headers: { "content-type": "application/json" },
+  body: JSON.stringify({ provider: "wompi" }),
+});
+```
+
+Two gotchas: RPCs that return a scalar (jsonb) come back as a **one-element
+array** — unwrap `[0]` — and money columns are **text** (cast embedded money as
+`price_cents::text`).
+
 ## Deployment
 
 One container serves the API and the built admin UI from a single origin — no
