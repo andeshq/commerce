@@ -44,6 +44,12 @@ services:
         condition: service_healthy
     volumes:
       - media_data:/app/api/storage/media
+    healthcheck:
+      test: ["CMD", "/app/server", "healthcheck"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
 
 volumes:
   database_data:

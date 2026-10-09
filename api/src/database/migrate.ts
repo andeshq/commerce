@@ -19,16 +19,15 @@ import {
  * roles/policies. This is the DDL connection, separate from the impersonated
  * `web_*` roles the app uses at runtime.
  */
-type Direction = "up" | "down" | "list";
+export type MigrateDirection = "up" | "down" | "list";
 
-async function main(): Promise<void> {
+export async function runMigrateCli(direction: MigrateDirection = "up"): Promise<void> {
   const connectionString = process.env.DATABASE_URL;
   if (!connectionString) {
     console.error("DATABASE_URL is required to run migrations.");
     process.exit(1);
   }
 
-  const direction = (process.argv[2] ?? "up") as Direction;
   const db = createMigrationDatabase(connectionString);
 
   try {
@@ -62,4 +61,6 @@ async function main(): Promise<void> {
   }
 }
 
-await main();
+if (import.meta.main) {
+  await runMigrateCli((process.argv[2] ?? "up") as MigrateDirection);
+}

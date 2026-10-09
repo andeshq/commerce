@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-# ---- build: install everything and build the admin UI ----
+# ---- build: install everything, build the admin UI, compile the API ----
 FROM oven/bun:1-slim AS build
 WORKDIR /app
 COPY package.json bun.lock ./
@@ -9,20 +9,19 @@ COPY app/package.json app/
 RUN bun install --frozen-lockfile
 COPY . .
 RUN bun run -F commerce-app build
+# NODE_ENV is inlined by Bun's bundler, so it must be set here (not only at run
+# time) for the binary to serve the built UI in production.
+RUN NODE_ENV=production bun build --compile --minify --target=bun \
+    api/src/cli.ts --outfile dist/server
 
-# ---- runtime: the API serves the built UI from the same origin ----
-FROM oven/bun:1-slim AS runtime
+# ---- runtime: one self-contained binary on a minimal base ----
+FROM gcr.io/distroless/base-debian12 AS runtime
 WORKDIR /app
 ENV NODE_ENV=production
-COPY package.json bun.lock ./
-COPY api/package.json api/
-COPY app/package.json app/
-RUN bun install --production --frozen-lockfile
-COPY api/src api/src
-COPY api/scripts api/scripts
-COPY api/tsconfig.json api/
-COPY api/bunfig.toml api/
-COPY --from=build /app/app/dist app/dist
+COPY --from=build /app/dist/server /app/server
+COPY --from=build /app/app/dist /app/app/dist
 EXPOSE 8080
-# Migrations are idempotent and database-locked, so a fresh deploy self-applies.
-CMD ["sh", "-c", "bun run -F commerce-api migrate && bun run -F commerce-api start"]
+# `serve` applies migrations (idempotent and database-locked) then starts, so a
+# fresh deploy self-applies without a shell or a second process.
+ENTRYPOINT ["/app/server"]
+CMD ["serve"]

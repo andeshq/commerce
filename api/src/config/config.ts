@@ -1,7 +1,7 @@
 import { existsSync } from "node:fs";
-import { fileURLToPath } from "node:url";
 import { z } from "zod";
 import { singleton } from "tsyringe";
+import { STATIC_DIR } from "../lib/paths.ts";
 
 const envSchema = z.object({
   DATABASE_URL: z.string().min(1, "DATABASE_URL is required"),
@@ -28,12 +28,6 @@ export const ORDER_EXPIRY_MINUTES = 30;
 
 /** How often the maintenance sweep runs (safe to run on every replica). */
 export const MAINTENANCE_INTERVAL_MS = 5 * 60 * 1000;
-
-/**
- * The built admin UI (`app/dist`). In production the API serves it directly, so
- * the app and API share an origin; in development Vite serves it instead.
- */
-export const STATIC_DIR = fileURLToPath(new URL("../../../app/dist", import.meta.url));
 
 /**
  * Relations pgbase may serve. Default-deny: a new table is not reachable until

@@ -13,27 +13,33 @@ import "./service/setup.service.ts";
 import "./service/media.service.ts";
 import { MaintenanceService } from "./service/maintenance.service.ts";
 
-const config = container.resolve(Config);
-const database = container.resolve(Database);
-const app = container.resolve(App);
-const maintenance = container.resolve(MaintenanceService);
+export async function startServer(): Promise<void> {
+  const config = container.resolve(Config);
+  const database = container.resolve(Database);
+  const app = container.resolve(App);
+  const maintenance = container.resolve(MaintenanceService);
 
-maintenance.start();
+  maintenance.start();
 
-const server = Bun.serve({ port: config.port, fetch: app.fetch });
+  const server = Bun.serve({ port: config.port, fetch: app.fetch });
 
-console.log(`[commerce] listening on ${server.url}`);
-console.log(`[commerce] auth  ${config.baseUrl}/api/auth`);
-console.log(`[commerce] rest  ${config.baseUrl}${config.basePath}`);
+  console.log(`[commerce] listening on ${server.url}`);
+  console.log(`[commerce] auth  ${config.baseUrl}/api/auth`);
+  console.log(`[commerce] rest  ${config.baseUrl}${config.basePath}`);
 
-const shutdown = async (signal: string) => {
-  console.log(`[commerce] ${signal} received, shutting down`);
-  maintenance.stop();
-  server.stop(true);
-  await database.destroy();
-  await container.dispose();
-  process.exit(0);
-};
+  const shutdown = async (signal: string) => {
+    console.log(`[commerce] ${signal} received, shutting down`);
+    maintenance.stop();
+    server.stop(true);
+    await database.destroy();
+    await container.dispose();
+    process.exit(0);
+  };
 
-process.on("SIGINT", () => void shutdown("SIGINT"));
-process.on("SIGTERM", () => void shutdown("SIGTERM"));
+  process.on("SIGINT", () => void shutdown("SIGINT"));
+  process.on("SIGTERM", () => void shutdown("SIGTERM"));
+}
+
+if (import.meta.main) {
+  await startServer();
+}

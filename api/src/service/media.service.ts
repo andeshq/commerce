@@ -1,8 +1,9 @@
 import { singleton } from "tsyringe";
 import { HTTPException } from "hono/http-exception";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import { mkdir, unlink } from "node:fs/promises";
 import { Database } from "../database/database.ts";
+import { MEDIA_DIR } from "../lib/paths.ts";
 
 const MAX_BYTES = 10 * 1024 * 1024;
 
@@ -32,7 +33,7 @@ export interface MediaRow {
  */
 @singleton()
 export class MediaService {
-  private readonly directory = fileURLToPath(new URL("../../storage/media/", import.meta.url));
+  private readonly directory = MEDIA_DIR;
 
   constructor(private readonly database: Database) {}
 
@@ -59,7 +60,7 @@ export class MediaService {
     const alt = form.get("alt");
 
     await mkdir(this.directory, { recursive: true });
-    await Bun.write(this.directory + filename, bytes);
+    await Bun.write(join(this.directory, filename), bytes);
 
     const dimensions = await new Bun.Image(bytes)
       .metadata()
@@ -84,7 +85,7 @@ export class MediaService {
       return row as MediaRow;
     } catch (error) {
       // Never leave bytes on disk without their row.
-      await unlink(this.directory + filename).catch(() => {});
+      await unlink(join(this.directory, filename)).catch(() => {});
       throw error;
     }
   }
@@ -102,13 +103,13 @@ export class MediaService {
 
     const filename = row.url.split("/").pop();
     if (filename && FILENAME.test(filename)) {
-      await unlink(this.directory + filename).catch(() => {});
+      await unlink(join(this.directory, filename)).catch(() => {});
     }
   }
 
   async file(name: string): Promise<Bun.BunFile | null> {
     if (!FILENAME.test(name)) return null;
-    const file = Bun.file(this.directory + name);
+    const file = Bun.file(join(this.directory, name));
     return (await file.exists()) ? file : null;
   }
 }

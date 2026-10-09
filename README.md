@@ -126,7 +126,9 @@ array** — unwrap `[0]` — and money columns are **text** (cast embedded money
 ## Deployment
 
 One container serves the API and the built admin UI from a single origin — no
-separate web server or proxy.
+separate web server or proxy. The API is compiled to a single self-contained
+binary and runs on a minimal (distroless) base, so there is no Bun runtime or
+`node_modules` at run time and the migrations are bundled in.
 
 ```bash
 docker build -t commerce .

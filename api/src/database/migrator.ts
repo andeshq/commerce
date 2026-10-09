@@ -1,9 +1,8 @@
-import { promises as fs } from "node:fs";
-import * as path from "node:path";
 import { SQL } from "bun";
 import { Kysely } from "kysely";
-import { FileMigrationProvider, Migrator } from "kysely/migration";
+import { Migrator } from "kysely/migration";
 import { PostgresJSDialect } from "kysely-postgres-js";
+import { StaticMigrationProvider } from "./migrations/index.ts";
 
 export type MigrationDirection = "up" | "down";
 
@@ -13,15 +12,11 @@ export interface MigrationResult {
   status: "Success" | "Error" | "NotExecuted";
 }
 
-/** Build a Migrator over the migrations folder in this directory. */
+/** Build a Migrator over the statically imported migrations. */
 export function createMigrator(db: Kysely<any>): Migrator {
   return new Migrator({
     db,
-    provider: new FileMigrationProvider({
-      fs,
-      path,
-      migrationFolder: path.join(import.meta.dir, "migrations"),
-    }),
+    provider: new StaticMigrationProvider(),
   });
 }
 
