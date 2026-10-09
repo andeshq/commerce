@@ -37,7 +37,8 @@ services:
       # Public origin: the API also serves the admin UI, so this is the app too.
       BASE_URL: ${BASE_URL:-http://localhost:3000}
     ports:
-      - "3000:3000"
+      # Override with API_PORT when :3000 is taken (then set BASE_URL to match).
+      - "${API_PORT:-3000}:3000"
     depends_on:
       database:
         condition: service_healthy
