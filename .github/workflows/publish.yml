@@ -25,6 +25,12 @@ jobs:
           bun-version: latest
       - run: bun install --frozen-lockfile
       - run: bun run typecheck
+      # Authenticate so testcontainers' Postgres pull isn't Docker Hub rate-limited.
+      - uses: docker/login-action@v3
+        with:
+          registry: docker.io
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
       # Tests spin their own Postgres via testcontainers (Docker is on the runner).
       - run: bun test
 
@@ -44,6 +50,13 @@ jobs:
       # GHCR requires a lowercase image name.
       - id: image
         run: echo "name=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
+
+      # Docker Hub login so the base image pull isn't rate-limited.
+      - uses: docker/login-action@v3
+        with:
+          registry: docker.io
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - uses: docker/login-action@v3
         with:

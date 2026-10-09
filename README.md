@@ -138,7 +138,8 @@ cookies stay first-party. Uploaded media lives on local disk — mount a volume
 (compose does) or swap in object storage.
 
 Images are published to GitHub Container Registry by
-`.github/workflows/publish.yml` on `main` and `v*` tags:
+`.github/workflows/publish.yml` on `main` and `v*` tags, tagged by branch
+(`main`), `sha-<short>`, and the version for `v*` tags:
 
 ```bash
 docker run -p 3000:3000 \
@@ -147,11 +148,15 @@ docker run -p 3000:3000 \
   -e PORT=3000 \
   -e BASE_URL=https://your.domain \
   -v commerce-media:/app/api/storage/media \
-  ghcr.io/<owner>/<repo>:latest
+  ghcr.io/<owner>/<repo>:main
 ```
 
 GHCR packages start private; flip the visibility in the package settings for
 anonymous pulls.
+
+CI needs two repo secrets so Docker Hub pulls aren't rate-limited (the test job
+pulls Postgres, the build pulls the base image): `DOCKERHUB_USERNAME` and
+`DOCKERHUB_TOKEN` — a free Docker Hub account and a read-only access token.
 
 ## Roadmap
 
