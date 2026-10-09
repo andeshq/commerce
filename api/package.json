@@ -1,0 +1,34 @@
+{
+  "name": "commerce-api",
+  "module": "src/main.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "bun run --watch src/main.ts",
+    "start": "bun run src/main.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "bun test",
+    "test:watch": "bun test --watch",
+    "migrate": "bun run src/database/migrate.ts up",
+    "migrate:down": "bun run src/database/migrate.ts down",
+    "migrate:list": "bun run src/database/migrate.ts list",
+    "seed:media": "bun run scripts/seed-media.ts",
+    "seed:inventory": "bun run scripts/seed-inventory.ts",
+    "seed:orders": "bun run scripts/seed-orders.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "testcontainers": "^12.2.0",
+    "typescript": "^7.0.2"
+  },
+  "dependencies": {
+    "better-auth": "^1.7.7",
+    "hono": "^4.13.13",
+    "kysely": "^0.29.6",
+    "kysely-postgres-js": "^5.0.1",
+    "pgbase": "github:andeshq/pgbase",
+    "reflect-metadata": "^0.2.2",
+    "tsyringe": "^4.10.0",
+    "zod": "^4.6.5"
+  }
+}

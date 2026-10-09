@@ -1,0 +1,49 @@
+services:
+  database:
+    image: postgres:18-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: commerce
+    ports:
+      - "5432:5432"
+    volumes:
+      - database_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  mailpit:
+    image: axllent/mailpit:latest
+    restart: unless-stopped
+    ports:
+      - "1025:1025" # SMTP
+      - "8025:8025" # web UI
+    healthcheck:
+      test: ["CMD", "/mailpit", "readyz"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build: .
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@database:5432/commerce
+      AUTH_SECRET: ${AUTH_SECRET:-dev-secret-change-me-32-characters-min}
+      PORT: 3000
+      # Public origin: the API also serves the admin UI, so this is the app too.
+      BASE_URL: ${BASE_URL:-http://localhost:3000}
+    ports:
+      - "3000:3000"
+    depends_on:
+      database:
+        condition: service_healthy
+    volumes:
+      - media_data:/app/api/storage/media
+
+volumes:
+  database_data:
+  media_data:

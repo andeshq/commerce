@@ -1,0 +1,11 @@
+node_modules
+**/node_modules
+app/dist
+dist
+api/storage
+.git
+.gitignore
+coverage
+*.log
+.DS_Store
+.idea

@@ -1,0 +1,19 @@
+{
+  "name": "commerce",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "api",
+    "app"
+  ],
+  "scripts": {
+    "dev": "bun run -F '*' dev",
+    "build": "bun run -F commerce-app build",
+    "typecheck": "bun run -F '*' typecheck",
+    "test": "bun run -F commerce-api test",
+    "test:watch": "bun run -F commerce-api test:watch",
+    "migrate": "bun run -F commerce-api migrate",
+    "migrate:down": "bun run -F commerce-api migrate:down",
+    "migrate:list": "bun run -F commerce-api migrate:list"
+  }
+}
