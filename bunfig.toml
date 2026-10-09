@@ -1,0 +1,4 @@
+[test]
+# Root `bun test` discovers the workspace tests; load the same preload the api
+# package uses (Reflect metadata + Docker socket detection for testcontainers).
+preload = ["./api/test/preload.ts"]

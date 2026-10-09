@@ -1,0 +1,8 @@
+{
+  // Root-level `bun test` runs the workspace tests; tsyringe (api) needs the
+  // decorator metadata flags, which live in api/tsconfig.json for package runs.
+  "compilerOptions": {
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
+  }
+}
