@@ -23,6 +23,6 @@ COPY api/scripts api/scripts
 COPY api/tsconfig.json api/
 COPY api/bunfig.toml api/
 COPY --from=build /app/app/dist app/dist
-EXPOSE 3000
+EXPOSE 8080
 # Migrations are idempotent and database-locked, so a fresh deploy self-applies.
 CMD ["sh", "-c", "bun run -F commerce-api migrate && bun run -F commerce-api start"]

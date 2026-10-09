@@ -53,6 +53,6 @@ Add a route by creating `routes/<feature>/<name>.tsx` and registering it in
 ## API access
 
 In dev, `vite.config.ts` proxies `/api`, `/rest` and `/media` to the API at
-`http://localhost:3000`, so requests stay same-origin (no CORS, first-party
-cookies). In production, serve the built `dist/` assets behind a proxy that
-forwards those paths to the API.
+`http://localhost:8080`, so requests stay same-origin (no CORS, first-party
+cookies). In production the API serves the built `dist/` itself, so it's the
+same origin with no proxy.

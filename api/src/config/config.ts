@@ -6,7 +6,7 @@ import { singleton } from "tsyringe";
 const envSchema = z.object({
   DATABASE_URL: z.string().min(1, "DATABASE_URL is required"),
   AUTH_SECRET: z.string().min(32, "AUTH_SECRET must be at least 32 characters"),
-  PORT: z.coerce.number().int().positive().default(3000),
+  PORT: z.coerce.number().int().positive().default(8080),
   BASE_URL: z.string().url().default("http://localhost:5173"),
 });
 

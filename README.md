@@ -42,7 +42,7 @@ bun run dev
 ```
 
 `bun run dev` starts Postgres and Mailpit, applies migrations, then runs the API
-(`:3000`) and app (`:5173`). Open http://localhost:5173 — a fresh instance
+(`:8080`) and app (`:5173`). Open http://localhost:5173 — a fresh instance
 redirects to `/setup`.
 
 | command | |
@@ -61,7 +61,7 @@ Four environment variables, nothing else:
 | --- | --- |
 | `DATABASE_URL` | Postgres connection string |
 | `AUTH_SECRET` | 32+ characters |
-| `PORT` | default `3000` |
+| `PORT` | default `8080` |
 | `BASE_URL` | public app origin (default `http://localhost:5173`) |
 
 Currency, locale, tax and the first admin are chosen at first-run setup, not from
@@ -142,10 +142,10 @@ Images are published to GitHub Container Registry by
 (`main`), `sha-<short>`, and the version for `v*` tags:
 
 ```bash
-docker run -p 3000:3000 \
+docker run -p 8080:8080 \
   -e DATABASE_URL=postgres://… \
   -e AUTH_SECRET=<32+ chars> \
-  -e PORT=3000 \
+  -e PORT=8080 \
   -e BASE_URL=https://your.domain \
   -v commerce-media:/app/api/storage/media \
   ghcr.io/<owner>/<repo>:main

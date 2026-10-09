@@ -82,7 +82,7 @@ export async function createHarness(): Promise<Harness> {
     process.env.DATABASE_URL = target;
     process.env.AUTH_SECRET ??= "test-secret-that-is-at-least-32-characters";
     process.env.BASE_URL ??= "http://localhost";
-    process.env.PORT ??= "3000";
+    process.env.PORT ??= "8080";
 
     container.resolve(Config);
     pools.add(container.resolve(Database));

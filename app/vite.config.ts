@@ -16,9 +16,9 @@ export default defineConfig({
     port: 5173,
     strictPort: true,
     proxy: {
-      "/api": "http://localhost:3000",
-      "/media": "http://localhost:3000",
-      "/rest": "http://localhost:3000",
+      "/api": "http://localhost:8080",
+      "/media": "http://localhost:8080",
+      "/rest": "http://localhost:8080",
     },
   },
 });
