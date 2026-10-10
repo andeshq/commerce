@@ -10,6 +10,7 @@ import {
   Gear,
   LayoutHeaderCells,
   ListCheck,
+  Persons,
   Receipt,
   ShoppingBag,
   Sliders,
@@ -69,7 +70,10 @@ const NAV_GROUPS = [
 
 const ADMIN_GROUP = {
   label: "System",
-  links: [{ href: "/settings", label: "Settings", icon: Gear }],
+  links: [
+    { href: "/team", label: "Team", icon: Persons },
+    { href: "/settings", label: "Settings", icon: Gear },
+  ],
 };
 
 export function AdminLayout() {

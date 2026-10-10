@@ -43,7 +43,7 @@ routes/
   root/               root layout (auth + link routing), error, 404
   setup/ signIn/
   admin/              admin layout loader = staff gate + store identity
-    dashboard/ product/ option/ modifier/ category/ inventory/ settings/
+    dashboard/ product/ option/ modifier/ category/ inventory/ team/ settings/
 lib/                  pgbase client, schemas, form components, helpers
 ```
 
