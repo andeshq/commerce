@@ -6,6 +6,8 @@ import { redirect, useLoaderData, useNavigate } from "react-router";
 import { PageHeader } from "@/lib/page-header";
 import { getSession } from "@/lib/auth";
 import { listTeamUsers } from "@/lib/users";
+import { roleLabel } from "@/lib/i18n";
+import { m } from "@/paraglide/messages.js";
 
 export async function teamListingLoader() {
   const user = await getSession();
@@ -31,12 +33,12 @@ export function TeamListing() {
   return (
     <div className="flex flex-col gap-4">
       <PageHeader
-        title="Team"
-        description="Admins and staff who can sign in to this store."
+        title={m.team_title()}
+        description={m.team_description()}
         actions={
           <Button size="sm" onPress={() => navigate("/team/new")}>
             <Plus className="size-4" />
-            New user
+            {m.team_new()}
           </Button>
         }
       />
@@ -44,14 +46,14 @@ export function TeamListing() {
       <Card>
         <Card.Header className="flex-row flex-wrap items-center justify-between gap-3">
           <SearchField
-            aria-label="Search team"
+            aria-label={m.team_search()}
             variant="secondary"
             value={filter}
             onChange={setFilter}
           >
             <SearchField.Group>
               <SearchField.SearchIcon />
-              <SearchField.Input className="w-44" placeholder="Search" />
+              <SearchField.Input className="w-44" placeholder={m.common_search()} />
               <SearchField.ClearButton />
             </SearchField.Group>
           </SearchField>
@@ -60,20 +62,18 @@ export function TeamListing() {
         <Card.Content>
           {rows.length === 0 ? (
             <p className="mx-auto max-w-md py-12 text-center text-sm text-muted">
-              {members.length === 0
-                ? "No team members yet."
-                : "No team members match your search."}
+              {members.length === 0 ? m.team_empty() : m.team_no_match()}
             </p>
           ) : (
             <Table>
               <Table.ScrollContainer>
-                <Table.Content aria-label="Team" className="min-w-[680px]">
+                <Table.Content aria-label={m.team_title()} className="min-w-[680px]">
                   <Table.Header>
-                    <Table.Column isRowHeader>Member</Table.Column>
-                    <Table.Column>Role</Table.Column>
-                    <Table.Column>Status</Table.Column>
-                    <Table.Column>Added</Table.Column>
-                    <Table.Column className="text-end">Actions</Table.Column>
+                    <Table.Column isRowHeader>{m.common_member()}</Table.Column>
+                    <Table.Column>{m.common_role()}</Table.Column>
+                    <Table.Column>{m.common_status()}</Table.Column>
+                    <Table.Column>{m.common_added()}</Table.Column>
+                    <Table.Column className="text-end">{m.common_actions()}</Table.Column>
                   </Table.Header>
                   <Table.Body>
                     {rows.map((member) => (
@@ -93,7 +93,7 @@ export function TeamListing() {
                             size="sm"
                             variant="soft"
                           >
-                            {member.role === "admin" ? "Admin" : "Staff"}
+                            {roleLabel(member.role)}
                           </Chip>
                         </Table.Cell>
                         <Table.Cell>
@@ -102,7 +102,7 @@ export function TeamListing() {
                             size="sm"
                             variant="soft"
                           >
-                            {member.banned ? "Suspended" : "Active"}
+                            {member.banned ? m.common_suspended() : m.common_active()}
                           </Chip>
                         </Table.Cell>
                         <Table.Cell className="text-muted">
@@ -113,7 +113,7 @@ export function TeamListing() {
                             className="text-sm font-medium no-underline"
                             href={`/team/${member.id}`}
                           >
-                            Edit
+                            {m.common_edit()}
                           </Link>
                         </Table.Cell>
                       </Table.Row>

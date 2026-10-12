@@ -5,6 +5,7 @@ import { PageHeader } from "@/lib/page-header";
 import { TEAM_FORM_ID, TeamCreateForm, useCreateTeamForm } from "@/lib/team-form";
 import { userCreateSchema, type UserCreateValues } from "@/lib/user-schema";
 import { createTeamUser, userErrorMessages } from "@/lib/users";
+import { m } from "@/paraglide/messages.js";
 
 export async function teamNewLoader() {
   const user = await getSession();
@@ -51,12 +52,12 @@ export function TeamNew() {
   return (
     <div className="flex flex-col gap-4">
       <PageHeader
-        title="New team member"
-        description="Create a staff or admin account for this store."
+        title={m.team_new_title()}
+        description={m.team_new_description()}
         actions={
           <>
             <Button variant="secondary" isDisabled={submitting} onPress={() => history.back()}>
-              Cancel
+              {m.common_cancel()}
             </Button>
             <Button
               type="submit"
@@ -64,7 +65,7 @@ export function TeamNew() {
               isDisabled={submitting || !isValid}
               isPending={submitting}
             >
-              {submitting ? "Creating…" : "Create user"}
+              {submitting ? m.team_creating() : m.team_create()}
             </Button>
           </>
         }

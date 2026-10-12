@@ -12,6 +12,8 @@ import { useAuth } from "@/lib/auth-context";
 import { PageHeader } from "@/lib/page-header";
 import { TEAM_FORM_ID, TeamEditForm, useEditTeamForm } from "@/lib/team-form";
 import { userUpdateSchema, type UserUpdateValues } from "@/lib/user-schema";
+import { roleLabel } from "@/lib/i18n";
+import { m } from "@/paraglide/messages.js";
 import {
   banUser,
   getUser,
@@ -79,7 +81,7 @@ export async function teamDetailAction({ request, params }: ActionFunctionArgs) 
     }
   }
 
-  return { errors: ["Unknown action."] };
+  return { errors: [m.common_unknown_action()] };
 }
 
 export function TeamDetail() {
@@ -113,7 +115,7 @@ export function TeamDetail() {
   }
 
   function remove() {
-    if (!window.confirm(`Remove ${member.name}? This cannot be undone.`)) return;
+    if (!window.confirm(m.team_remove_confirm({ name: member.name }))) return;
     const formData = new FormData();
     formData.set("intent", "remove");
     fetcher.submit(formData, { method: "post" });
@@ -127,17 +129,17 @@ export function TeamDetail() {
           <span className="flex items-center gap-2">
             {member.email}
             <Chip color={member.banned ? "danger" : "success"} size="sm" variant="soft">
-              {member.banned ? "Suspended" : "Active"}
+              {member.banned ? m.common_suspended() : m.common_active()}
             </Chip>
             <Chip color={role === "admin" ? "accent" : "default"} size="sm" variant="soft">
-              {role === "admin" ? "Admin" : "Staff"}
+              {roleLabel(role)}
             </Chip>
           </span>
         }
         actions={
           <>
             <Button variant="secondary" isDisabled={submitting} onPress={() => history.back()}>
-              Cancel
+              {m.common_cancel()}
             </Button>
             <ButtonGroup>
               <Button
@@ -146,11 +148,11 @@ export function TeamDetail() {
                 isDisabled={submitting || !isValid}
                 isPending={submitting}
               >
-                {submitting ? "Saving…" : "Save changes"}
+                {submitting ? m.common_saving() : m.common_save()}
               </Button>
               {!isSelf && (
                 <Dropdown>
-                  <Button isIconOnly aria-label="More actions" isDisabled={submitting}>
+                  <Button isIconOnly aria-label={m.common_more_actions()} isDisabled={submitting}>
                     <ButtonGroup.Separator />
                     <EllipsisVertical className="size-4" />
                   </Button>
@@ -163,13 +165,13 @@ export function TeamDetail() {
                     >
                       <Dropdown.Item
                         id="toggle-ban"
-                        textValue={member.banned ? "Reactivate" : "Suspend"}
+                        textValue={member.banned ? m.customers_reactivate() : m.customers_suspend()}
                       >
-                        <Label>{member.banned ? "Reactivate" : "Suspend"}</Label>
+                        <Label>{member.banned ? m.customers_reactivate() : m.customers_suspend()}</Label>
                       </Dropdown.Item>
-                      <Dropdown.Item id="remove" textValue="Remove" variant="danger">
+                      <Dropdown.Item id="remove" textValue={m.team_remove()} variant="danger">
                         <TrashBin className="size-4 shrink-0 text-danger" />
-                        <Label>Remove</Label>
+                        <Label>{m.team_remove()}</Label>
                       </Dropdown.Item>
                     </Dropdown.Menu>
                   </Dropdown.Popover>

@@ -17,12 +17,12 @@ import {
   type UserCreateValues,
   type UserUpdateValues,
 } from "./user-schema";
+import { roleLabel } from "./i18n";
+import { m } from "@/paraglide/messages.js";
 import type { TeamRole } from "./users";
 
 /** The detail/new pages submit this form from the page header, outside <form>. */
 export const TEAM_FORM_ID = "team-form";
-
-const ROLE_LABELS: Record<TeamRole, string> = { admin: "Admin", staff: "Staff" };
 
 function ErrorAlert({ errors }: { errors: string[] }) {
   if (errors.length === 0) return null;
@@ -30,7 +30,7 @@ function ErrorAlert({ errors }: { errors: string[] }) {
     <Alert status="danger">
       <Alert.Indicator />
       <Alert.Content>
-        <Alert.Title>Could not save</Alert.Title>
+        <Alert.Title>{m.common_could_not_save()}</Alert.Title>
         <Alert.Description>
           <ul className="list-inside list-disc">
             {errors.map((message) => (
@@ -56,16 +56,16 @@ function RoleSelect({
       value={value}
       onChange={(key) => onChange(String(key) as TeamRole)}
     >
-      <Label>Role</Label>
+      <Label>{m.common_role()}</Label>
       <Select.Trigger>
         <Select.Value />
         <Select.Indicator />
       </Select.Trigger>
       <Select.Popover>
         <ListBox>
-          {(Object.keys(ROLE_LABELS) as TeamRole[]).map((role) => (
-            <ListBox.Item key={role} id={role} textValue={ROLE_LABELS[role]}>
-              {ROLE_LABELS[role]}
+          {(Object.keys({ admin: 1, staff: 1 }) as TeamRole[]).map((role) => (
+            <ListBox.Item key={role} id={role} textValue={roleLabel(role)}>
+              {roleLabel(role)}
               <ListBox.ItemIndicator />
             </ListBox.Item>
           ))}
@@ -105,7 +105,7 @@ export function TeamCreateForm({
       <ErrorAlert errors={errors} />
 
       <section className="flex flex-col gap-3">
-        <h3 className="text-sm font-semibold">Details</h3>
+        <h3 className="text-sm font-semibold">{m.team_details()}</h3>
 
         <div className="grid gap-5 sm:grid-cols-2">
           <Controller
@@ -121,7 +121,7 @@ export function TeamCreateForm({
                 onBlur={field.onBlur}
                 isInvalid={fieldState.invalid}
               >
-                <Label>Name</Label>
+                <Label>{m.common_name()}</Label>
                 <Input placeholder="Ana Gómez" />
                 <FieldError>{fieldState.error?.message}</FieldError>
               </TextField>
@@ -142,7 +142,7 @@ export function TeamCreateForm({
                 onBlur={field.onBlur}
                 isInvalid={fieldState.invalid}
               >
-                <Label>Email</Label>
+                <Label>{m.common_email()}</Label>
                 <Input placeholder="ana@example.com" />
                 <FieldError>{fieldState.error?.message}</FieldError>
               </TextField>
@@ -164,7 +164,7 @@ export function TeamCreateForm({
                 onBlur={field.onBlur}
                 isInvalid={fieldState.invalid}
               >
-                <Label>Temporary password</Label>
+                <Label>{m.team_temporary_password()}</Label>
                 <Input />
                 <FieldError>{fieldState.error?.message}</FieldError>
               </TextField>
@@ -175,12 +175,12 @@ export function TeamCreateForm({
             variant="secondary"
             onPress={() => setValue("password", generatePassword(), { shouldValidate: true })}
           >
-            Generate
+            {m.common_generate()}
           </Button>
         </div>
 
         <p className="text-xs text-muted">
-          Share this once with the member; they can change it after signing in.
+          {m.team_password_hint()}
         </p>
 
         <Controller
@@ -229,7 +229,7 @@ export function TeamEditForm({
       <ErrorAlert errors={errors} />
 
       <section className="flex flex-col gap-3">
-        <h3 className="text-sm font-semibold">Details</h3>
+        <h3 className="text-sm font-semibold">{m.team_details()}</h3>
 
         <div className="grid gap-5 sm:grid-cols-2">
           <Controller
@@ -245,7 +245,7 @@ export function TeamEditForm({
                 onBlur={field.onBlur}
                 isInvalid={fieldState.invalid}
               >
-                <Label>Name</Label>
+                <Label>{m.common_name()}</Label>
                 <Input placeholder="Ana Gómez" />
                 <FieldError>{fieldState.error?.message}</FieldError>
               </TextField>
@@ -266,7 +266,7 @@ export function TeamEditForm({
                 onBlur={field.onBlur}
                 isInvalid={fieldState.invalid}
               >
-                <Label>Email</Label>
+                <Label>{m.common_email()}</Label>
                 <Input placeholder="ana@example.com" />
                 <FieldError>{fieldState.error?.message}</FieldError>
               </TextField>
@@ -295,7 +295,7 @@ export function TeamEditForm({
                 onBlur={field.onBlur}
                 isInvalid={fieldState.invalid}
               >
-                <Label>New password</Label>
+                <Label>{m.team_new_password()}</Label>
                 <Input />
                 <FieldError>{fieldState.error?.message}</FieldError>
               </TextField>
@@ -306,11 +306,11 @@ export function TeamEditForm({
             variant="secondary"
             onPress={() => setValue("password", generatePassword(), { shouldValidate: true })}
           >
-            Generate
+            {m.common_generate()}
           </Button>
         </div>
 
-        <p className="text-xs text-muted">Leave the password blank to keep the current one.</p>
+        <p className="text-xs text-muted">{m.team_edit_password_hint()}</p>
       </section>
     </form>
   );
