@@ -4,6 +4,12 @@ import { ChevronDown } from "@gravity-ui/icons";
 import { redirect, useLoaderData, useRevalidator } from "react-router";
 import { PageHeader } from "@/lib/page-header";
 import { pgbase, pgbaseErrorMessages } from "@/lib/pgbase";
+import {
+  fulfillmentStatusLabel,
+  orderStatusLabel,
+  paymentStatusLabel,
+} from "@/lib/i18n";
+import { m } from "@/paraglide/messages.js";
 import { useAdminStore } from "@/routes/admin/adminLayout";
 import {
   formatMoney,
@@ -91,10 +97,15 @@ export function OrderDetail() {
 
   async function run(rawKey: Key) {
     const key = String(rawKey);
-    if (key === "cancel" && !window.confirm(`Cancel order #${order.number} and restock it?`)) {
+    if (
+      key === "cancel" &&
+      !window.confirm(m.orders_cancel_confirm({ number: String(order.number) }))
+    ) {
       return;
     }
-    if (key === "refund" && !window.confirm(`Refund order #${order.number}?`)) return;
+    if (key === "refund" && !window.confirm(m.orders_refund_confirm({ number: String(order.number) }))) {
+      return;
+    }
 
     setBusy(true);
     setError(null);
@@ -107,7 +118,7 @@ export function OrderDetail() {
         });
         if (!res.ok) {
           const body = (await res.json().catch(() => null)) as { message?: string } | null;
-          throw new Error(body?.message ?? "Refund failed.");
+          throw new Error(body?.message ?? m.orders_refund_failed());
         }
       } else {
         const fn =
@@ -121,7 +132,7 @@ export function OrderDetail() {
       revalidator.revalidate();
     } catch (caught) {
       const messages = pgbaseErrorMessages(caught);
-      setError(messages[0] ?? (caught instanceof Error ? caught.message : "Something went wrong."));
+      setError(messages[0] ?? (caught instanceof Error ? caught.message : m.common_something_wrong()));
     } finally {
       setBusy(false);
     }
@@ -134,34 +145,34 @@ export function OrderDetail() {
   return (
     <div className="flex flex-col gap-4">
       <PageHeader
-        title={`Order #${order.number}`}
+        title={m.orders_order_number({ number: String(order.number) })}
         description={`${order.email} · ${new Date(order.placed_at).toLocaleString()}`}
         actions={
           <Dropdown>
             <Button variant="secondary" isDisabled={busy}>
-              Actions
+              {m.common_actions()}
               <ChevronDown className="size-4 text-muted" />
             </Button>
             <Dropdown.Popover>
               <Dropdown.Menu onAction={run}>
                 {order.payment_status !== "paid" && canCancel && (
-                  <Dropdown.Item id="paid" textValue="Mark as paid">
-                    <Label>Mark as paid</Label>
+                  <Dropdown.Item id="paid" textValue={m.orders_mark_paid()}>
+                    <Label>{m.orders_mark_paid()}</Label>
                   </Dropdown.Item>
                 )}
                 {canFulfill && (
-                  <Dropdown.Item id="fulfill" textValue="Mark as fulfilled">
-                    <Label>Mark as fulfilled</Label>
+                  <Dropdown.Item id="fulfill" textValue={m.orders_mark_fulfilled()}>
+                    <Label>{m.orders_mark_fulfilled()}</Label>
                   </Dropdown.Item>
                 )}
                 {canRefund && (
-                  <Dropdown.Item id="refund" textValue="Refund" variant="danger">
-                    <Label>Refund</Label>
+                  <Dropdown.Item id="refund" textValue={m.orders_refund()} variant="danger">
+                    <Label>{m.orders_refund()}</Label>
                   </Dropdown.Item>
                 )}
                 {canCancel && (
-                  <Dropdown.Item id="cancel" textValue="Cancel order" variant="danger">
-                    <Label>Cancel order</Label>
+                  <Dropdown.Item id="cancel" textValue={m.orders_cancel()} variant="danger">
+                    <Label>{m.orders_cancel()}</Label>
                   </Dropdown.Item>
                 )}
               </Dropdown.Menu>
@@ -179,7 +190,7 @@ export function OrderDetail() {
       <div className="grid gap-4 lg:grid-cols-3">
         <Card className="lg:col-span-2">
           <Card.Header>
-            <Card.Title>Items</Card.Title>
+            <Card.Title>{m.orders_items()}</Card.Title>
           </Card.Header>
           <Card.Content className="flex flex-col gap-3">
             {items.map((item) => (
@@ -204,16 +215,18 @@ export function OrderDetail() {
             ))}
           </Card.Content>
           <Card.Footer className="flex-col items-stretch gap-1 text-sm">
-            <Row label="Subtotal" value={money(order.subtotal_cents)} />
+            <Row label={m.orders_subtotal()} value={money(order.subtotal_cents)} />
             {Number(order.discount_cents) > 0 && (
-              <Row label="Discount" value={`− ${money(order.discount_cents)}`} />
+              <Row label={m.orders_discount()} value={`− ${money(order.discount_cents)}`} />
             )}
-            {Number(order.tax_cents) > 0 && <Row label="Tax" value={money(order.tax_cents)} />}
+            {Number(order.tax_cents) > 0 && (
+              <Row label={m.common_tax()} value={money(order.tax_cents)} />
+            )}
             {Number(order.shipping_cents) > 0 && (
-              <Row label="Shipping" value={money(order.shipping_cents)} />
+              <Row label={m.orders_shipping()} value={money(order.shipping_cents)} />
             )}
             <div className="mt-1 flex justify-between border-t border-field-border pt-2 font-medium">
-              <span>Total</span>
+              <span>{m.common_total()}</span>
               <span className="tabular-nums">{money(order.total_cents)}</span>
             </div>
           </Card.Footer>
@@ -222,31 +235,31 @@ export function OrderDetail() {
         <div className="flex flex-col gap-4">
           <Card>
             <Card.Header>
-              <Card.Title>Status</Card.Title>
+              <Card.Title>{m.orders_status()}</Card.Title>
             </Card.Header>
             <Card.Content className="flex flex-wrap gap-2">
               <Chip size="sm" variant="soft">
-                {order.status}
+                {orderStatusLabel(order.status)}
               </Chip>
               <Chip color={PAYMENT_COLOR[order.payment_status]} size="sm" variant="soft">
-                {order.payment_status.replace(/_/g, " ")}
+                {paymentStatusLabel(order.payment_status)}
               </Chip>
               <Chip color={FULFILLMENT_COLOR[order.fulfillment_status]} size="sm" variant="soft">
-                {order.fulfillment_status.replace(/_/g, " ")}
+                {fulfillmentStatusLabel(order.fulfillment_status)}
               </Chip>
             </Card.Content>
           </Card>
 
           <Card>
             <Card.Header>
-              <Card.Title>Customer</Card.Title>
+              <Card.Title>{m.common_customer()}</Card.Title>
             </Card.Header>
             <Card.Content className="flex flex-col gap-3 text-sm">
               <p>{order.email}</p>
               {order.phone && <p className="text-muted">{order.phone}</p>}
               {addressLines(order.shipping_address).length > 0 && (
                 <div>
-                  <p className="text-xs text-muted uppercase">Ship to</p>
+                  <p className="text-xs text-muted uppercase">{m.common_ship_to()}</p>
                   {addressLines(order.shipping_address).map((line) => (
                     <p key={line}>{line}</p>
                   ))}
@@ -254,7 +267,7 @@ export function OrderDetail() {
               )}
               {order.note && (
                 <div>
-                  <p className="text-xs text-muted uppercase">Note</p>
+                  <p className="text-xs text-muted uppercase">{m.common_note()}</p>
                   <p>{order.note}</p>
                 </div>
               )}
@@ -263,11 +276,11 @@ export function OrderDetail() {
 
           <Card>
             <Card.Header>
-              <Card.Title>Payments</Card.Title>
+              <Card.Title>{m.orders_payments()}</Card.Title>
             </Card.Header>
             <Card.Content className="flex flex-col gap-3">
               {payments.length === 0 ? (
-                <p className="text-sm text-muted">No payments.</p>
+                <p className="text-sm text-muted">{m.orders_no_payments()}</p>
               ) : (
                 payments.map((payment) => (
                   <div key={payment.id} className="flex items-center justify-between gap-3 text-sm">
@@ -280,7 +293,7 @@ export function OrderDetail() {
                     </div>
                     <div className="text-right">
                       <Chip color={PAYMENT_COLOR[payment.status]} size="sm" variant="soft">
-                        {payment.status.replace(/_/g, " ")}
+                        {paymentStatusLabel(payment.status)}
                       </Chip>
                       <p className="mt-1 text-xs tabular-nums">{money(payment.amount_cents)}</p>
                     </div>
@@ -292,7 +305,7 @@ export function OrderDetail() {
 
           <Card>
             <Card.Header>
-              <Card.Title>Timeline</Card.Title>
+              <Card.Title>{m.orders_timeline()}</Card.Title>
             </Card.Header>
             <Card.Content className="flex flex-col gap-3">
               {events.map((event) => (

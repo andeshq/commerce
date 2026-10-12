@@ -242,5 +242,21 @@
   "team_new_description": "Crea una cuenta de empleado o administrador para esta tienda.",
   "team_create": "Crear usuario",
   "team_creating": "Creando…",
-  "team_new_password": "Nueva contraseña"
+  "team_new_password": "Nueva contraseña",
+  "orders_order_number": "Pedido #{number}",
+  "orders_mark_paid": "Marcar como pagado",
+  "orders_mark_fulfilled": "Marcar como enviado",
+  "orders_refund": "Reembolsar",
+  "orders_cancel": "Cancelar pedido",
+  "orders_refund_failed": "El reembolso falló.",
+  "orders_cancel_confirm": "¿Cancelar el pedido #{number} y reponer stock?",
+  "orders_refund_confirm": "¿Reembolsar el pedido #{number}?",
+  "orders_items": "Artículos",
+  "orders_subtotal": "Subtotal",
+  "orders_discount": "Descuento",
+  "orders_shipping": "Envío",
+  "orders_status": "Estado",
+  "orders_payments": "Pagos",
+  "orders_no_payments": "Sin pagos.",
+  "orders_timeline": "Historial"
 }
