@@ -4,7 +4,7 @@ import { getSession } from "@/lib/auth";
 import { PageHeader } from "@/lib/page-header";
 import { TEAM_FORM_ID, TeamCreateForm, useCreateTeamForm } from "@/lib/team-form";
 import { userCreateSchema, type UserCreateValues } from "@/lib/user-schema";
-import { createTeamUser, teamErrorMessages } from "@/lib/users";
+import { createTeamUser, userErrorMessages } from "@/lib/users";
 
 export async function teamNewLoader() {
   const user = await getSession();
@@ -30,7 +30,7 @@ export async function teamNewAction({ request }: ActionFunctionArgs) {
     });
     return redirect("/team");
   } catch (error) {
-    return { errors: teamErrorMessages(error) };
+    return { errors: userErrorMessages(error) };
   }
 }
 

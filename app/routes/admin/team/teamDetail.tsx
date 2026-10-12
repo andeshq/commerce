@@ -13,21 +13,21 @@ import { PageHeader } from "@/lib/page-header";
 import { TEAM_FORM_ID, TeamEditForm, useEditTeamForm } from "@/lib/team-form";
 import { userUpdateSchema, type UserUpdateValues } from "@/lib/user-schema";
 import {
-  banTeamUser,
-  getTeamUser,
+  banUser,
+  getUser,
   removeTeamUser,
   setTeamPassword,
   setTeamRole,
-  teamErrorMessages,
-  unbanTeamUser,
+  unbanUser,
   updateTeamProfile,
+  userErrorMessages,
 } from "@/lib/users";
 
 export async function teamDetailLoader({ params }: LoaderFunctionArgs) {
   const user = await getSession();
   if (user?.role !== "admin") throw redirect("/");
 
-  const member = await getTeamUser(String(params.id));
+  const member = await getUser(String(params.id));
   if (!member) throw redirect("/team");
 
   return { member };
@@ -56,17 +56,17 @@ export async function teamDetailAction({ request, params }: ActionFunctionArgs) 
       }
       return redirect("/team");
     } catch (error) {
-      return { errors: teamErrorMessages(error) };
+      return { errors: userErrorMessages(error) };
     }
   }
 
   if (intent === "ban" || intent === "unban") {
     try {
-      if (intent === "ban") await banTeamUser(memberId);
-      else await unbanTeamUser(memberId);
+      if (intent === "ban") await banUser(memberId);
+      else await unbanUser(memberId);
       return { errors: [] as string[] };
     } catch (error) {
-      return { errors: teamErrorMessages(error) };
+      return { errors: userErrorMessages(error) };
     }
   }
 
@@ -75,7 +75,7 @@ export async function teamDetailAction({ request, params }: ActionFunctionArgs) 
       await removeTeamUser(memberId);
       return redirect("/team");
     } catch (error) {
-      return { errors: teamErrorMessages(error) };
+      return { errors: userErrorMessages(error) };
     }
   }
 

@@ -4,7 +4,8 @@ import { authClient } from "./auth-client";
 export const TEAM_ROLES = ["admin", "staff"] as const;
 export type TeamRole = (typeof TEAM_ROLES)[number];
 
-export interface TeamUser {
+/** A Better Auth user record, as surfaced by the admin plugin. */
+export interface ManagedUser {
   id: string;
   name: string;
   email: string;
@@ -16,12 +17,12 @@ export interface TeamUser {
 }
 
 /** Wraps a Better Auth client error so callers get a stable shape. */
-export class TeamError extends Error {
+export class UserError extends Error {
   readonly code?: string;
 
   constructor(error: { message?: string; code?: string } | null | undefined) {
     super(error?.message ?? "The request failed.");
-    this.name = "TeamError";
+    this.name = "UserError";
     this.code = error?.code;
   }
 }
@@ -29,44 +30,42 @@ export class TeamError extends Error {
 type AdminResult = { error: { message?: string; code?: string } | null };
 
 function throwIfError(result: AdminResult): void {
-  if (result.error) throw new TeamError(result.error);
+  if (result.error) throw new UserError(result.error);
+}
+
+async function listByRole(role: string): Promise<ManagedUser[]> {
+  const { data, error } = await authClient.admin.listUsers({
+    query: {
+      filterField: "role",
+      filterValue: role,
+      sortBy: "createdAt",
+      sortDirection: "desc",
+      limit: 200,
+    },
+  });
+  if (error) throw new UserError(error);
+  return (data?.users ?? []) as unknown as ManagedUser[];
 }
 
 /** Team members only (admins and staff); customers never appear here. */
-export async function listTeamUsers(): Promise<TeamUser[]> {
-  // Two scalar filters rather than an array: query-string array parsing is
-  // fiddly, and team membership is just "admin" or "staff".
-  const [admins, staff] = await Promise.all(
-    TEAM_ROLES.map((role) =>
-      authClient.admin.listUsers({
-        query: {
-          filterField: "role",
-          filterValue: role,
-          sortBy: "createdAt",
-          sortDirection: "desc",
-          limit: 200,
-        },
-      }),
-    ),
-  );
-  if (admins.error) throw new TeamError(admins.error);
-  if (staff.error) throw new TeamError(staff.error);
-
-  const members = [
-    ...((admins.data?.users ?? []) as unknown as TeamUser[]),
-    ...((staff.data?.users ?? []) as unknown as TeamUser[]),
-  ];
-  return members.sort(
+export async function listTeamUsers(): Promise<ManagedUser[]> {
+  const [admins, staff] = await Promise.all(TEAM_ROLES.map((role) => listByRole(role)));
+  return [...admins, ...staff].sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
   );
 }
 
-export async function getTeamUser(id: string): Promise<TeamUser | null> {
+/** Storefront customer accounts (role=customer). */
+export async function listCustomers(): Promise<ManagedUser[]> {
+  return listByRole("customer");
+}
+
+export async function getUser(id: string): Promise<ManagedUser | null> {
   const { data, error } = await authClient.admin.listUsers({
     query: { filterField: "id", filterValue: id, limit: 1 },
   });
-  if (error) throw new TeamError(error);
-  return (data?.users?.[0] as unknown as TeamUser | undefined) ?? null;
+  if (error) throw new UserError(error);
+  return (data?.users?.[0] as unknown as ManagedUser | undefined) ?? null;
 }
 
 export async function createTeamUser(input: {
@@ -74,14 +73,14 @@ export async function createTeamUser(input: {
   email: string;
   password: string;
   role: TeamRole;
-}): Promise<TeamUser> {
+}): Promise<ManagedUser> {
   // The plugin types roles as its default union ("admin" | "user"); this app
   // stores opaque role strings ("admin" | "staff" | "customer") at runtime.
   const { data, error } = await authClient.admin.createUser(
     input as Parameters<typeof authClient.admin.createUser>[0],
   );
-  if (error) throw new TeamError(error);
-  return data.user as unknown as TeamUser;
+  if (error) throw new UserError(error);
+  return data.user as unknown as ManagedUser;
 }
 
 export async function updateTeamProfile(
@@ -100,11 +99,11 @@ export async function setTeamRole(id: string, role: TeamRole): Promise<void> {
   );
 }
 
-export async function banTeamUser(id: string, reason?: string): Promise<void> {
+export async function banUser(id: string, reason?: string): Promise<void> {
   throwIfError(await authClient.admin.banUser({ userId: id, banReason: reason }));
 }
 
-export async function unbanTeamUser(id: string): Promise<void> {
+export async function unbanUser(id: string): Promise<void> {
   throwIfError(await authClient.admin.unbanUser({ userId: id }));
 }
 
@@ -124,9 +123,9 @@ const ERROR_MESSAGES: Record<string, string> = {
   YOU_ARE_NOT_ALLOWED_TO_SET_NON_EXISTENT_VALUE: "That role is not allowed.",
 };
 
-/** Turn a thrown TeamError into user-facing messages. */
-export function teamErrorMessages(error: unknown): string[] {
-  if (!(error instanceof TeamError)) {
+/** Turn a thrown UserError into user-facing messages. */
+export function userErrorMessages(error: unknown): string[] {
+  if (!(error instanceof UserError)) {
     return ["Something went wrong. Please try again."];
   }
   if (error.code && ERROR_MESSAGES[error.code]) {

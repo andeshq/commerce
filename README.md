@@ -22,6 +22,8 @@ system.
 - **Admin UI** — the back office, served from the same origin as the API.
 - **Team** — staff and admin accounts managed from the back office: create,
   change roles, suspend or remove. The last admin can never be locked out.
+- **Customers** — storefront accounts with their order history, spend and
+  suspension, from the back office.
 
 ## Stack
 
@@ -75,9 +77,9 @@ Everything is same-origin. The admin UI is served at `/_`; the API lives under
 `/api`. Catalog and order reads (and every write that goes through the database)
 use **pgbase** under `/api/rest`, which speaks the PostgREST protocol — so use
 `@supabase/postgrest-js` unchanged. The few things pgbase doesn't cover
-(payments, media, setup) are plain **`fetch`** calls under `/api`. Team
-management is Better Auth's admin API under `/api/auth/admin/*`, gated to the
-`admin` role.
+(payments, media, setup) are plain **`fetch`** calls under `/api`. Team and
+customer management is Better Auth's admin API under `/api/auth/admin/*`, gated
+to the `admin` role.
 
 | Endpoint | Purpose | Client |
 | --- | --- | --- |
@@ -99,7 +101,7 @@ management is Better Auth's admin API under `/api/auth/admin/*`, gated to the
 | `POST /api/checkout/:orderToken/pay` `{ provider?, method? }` | Start a payment → intent | `fetch` |
 | `POST /api/payments/:provider/webhook` | Gateway webhook (no session) | `fetch` (gateway) |
 | `POST /api/orders/:id/refund` | Refund an order (staff) | `fetch` |
-| `GET/POST /api/auth/admin/*` | Team — list/create/update/ban/remove users (admin) | better-auth `authClient.admin.*` |
+| `GET/POST /api/auth/admin/*` | Team & customers — list/create/update/ban/remove users (admin) | better-auth `authClient.admin.*` |
 | `GET /api/rest/orders`, `/api/rest/products`, … | Admin reads/writes over exposed tables | postgrest-js |
 
 ```ts

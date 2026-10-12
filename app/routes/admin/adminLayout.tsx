@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type Key } from "react";
+import { useEffect, useRef, useState, type ComponentType, type Key } from "react";
 import { Avatar, Button, Dropdown, Label, SearchField } from "@heroui/react";
 import { Link } from "@/lib/link";
 import {
@@ -47,14 +47,30 @@ export function useAdminStore(): Store | null {
   return data?.store ?? null;
 }
 
-const NAV_GROUPS = [
+interface NavLink {
+  href: string;
+  label: string;
+  icon: ComponentType<{ className?: string }>;
+  /** Hidden from staff; only admins see admin-only destinations. */
+  adminOnly?: boolean;
+}
+
+interface NavGroup {
+  label: string;
+  links: NavLink[];
+}
+
+const NAV_GROUPS: NavGroup[] = [
   {
     label: "General",
     links: [{ href: "/", label: "Dashboard", icon: LayoutHeaderCells }],
   },
   {
     label: "Sales",
-    links: [{ href: "/orders", label: "Orders", icon: Receipt }],
+    links: [
+      { href: "/orders", label: "Orders", icon: Receipt },
+      { href: "/customers", label: "Customers", icon: Persons, adminOnly: true },
+    ],
   },
   {
     label: "Catalog",
@@ -68,11 +84,11 @@ const NAV_GROUPS = [
   },
 ];
 
-const ADMIN_GROUP = {
+const ADMIN_GROUP: NavGroup = {
   label: "System",
   links: [
-    { href: "/team", label: "Team", icon: Persons },
-    { href: "/settings", label: "Settings", icon: Gear },
+    { href: "/team", label: "Team", icon: Persons, adminOnly: true },
+    { href: "/settings", label: "Settings", icon: Gear, adminOnly: true },
   ],
 };
 
@@ -90,7 +106,13 @@ export function AdminLayout() {
   }, [urlPathname]);
 
   const storeName = data.store?.name ?? "Commerce";
-  const groups = user?.role === "admin" ? [...NAV_GROUPS, ADMIN_GROUP] : NAV_GROUPS;
+  const isAdmin = user?.role === "admin";
+  const groups = [...NAV_GROUPS, ADMIN_GROUP]
+    .map((group) => ({
+      ...group,
+      links: group.links.filter((link) => !link.adminOnly || isAdmin),
+    }))
+    .filter((group) => group.links.length > 0);
   const links = groups.flatMap((group) => group.links);
   const initials = (user?.name?.trim() || user?.email || "?").slice(0, 1).toUpperCase();
 
