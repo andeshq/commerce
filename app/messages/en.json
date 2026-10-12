@@ -213,5 +213,16 @@
   "sort_newest": "Newest",
   "sort_order_number": "Order number",
   "common_item_count_one": "{count} item",
-  "common_item_count_other": "{count} items"
+  "common_item_count_other": "{count} items",
+  "customers_title": "Customers",
+  "customers_description": "Accounts that can sign in to the storefront.",
+  "customers_search": "Search customers",
+  "customers_empty": "No customers yet.",
+  "customers_no_match": "No customers match your search.",
+  "customers_suspend": "Suspend",
+  "customers_reactivate": "Reactivate",
+  "customers_suspend_confirm": "Suspend {name}? They will be signed out and blocked from signing in.",
+  "customers_profile": "Profile",
+  "customers_suspended_because": "Suspended because",
+  "customers_no_orders": "No orders yet."
 }

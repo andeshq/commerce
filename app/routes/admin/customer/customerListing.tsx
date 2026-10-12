@@ -7,6 +7,7 @@ import { getSession } from "@/lib/auth";
 import { useAdminStore } from "@/routes/admin/adminLayout";
 import { pgbase } from "@/lib/pgbase";
 import { listCustomers } from "@/lib/users";
+import { m } from "@/paraglide/messages.js";
 import { formatMoney, type Order } from "@/lib/catalog";
 
 interface OrderStat {
@@ -80,21 +81,21 @@ export function CustomerListing() {
   return (
     <div className="flex flex-col gap-4">
       <PageHeader
-        title="Customers"
-        description="Accounts that can sign in to the storefront."
+        title={m.customers_title()}
+        description={m.customers_description()}
       />
 
       <Card>
         <Card.Header className="flex-row flex-wrap items-center justify-between gap-3">
           <SearchField
-            aria-label="Search customers"
+            aria-label={m.customers_search()}
             variant="secondary"
             value={filter}
             onChange={setFilter}
           >
             <SearchField.Group>
               <SearchField.SearchIcon />
-              <SearchField.Input className="w-44" placeholder="Search" />
+              <SearchField.Input className="w-44" placeholder={m.common_search()} />
               <SearchField.ClearButton />
             </SearchField.Group>
           </SearchField>
@@ -104,20 +105,20 @@ export function CustomerListing() {
           {rows.length === 0 ? (
             <p className="mx-auto max-w-md py-12 text-center text-sm text-muted">
               {customers.length === 0
-                ? "No customers yet."
-                : "No customers match your search."}
+                ? m.customers_empty()
+                : m.customers_no_match()}
             </p>
           ) : (
             <Table>
               <Table.ScrollContainer>
                 <Table.Content aria-label="Customers" className="min-w-[760px]">
                   <Table.Header>
-                    <Table.Column isRowHeader>Customer</Table.Column>
-                    <Table.Column>Orders</Table.Column>
-                    <Table.Column>Spent</Table.Column>
-                    <Table.Column>Last order</Table.Column>
-                    <Table.Column>Status</Table.Column>
-                    <Table.Column>Joined</Table.Column>
+                    <Table.Column isRowHeader>{m.common_customer()}</Table.Column>
+                    <Table.Column>{m.common_orders()}</Table.Column>
+                    <Table.Column>{m.common_spent()}</Table.Column>
+                    <Table.Column>{m.common_last_order()}</Table.Column>
+                    <Table.Column>{m.common_status()}</Table.Column>
+                    <Table.Column>{m.common_joined()}</Table.Column>
                   </Table.Header>
                   <Table.Body>
                     {rows.map((customer) => {
@@ -150,7 +151,7 @@ export function CustomerListing() {
                               size="sm"
                               variant="soft"
                             >
-                              {customer.banned ? "Suspended" : "Active"}
+                              {customer.banned ? m.common_suspended() : m.common_active()}
                             </Chip>
                           </Table.Cell>
                           <Table.Cell className="text-muted">

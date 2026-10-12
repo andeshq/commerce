@@ -213,5 +213,16 @@
   "sort_newest": "Más recientes",
   "sort_order_number": "Número de pedido",
   "common_item_count_one": "{count} artículo",
-  "common_item_count_other": "{count} artículos"
+  "common_item_count_other": "{count} artículos",
+  "customers_title": "Clientes",
+  "customers_description": "Cuentas que pueden iniciar sesión en la tienda.",
+  "customers_search": "Buscar clientes",
+  "customers_empty": "Aún no hay clientes.",
+  "customers_no_match": "Ningún cliente coincide con tu búsqueda.",
+  "customers_suspend": "Suspender",
+  "customers_reactivate": "Reactivar",
+  "customers_suspend_confirm": "¿Suspender a {name}? Se cerrará su sesión y no podrá iniciar sesión.",
+  "customers_profile": "Perfil",
+  "customers_suspended_because": "Suspendido porque",
+  "customers_no_orders": "Aún no hay pedidos."
 }

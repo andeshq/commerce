@@ -13,6 +13,8 @@ import { PageHeader } from "@/lib/page-header";
 import { useAdminStore } from "@/routes/admin/adminLayout";
 import { pgbase } from "@/lib/pgbase";
 import { banUser, getUser, unbanUser, userErrorMessages } from "@/lib/users";
+import { paymentStatusLabel } from "@/lib/i18n";
+import { m } from "@/paraglide/messages.js";
 import { formatMoney, type Order, type PaymentStatus } from "@/lib/catalog";
 
 const PAYMENT_COLOR: Record<PaymentStatus, "success" | "warning" | "danger" | "default"> = {
@@ -57,7 +59,7 @@ export async function customerDetailAction({ request, params }: ActionFunctionAr
   try {
     if (intent === "suspend") await banUser(id);
     else if (intent === "reactivate") await unbanUser(id);
-    else return { errors: ["Unknown action."] };
+    else return { errors: [m.common_unknown_action()] };
     return { errors: [] as string[] };
   } catch (error) {
     return { errors: userErrorMessages(error) };
@@ -77,9 +79,7 @@ export function CustomerDetail() {
   function act(intent: "suspend" | "reactivate") {
     if (
       intent === "suspend" &&
-      !window.confirm(
-        `Suspend ${customer.name}? They will be signed out and blocked from signing in.`,
-      )
+      !window.confirm(m.customers_suspend_confirm({ name: customer.name }))
     ) {
       return;
     }
@@ -99,27 +99,27 @@ export function CustomerDetail() {
           <span className="flex items-center gap-2">
             {customer.email}
             <Chip color={suspended ? "danger" : "success"} size="sm" variant="soft">
-              {suspended ? "Suspended" : "Active"}
+              {suspended ? m.common_suspended() : m.common_active()}
             </Chip>
           </span>
         }
         actions={
           <>
             <Button variant="secondary" isDisabled={submitting} onPress={() => history.back()}>
-              Back
+              {m.common_back()}
             </Button>
             <Dropdown>
               <Button variant="secondary" isDisabled={submitting}>
-                Actions
+                {m.common_actions()}
                 <ChevronDown className="size-4 text-muted" />
               </Button>
               <Dropdown.Popover>
                 <Dropdown.Menu onAction={() => act(suspended ? "reactivate" : "suspend")}>
                   <Dropdown.Item
                     id="toggle"
-                    textValue={suspended ? "Reactivate" : "Suspend"}
+                    textValue={suspended ? m.customers_reactivate() : m.customers_suspend()}
                   >
-                    <Label>{suspended ? "Reactivate" : "Suspend"}</Label>
+                    <Label>{suspended ? m.customers_reactivate() : m.customers_suspend()}</Label>
                   </Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown.Popover>
@@ -132,7 +132,7 @@ export function CustomerDetail() {
         <Alert status="danger">
           <Alert.Indicator />
           <Alert.Content>
-            <Alert.Title>Could not update</Alert.Title>
+            <Alert.Title>{m.common_could_not_update()}</Alert.Title>
             <Alert.Description>
               <ul className="list-inside list-disc">
                 {errors.map((message) => (
@@ -146,24 +146,24 @@ export function CustomerDetail() {
 
       <Card>
         <Card.Header>
-          <Card.Title>Profile</Card.Title>
+          <Card.Title>{m.customers_profile()}</Card.Title>
         </Card.Header>
         <Card.Content className="flex flex-col gap-3 text-sm">
           <div>
-            <p className="text-xs text-muted uppercase">Name</p>
+            <p className="text-xs text-muted uppercase">{m.common_name()}</p>
             <p>{customer.name}</p>
           </div>
           <div>
-            <p className="text-xs text-muted uppercase">Email</p>
+            <p className="text-xs text-muted uppercase">{m.common_email()}</p>
             <p>{customer.email}</p>
           </div>
           <div>
-            <p className="text-xs text-muted uppercase">Joined</p>
+            <p className="text-xs text-muted uppercase">{m.common_joined()}</p>
             <p>{new Date(customer.createdAt).toLocaleDateString()}</p>
           </div>
           {suspended && customer.banReason && (
             <div>
-              <p className="text-xs text-muted uppercase">Suspended because</p>
+              <p className="text-xs text-muted uppercase">{m.customers_suspended_because()}</p>
               <p>{customer.banReason}</p>
             </div>
           )}
@@ -172,20 +172,20 @@ export function CustomerDetail() {
 
       <Card>
         <Card.Header>
-          <Card.Title>Orders</Card.Title>
+          <Card.Title>{m.common_orders()}</Card.Title>
         </Card.Header>
         <Card.Content>
           {orders.length === 0 ? (
-            <p className="py-8 text-center text-sm text-muted">No orders yet.</p>
+            <p className="py-8 text-center text-sm text-muted">{m.customers_no_orders()}</p>
           ) : (
             <Table>
               <Table.ScrollContainer>
-                <Table.Content aria-label="Customer orders" className="min-w-[640px]">
+                <Table.Content aria-label={m.common_orders()} className="min-w-[640px]">
                   <Table.Header>
-                    <Table.Column isRowHeader>Order</Table.Column>
-                    <Table.Column>Payment</Table.Column>
-                    <Table.Column>Total</Table.Column>
-                    <Table.Column>Date</Table.Column>
+                    <Table.Column isRowHeader>{m.common_order()}</Table.Column>
+                    <Table.Column>{m.common_payment()}</Table.Column>
+                    <Table.Column>{m.common_total()}</Table.Column>
+                    <Table.Column>{m.common_date()}</Table.Column>
                   </Table.Header>
                   <Table.Body>
                     {orders.map((order) => (
@@ -197,7 +197,7 @@ export function CustomerDetail() {
                         </Table.Cell>
                         <Table.Cell>
                           <Chip color={PAYMENT_COLOR[order.payment_status]} size="sm" variant="soft">
-                            {order.payment_status.replace(/_/g, " ")}
+                            {paymentStatusLabel(order.payment_status)}
                           </Chip>
                         </Table.Cell>
                         <Table.Cell className="tabular-nums">{money(order.total_cents)}</Table.Cell>
