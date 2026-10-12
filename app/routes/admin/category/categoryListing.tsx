@@ -7,6 +7,7 @@ import { useLoaderData, useNavigate } from "react-router";
 import { PageHeader } from "@/lib/page-header";
 import { pgbase } from "@/lib/pgbase";
 import { categoryTree, type Category, type Product } from "@/lib/catalog";
+import { m } from "@/paraglide/messages.js";
 
 export async function categoryListingLoader() {
   const [categories, products] = await Promise.all([
@@ -25,10 +26,10 @@ export async function categoryListingLoader() {
 }
 
 const SORT_OPTIONS = [
-  { id: "position", label: "Store order", direction: "ascending" },
-  { id: "name", label: "Name A–Z", direction: "ascending" },
-  { id: "products", label: "Most products", direction: "descending" },
-  { id: "updated_at", label: "Last updated", direction: "descending" },
+  { id: "position", label: m.categories_sort_position(), direction: "ascending" },
+  { id: "name", label: m.categories_sort_name(), direction: "ascending" },
+  { id: "products", label: m.categories_sort_products(), direction: "descending" },
+  { id: "updated_at", label: m.categories_sort_updated(), direction: "descending" },
 ] as const;
 
 interface Row {
@@ -128,12 +129,12 @@ export function CategoryListing() {
   return (
     <div className="flex flex-col gap-4">
       <PageHeader
-        title="Categories"
-        description="Group products for your storefront and reports."
+        title={m.categories_title()}
+        description={m.categories_description()}
         actions={
           <Button size="sm" onPress={() => navigate("/categories/new")}>
             <Plus className="size-4" />
-            New category
+            {m.categories_new()}
           </Button>
         }
       />
@@ -141,14 +142,14 @@ export function CategoryListing() {
       <Card>
         <Card.Header className="flex-row flex-wrap items-center justify-between gap-3">
           <SearchField
-            aria-label="Search categories"
+            aria-label={m.categories_search()}
             variant="secondary"
             value={filter}
             onChange={setFilter}
           >
             <SearchField.Group>
               <SearchField.SearchIcon />
-              <SearchField.Input className="w-44" placeholder="Search" />
+              <SearchField.Input className="w-44" placeholder={m.common_search()} />
               <SearchField.ClearButton />
             </SearchField.Group>
           </SearchField>
@@ -185,14 +186,14 @@ export function CategoryListing() {
           {rows.length === 0 ? (
             <p className="mx-auto max-w-md py-12 text-center text-sm text-muted">
               {categories.length === 0
-                ? "No categories yet. Create your first one."
-                : "No categories match your search."}
+                ? m.categories_empty()
+                : m.categories_no_match()}
             </p>
           ) : (
             <Table>
               <Table.ScrollContainer>
                 <Table.Content
-                  aria-label="Categories"
+                  aria-label={m.categories_title()}
                   className="min-w-[680px]"
                   sortDescriptor={sortDescriptor}
                   onSortChange={setSortDescriptor}
@@ -201,25 +202,25 @@ export function CategoryListing() {
                     <Table.Column allowsSorting id="name" isRowHeader>
                       {({ sortDirection }) => (
                         <Table.SortableColumnHeader sortDirection={sortDirection}>
-                          Category
+                          {m.common_category()}
                         </Table.SortableColumnHeader>
                       )}
                     </Table.Column>
                     <Table.Column allowsSorting id="products">
                       {({ sortDirection }) => (
                         <Table.SortableColumnHeader sortDirection={sortDirection}>
-                          Products
+                          {m.common_products()}
                         </Table.SortableColumnHeader>
                       )}
                     </Table.Column>
                     <Table.Column allowsSorting id="updated_at">
                       {({ sortDirection }) => (
                         <Table.SortableColumnHeader sortDirection={sortDirection}>
-                          Updated
+                          {m.common_updated()}
                         </Table.SortableColumnHeader>
                       )}
                     </Table.Column>
-                    <Table.Column className="text-end">Actions</Table.Column>
+                    <Table.Column className="text-end">{m.common_actions()}</Table.Column>
                   </Table.Header>
                   <Table.Body>
                     {rows.map((row) => {
@@ -273,7 +274,7 @@ export function CategoryListing() {
                               className="text-sm font-medium no-underline"
                               href={`/categories/${row.id}`}
                             >
-                              Edit
+                              {m.common_edit()}
                             </Link>
                           </Table.Cell>
                         </Table.Row>

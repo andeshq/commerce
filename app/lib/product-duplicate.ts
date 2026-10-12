@@ -1,5 +1,6 @@
 import { cents } from "./catalog";
 import { pgbase } from "./pgbase";
+import { m } from "@/paraglide/messages.js";
 import type { Product, VariantWithLinks } from "./catalog";
 
 /**
@@ -77,7 +78,7 @@ export async function duplicateProduct(productId: string): Promise<string> {
 
   const payload = {
     id: crypto.randomUUID(),
-    title: `${source.title} (copy)`,
+    title: m.products_copy_title({ name: source.title }),
     slug,
     status: "draft" as const,
     vendor: source.vendor,

@@ -6,6 +6,7 @@ import { PageHeader } from "@/lib/page-header";
 import { MODIFIER_FORM_ID, ModifierForm, useModifierForm } from "@/lib/modifier-form";
 import { modifierSchema, type ModifierFormValues } from "@/lib/modifier-schema";
 import { currencySymbol, toCents } from "@/lib/catalog";
+import { m } from "@/paraglide/messages.js";
 
 export async function modifierNewLoader() {
   const modifiers = await pgbase.from("modifier_groups").select("id").throwOnError();
@@ -66,12 +67,12 @@ export function ModifierNew() {
   return (
     <div className="flex flex-col gap-4">
       <PageHeader
-        title="New modifier"
-        description="Priced add-ons customers can pick at checkout."
+        title={m.modifiers_new_title()}
+        description={m.modifiers_description()}
         actions={
           <>
             <Button variant="secondary" isDisabled={submitting} onPress={() => history.back()}>
-              Cancel
+              {m.common_cancel()}
             </Button>
             <Button
               type="submit"
@@ -79,7 +80,7 @@ export function ModifierNew() {
               isDisabled={submitting || !isValid}
               isPending={submitting}
             >
-              {submitting ? "Saving…" : "Create modifier"}
+              {submitting ? m.common_saving() : m.modifiers_create()}
             </Button>
           </>
         }

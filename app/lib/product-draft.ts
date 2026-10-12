@@ -1,5 +1,6 @@
 import { cents, toCents, type OptionWithValues, type VariantWithLinks } from "./catalog";
 import { NO_CATEGORY, type ProductFields, type VariantDraft } from "./product-schema";
+import { m } from "@/paraglide/messages.js";
 
 export type { ProductFields, VariantDraft };
 
@@ -66,7 +67,7 @@ export function draftFromVariant(variant: VariantWithLinks): VariantDraft {
 export function variantMatrix(
   options: OptionWithValues[],
 ): Array<{ title: string; optionValueIds: string[] }> {
-  if (options.length === 0) return [{ title: "Default", optionValueIds: [] }];
+  if (options.length === 0) return [{ title: m.product_variant_default(), optionValueIds: [] }];
 
   let combos: Array<{ values: string[]; ids: string[] }> = [{ values: [], ids: [] }];
   for (const option of options) {

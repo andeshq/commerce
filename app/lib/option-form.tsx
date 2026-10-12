@@ -3,6 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Alert, FieldError, Input, Label, Separator, TextField } from "@heroui/react";
 import { optionSchema, type OptionFormValues } from "./option-schema";
 import { ValuesRows } from "./values-rows";
+import { m } from "@/paraglide/messages.js";
 import type { OptionWithValues } from "./catalog";
 
 /** The detail pages submit this form from the page header, outside the <form>. */
@@ -60,7 +61,7 @@ export function OptionForm({
         <Alert status="danger">
           <Alert.Indicator />
           <Alert.Content>
-            <Alert.Title>Could not save</Alert.Title>
+            <Alert.Title>{m.common_could_not_save()}</Alert.Title>
             <Alert.Description>
               <ul className="list-inside list-disc">
                 {errors.map((message) => (
@@ -73,7 +74,7 @@ export function OptionForm({
       )}
 
       <section className="flex flex-col gap-3">
-        <h3 className="text-sm font-semibold">Details</h3>
+        <h3 className="text-sm font-semibold">{m.common_details()}</h3>
 
         <div className="grid gap-5 sm:grid-cols-2">
           <Controller
@@ -90,8 +91,8 @@ export function OptionForm({
                 onBlur={field.onBlur}
                 onChange={field.onChange}
               >
-                <Label>Name</Label>
-                <Input placeholder="Size" />
+                <Label>{m.option_name()}</Label>
+                <Input placeholder={m.option_name_placeholder()} />
                 <FieldError>{fieldState.error?.message}</FieldError>
               </TextField>
             )}
@@ -102,7 +103,7 @@ export function OptionForm({
       <Separator />
 
       <section className="flex flex-col gap-3">
-        <h3 className="text-sm font-semibold">Values</h3>
+        <h3 className="text-sm font-semibold">{m.option_values()}</h3>
         <ValuesRows control={control} isDisabled={submitting} />
         {hint && <p className="text-xs text-muted">{hint}</p>}
       </section>

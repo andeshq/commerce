@@ -17,6 +17,7 @@ import {
 import { Xmark } from "@gravity-ui/icons";
 import { cents, type ModifierGroupWithValues } from "./catalog";
 import { modifierSchema, type ModifierFormValues } from "./modifier-schema";
+import { m } from "@/paraglide/messages.js";
 
 /** The detail pages submit this form from the page header, outside the <form>. */
 export const MODIFIER_FORM_ID = "modifier-form";
@@ -87,7 +88,7 @@ export function ModifierForm({
         <Alert status="danger">
           <Alert.Indicator />
           <Alert.Content>
-            <Alert.Title>Could not save</Alert.Title>
+            <Alert.Title>{m.common_could_not_save()}</Alert.Title>
             <Alert.Description>
               <ul className="list-inside list-disc">
                 {errors.map((message) => (
@@ -100,7 +101,7 @@ export function ModifierForm({
       )}
 
       <section className="flex flex-col gap-3">
-        <h3 className="text-sm font-semibold">Details</h3>
+        <h3 className="text-sm font-semibold">{m.common_details()}</h3>
 
         <div className="grid gap-5 sm:grid-cols-2">
           <Controller
@@ -117,8 +118,8 @@ export function ModifierForm({
                 onBlur={field.onBlur}
                 onChange={field.onChange}
               >
-                <Label>Name</Label>
-                <Input placeholder="Personalización" />
+                <Label>{m.modifier_name()}</Label>
+                <Input placeholder={m.modifier_name_placeholder()} />
                 <FieldError>{fieldState.error?.message}</FieldError>
               </TextField>
             )}
@@ -134,19 +135,19 @@ export function ModifierForm({
                 value={field.value}
                 onChange={(value) => field.onChange(String(value))}
               >
-                <Label>Selection</Label>
+                <Label>{m.modifier_selection()}</Label>
                 <Select.Trigger>
                   <Select.Value />
                   <Select.Indicator />
                 </Select.Trigger>
                 <Select.Popover>
                   <ListBox>
-                    <ListBox.Item id="single" textValue="Single choice">
-                      Single choice
+                    <ListBox.Item id="single" textValue={m.modifiers_selection_single()}>
+                      {m.modifiers_selection_single()}
                       <ListBox.ItemIndicator />
                     </ListBox.Item>
-                    <ListBox.Item id="multiple" textValue="Multiple choice">
-                      Multiple choice
+                    <ListBox.Item id="multiple" textValue={m.modifiers_selection_multiple()}>
+                      {m.modifiers_selection_multiple()}
                       <ListBox.ItemIndicator />
                     </ListBox.Item>
                   </ListBox>
@@ -165,7 +166,7 @@ export function ModifierForm({
                 <Switch.Control>
                   <Switch.Thumb />
                 </Switch.Control>
-                Required — customers must pick at least one
+                {m.modifiers_required_label()}
               </Switch.Content>
             </Switch>
           )}
@@ -176,9 +177,9 @@ export function ModifierForm({
 
       <section className="flex flex-col gap-3">
         <div className="flex flex-col">
-          <h3 className="text-sm font-semibold">Values</h3>
+          <h3 className="text-sm font-semibold">{m.common_values()}</h3>
           <p className="text-xs text-muted">
-            Each value can change the price of the item it is applied to.
+            {m.modifiers_values_hint()}
           </p>
         </div>
 
@@ -190,14 +191,14 @@ export function ModifierForm({
               render={({ field, fieldState }) => (
                 <TextField
                   fullWidth
-                  aria-label={`Value ${index + 1}`}
+                  aria-label={`${m.common_value_placeholder()} ${index + 1}`}
                   isDisabled={submitting}
                   isInvalid={fieldState.invalid}
                   value={field.value ?? ""}
                   onBlur={field.onBlur}
                   onChange={field.onChange}
                 >
-                  <Input placeholder="Value" />
+                  <Input placeholder={m.common_value_placeholder()} />
                   <FieldError>{fieldState.error?.message}</FieldError>
                 </TextField>
               )}
@@ -209,7 +210,7 @@ export function ModifierForm({
               render={({ field, fieldState }) => (
                 <TextField
                   className="w-36 shrink-0"
-                  aria-label={`Value ${index + 1} price`}
+                  aria-label={`${m.common_value_placeholder()} ${index + 1} ${m.common_price()}`}
                   isInvalid={fieldState.invalid}
                 >
                   <InputGroup>
@@ -228,7 +229,7 @@ export function ModifierForm({
             />
 
             <Button
-              aria-label={`Remove value ${index + 1}`}
+              aria-label={m.values_remove({ label: m.common_value_placeholder(), index: String(index + 1) })}
               isIconOnly
               size="sm"
               variant="tertiary"
@@ -242,8 +243,8 @@ export function ModifierForm({
         ))}
 
         <Input
-          aria-label="Add a value"
-          placeholder="Add value"
+          aria-label={m.common_add_value()}
+          placeholder={m.common_add_value()}
           className="w-full"
           disabled={submitting}
           value={draft}

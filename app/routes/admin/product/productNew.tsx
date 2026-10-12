@@ -14,6 +14,7 @@ import { buildCreatePayload } from "@/lib/product-draft";
 import { productFormSchema, type ProductFormValues } from "@/lib/product-schema";
 import { pgbase, pgbaseErrorMessages } from "@/lib/pgbase";
 import { PageHeader } from "@/lib/page-header";
+import { m } from "@/paraglide/messages.js";
 import type { Category, ModifierGroupWithValues, OptionWithValues } from "@/lib/catalog";
 
 export async function productNewLoader() {
@@ -99,12 +100,12 @@ export function ProductNew() {
   return (
     <div className="flex flex-col gap-4">
       <PageHeader
-        title="New product"
-        description="Basics, options and variants are saved in one request."
+        title={m.products_new_title()}
+        description={m.products_new_description()}
         actions={
           <>
             <Button variant="secondary" isDisabled={submitting} onPress={() => navigate(-1)}>
-              Cancel
+              {m.common_cancel()}
             </Button>
             <Button
               type="submit"
@@ -112,7 +113,7 @@ export function ProductNew() {
               isDisabled={submitting || !isValid}
               isPending={submitting}
             >
-              {submitting ? "Saving…" : "Create product"}
+              {submitting ? m.common_saving() : m.products_create()}
             </Button>
           </>
         }

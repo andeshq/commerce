@@ -7,6 +7,7 @@ import { PageHeader } from "@/lib/page-header";
 import { STORE_FORM_ID, StoreForm, useStoreForm } from "@/lib/store-form";
 import { storeSchema, type StoreFormValues } from "@/lib/store-schema";
 import { PaymentsCard } from "@/lib/payments-card";
+import { m } from "@/paraglide/messages.js";
 
 /** RLS only lets admins write here; staff see the form disabled. */
 export async function settingsAction({ request }: ActionFunctionArgs) {
@@ -70,16 +71,14 @@ function SettingsForm() {
   return (
     <div className="flex flex-col gap-4">
       <PageHeader
-        title="Store settings"
+        title={m.settings_title()}
         description={
-          isAdmin
-            ? "Name, currency and tax display for this store."
-            : "Name, currency and tax display for this store (admins only)."
+          isAdmin ? m.settings_description_admin() : m.settings_description_staff()
         }
         actions={
           <>
             <Button variant="secondary" isDisabled={submitting} onPress={() => history.back()}>
-              Cancel
+              {m.common_cancel()}
             </Button>
             <Button
               type="submit"
@@ -87,7 +86,7 @@ function SettingsForm() {
               isDisabled={!isAdmin || submitting || !isValid}
               isPending={submitting}
             >
-              {submitting ? "Saving…" : "Save changes"}
+              {submitting ? m.common_saving() : m.common_save()}
             </Button>
           </>
         }

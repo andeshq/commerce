@@ -11,6 +11,7 @@ import { pgbase, pgbaseErrorMessages } from "@/lib/pgbase";
 import { PageHeader } from "@/lib/page-header";
 import { OPTION_FORM_ID, OptionForm, optionToFormValues, useOptionForm } from "@/lib/option-form";
 import { optionSchema, type OptionFormValues } from "@/lib/option-schema";
+import { m } from "@/paraglide/messages.js";
 import type { OptionWithValues } from "@/lib/catalog";
 
 export async function optionDetailLoader({ params }: LoaderFunctionArgs) {
@@ -123,7 +124,7 @@ export async function optionDetailAction({ request, params }: ActionFunctionArgs
     }
   }
 
-  return { errors: ["Unknown action."] };
+  return { errors: [m.common_unknown_action()] };
 }
 
 export function OptionDetail() {
@@ -144,7 +145,7 @@ export function OptionDetail() {
   }
 
   function remove() {
-    if (!window.confirm(`Delete option “${option.name}”?`)) return;
+    if (!window.confirm(m.options_delete_confirm({ name: option.name }))) return;
     const formData = new FormData();
     formData.set("intent", "delete");
     fetcher.submit(formData, { method: "post" });
@@ -153,12 +154,12 @@ export function OptionDetail() {
   return (
     <div className="flex flex-col gap-4">
       <PageHeader
-        title="Edit option"
-        description={`${option.name} · used by ${usedBy} ${usedBy === 1 ? "product" : "products"}`}
+        title={m.options_edit_title()}
+        description={`${option.name} · ${m.common_used_by()} ${usedBy}`}
         actions={
           <>
             <Button variant="secondary" isDisabled={submitting} onPress={() => history.back()}>
-              Cancel
+              {m.common_cancel()}
             </Button>
             <ButtonGroup>
               <Button
@@ -167,10 +168,10 @@ export function OptionDetail() {
                 isDisabled={submitting || !isValid}
                 isPending={submitting}
               >
-                {submitting ? "Saving…" : "Save changes"}
+                {submitting ? m.common_saving() : m.common_save()}
               </Button>
               <Dropdown>
-                <Button isIconOnly aria-label="More actions" isDisabled={submitting}>
+                <Button isIconOnly aria-label={m.common_more_actions()} isDisabled={submitting}>
                   <ButtonGroup.Separator />
                   <EllipsisVertical className="size-4" />
                 </Button>
@@ -180,9 +181,9 @@ export function OptionDetail() {
                       if (key === "delete") void remove();
                     }}
                   >
-                    <Dropdown.Item id="delete" textValue="Delete option" variant="danger">
+                    <Dropdown.Item id="delete" textValue={m.options_delete()} variant="danger">
                       <TrashBin className="size-4 shrink-0 text-danger" />
-                      <Label>Delete option</Label>
+                      <Label>{m.options_delete()}</Label>
                     </Dropdown.Item>
                   </Dropdown.Menu>
                 </Dropdown.Popover>
@@ -198,7 +199,7 @@ export function OptionDetail() {
             form={form}
             submitting={submitting}
             errors={errors}
-            hint="To delete an option, first detach it from its products."
+            hint={m.options_delete_hint()}
             onSubmit={submit}
           />
         </Card.Content>

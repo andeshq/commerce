@@ -38,6 +38,8 @@ import {
 } from "@/lib/catalog";
 import { pgbase, pgbaseErrorMessages } from "@/lib/pgbase";
 import { totalStockByVariant } from "@/lib/inventory";
+import { productStatusLabel } from "@/lib/i18n";
+import { m } from "@/paraglide/messages.js";
 
 /** Everything the listing renders: catalog, stock, and media thumbnails. */
 export async function productListingLoader() {
@@ -89,7 +91,7 @@ export async function productListingAction({ request }: ActionFunctionArgs) {
     const ids = JSON.parse(String(formData.get("ids"))) as string[];
 
     if (!PRODUCT_STATUSES.includes(status) || ids.length === 0) {
-      return { ok: false, errors: ["Select at least one product."] };
+      return { ok: false, errors: [m.products_select_one()] };
     }
 
     try {
@@ -100,7 +102,7 @@ export async function productListingAction({ request }: ActionFunctionArgs) {
     }
   }
 
-  return { ok: false, errors: ["Unknown action."] };
+  return { ok: false, errors: [m.common_unknown_action()] };
 }
 
 const STATUS_COLOR: Record<ProductStatus, "success" | "warning" | "default"> = {
@@ -110,18 +112,18 @@ const STATUS_COLOR: Record<ProductStatus, "success" | "warning" | "default"> = {
 };
 
 const SORT_OPTIONS = [
-  { id: "updated_at", label: "Last updated", direction: "descending" },
-  { id: "title", label: "Title A–Z", direction: "ascending" },
-  { id: "status", label: "Status", direction: "ascending" },
-  { id: "price", label: "Price", direction: "ascending" },
-  { id: "stock", label: "Stock", direction: "descending" },
+  { id: "updated_at", label: m.sort_last_updated(), direction: "descending" },
+  { id: "title", label: m.sort_title_az(), direction: "ascending" },
+  { id: "status", label: m.common_status(), direction: "ascending" },
+  { id: "price", label: m.common_price(), direction: "ascending" },
+  { id: "stock", label: m.common_stock(), direction: "descending" },
 ] as const;
 
 const STATUS_FILTERS = [
-  { id: "all", label: "All statuses" },
-  { id: "active", label: "Active" },
-  { id: "draft", label: "Draft" },
-  { id: "archived", label: "Archived" },
+  { id: "all", label: m.products_all_statuses() },
+  { id: "active", label: m.status_active() },
+  { id: "draft", label: m.status_draft() },
+  { id: "archived", label: m.status_archived() },
 ] as const;
 
 type StatusFilter = (typeof STATUS_FILTERS)[number]["id"];
@@ -307,20 +309,20 @@ export function ProductListing() {
   /** Exports the rows the filters currently show, one line per variant. */
   function exportCsv() {
     const header = [
-      "Product",
-      "Slug",
-      "Status",
-      "Vendor",
-      "Type",
-      "Category",
-      "Variant",
-      "SKU",
-      "Barcode",
-      "Price",
-      "Compare at",
-      "Cost",
-      "Stock",
-      "Updated",
+      m.common_product(),
+      m.common_slug(),
+      m.common_status(),
+      m.common_vendor(),
+      m.common_type(),
+      m.common_category(),
+      m.common_variant(),
+      m.common_sku(),
+      m.common_barcode(),
+      m.common_price(),
+      m.common_compare_at(),
+      m.common_cost(),
+      m.common_stock(),
+      m.common_updated(),
     ];
     const money = (value: number | null) => (value === null ? "" : String(value / 100));
     const lines: Array<Array<string | number>> = [header];
@@ -381,17 +383,17 @@ export function ProductListing() {
   return (
     <div className="flex flex-col gap-4">
       <PageHeader
-        title="Products"
-        description="Everything you sell in this store."
+        title={m.products_title()}
+        description={m.products_description()}
         actions={
           <>
             <Button size="sm" variant="secondary" onPress={exportCsv}>
               <ArrowDownToLine className="size-4" />
-              Export
+              {m.products_export()}
             </Button>
             <Button size="sm" onPress={() => navigate("/products/new")}>
               <Plus className="size-4" />
-              New product
+              {m.products_new()}
             </Button>
           </>
         }
@@ -401,21 +403,21 @@ export function ProductListing() {
         <Card.Header className="flex-row flex-wrap items-center justify-between gap-3">
           <div className="flex flex-wrap items-center gap-2">
             <SearchField
-              aria-label="Search products"
+              aria-label={m.products_search()}
               variant="secondary"
               value={filter}
               onChange={setFilter}
             >
               <SearchField.Group>
                 <SearchField.SearchIcon />
-                <SearchField.Input className="w-44" placeholder="Search" />
+                <SearchField.Input className="w-44" placeholder={m.common_search()} />
                 <SearchField.ClearButton />
               </SearchField.Group>
             </SearchField>
 
             <Dropdown>
               <Button size="sm" variant="secondary">
-                Status: {status === "all" ? "All" : status}
+                {m.common_status()}: {status === "all" ? m.inventory_all() : productStatusLabel(status)}
               </Button>
               <Dropdown.Popover>
                 <Dropdown.Menu
@@ -438,7 +440,7 @@ export function ProductListing() {
 
             <Dropdown>
               <Button size="sm" variant="secondary">
-                Category: {category === "all" ? "All" : categoryPath(categories, category)}
+                {m.common_category()}: {category === "all" ? m.inventory_all() : categoryPath(categories, category)}
               </Button>
               <Dropdown.Popover>
                 <Dropdown.Menu
@@ -449,8 +451,8 @@ export function ProductListing() {
                     if (typeof key === "string") setCategory(key);
                   }}
                 >
-                  <Dropdown.Item id="all" textValue="All categories">
-                    <Label>All categories</Label>
+                  <Dropdown.Item id="all" textValue={m.products_all_categories()}>
+                    <Label>{m.products_all_categories()}</Label>
                     <Dropdown.ItemIndicator />
                   </Dropdown.Item>
                   {categoryTree(categories).map(({ category: option }) => (
@@ -468,24 +470,26 @@ export function ProductListing() {
             </Dropdown>
             {selected.length > 0 && (
               <div className="flex items-center gap-1 rounded-full bg-surface-secondary py-1 ps-3 pe-1">
-                <span className="text-xs font-medium">{selected.length} selected</span>
+                <span className="text-xs font-medium">
+                  {m.products_selected({ count: selected.length })}
+                </span>
                 <Dropdown>
                   <Button size="sm" variant="tertiary" isDisabled={bulkBusy}>
-                    Set status
+                    {m.products_set_status()}
                     <ChevronDown className="size-3.5 text-muted" />
                   </Button>
                   <Dropdown.Popover>
                     <Dropdown.Menu onAction={(key) => void setSelectedStatus(key as ProductStatus)}>
                       {PRODUCT_STATUSES.map((status) => (
-                        <Dropdown.Item key={status} id={status} textValue={status}>
-                          <Label>{status}</Label>
+                        <Dropdown.Item key={status} id={status} textValue={productStatusLabel(status)}>
+                          <Label>{productStatusLabel(status)}</Label>
                         </Dropdown.Item>
                       ))}
                     </Dropdown.Menu>
                   </Dropdown.Popover>
                 </Dropdown>
                 <Button size="sm" variant="tertiary" onPress={() => setSelected([])}>
-                  Clear
+                  {m.products_clear()}
                 </Button>
               </div>
             )}
@@ -494,7 +498,7 @@ export function ProductListing() {
           <Dropdown>
             <Button size="sm" variant="secondary">
               <BarsDescendingAlignLeft className="size-4" />
-              Sort by
+              {m.common_sort_by()}
             </Button>
             <Dropdown.Popover>
               <Dropdown.Menu
@@ -524,14 +528,14 @@ export function ProductListing() {
           {rows.length === 0 ? (
             <p className="mx-auto max-w-md py-12 text-center text-sm text-muted">
               {products.length === 0
-                ? "No products yet. Create your first one."
-                : "No products match your filters."}
+                ? m.products_empty()
+                : m.products_no_match()}
             </p>
           ) : (
             <Table>
               <Table.ScrollContainer>
                 <Table.Content
-                  aria-label="Products"
+                  aria-label={m.products_title()}
                   className="min-w-[900px]"
                   selectionMode="multiple"
                   selectedKeys={selected}
@@ -541,7 +545,7 @@ export function ProductListing() {
                 >
                   <Table.Header>
                     <Table.Column className="w-10">
-                      <Checkbox slot="selection" aria-label="Select all products">
+                      <Checkbox slot="selection" aria-label={m.products_select_all()}>
                         <Checkbox.Content>
                           <Checkbox.Control>
                             <Checkbox.Indicator />
@@ -552,40 +556,40 @@ export function ProductListing() {
                     <Table.Column allowsSorting id="title" isRowHeader>
                       {({ sortDirection }) => (
                         <Table.SortableColumnHeader sortDirection={sortDirection}>
-                          Product
+                          {m.common_product()}
                         </Table.SortableColumnHeader>
                       )}
                     </Table.Column>
-                    <Table.Column id="category">Category</Table.Column>
+                    <Table.Column id="category">{m.common_category()}</Table.Column>
                     <Table.Column allowsSorting id="status">
                       {({ sortDirection }) => (
                         <Table.SortableColumnHeader sortDirection={sortDirection}>
-                          Status
+                          {m.common_status()}
                         </Table.SortableColumnHeader>
                       )}
                     </Table.Column>
                     <Table.Column allowsSorting id="price">
                       {({ sortDirection }) => (
                         <Table.SortableColumnHeader sortDirection={sortDirection}>
-                          Price
+                          {m.common_price()}
                         </Table.SortableColumnHeader>
                       )}
                     </Table.Column>
                     <Table.Column allowsSorting id="stock">
                       {({ sortDirection }) => (
                         <Table.SortableColumnHeader sortDirection={sortDirection}>
-                          Stock
+                          {m.common_stock()}
                         </Table.SortableColumnHeader>
                       )}
                     </Table.Column>
                     <Table.Column allowsSorting id="updated_at">
                       {({ sortDirection }) => (
                         <Table.SortableColumnHeader sortDirection={sortDirection}>
-                          Updated
+                          {m.common_updated()}
                         </Table.SortableColumnHeader>
                       )}
                     </Table.Column>
-                    <Table.Column className="text-end">Actions</Table.Column>
+                    <Table.Column className="text-end">{m.common_actions()}</Table.Column>
                   </Table.Header>
                   <Table.Body>
                     {rows.map((product) => {
@@ -596,7 +600,7 @@ export function ProductListing() {
                             <Table.Cell>
                               <Checkbox
                                 slot="selection"
-                                aria-label={`Select ${product.title}`}
+                                aria-label={m.products_select({ name: product.title })}
                               >
                                 <Checkbox.Content>
                                   <Checkbox.Control>
@@ -611,8 +615,8 @@ export function ProductListing() {
                                   <Button
                                     aria-label={
                                       open
-                                        ? `Collapse ${product.title} variants`
-                                        : `Expand ${product.title} variants`
+                                        ? m.products_collapse_variants({ name: product.title })
+                                        : m.products_expand_variants({ name: product.title })
                                     }
                                     aria-expanded={open}
                                     isIconOnly
@@ -651,8 +655,10 @@ export function ProductListing() {
                                     {product.title}
                                   </span>
                                   <span className="truncate text-xs text-muted">
-                                    {product.slug} · {product.variantCount}{" "}
-                                    {product.variantCount === 1 ? "variant" : "variants"}
+                                    {product.slug} ·{" "}
+                                    {product.variantCount === 1
+                                      ? m.count_variant_one({ count: product.variantCount })
+                                      : m.count_variant_other({ count: product.variantCount })}
                                   </span>
                                 </Link>
                               </div>
@@ -662,7 +668,7 @@ export function ProductListing() {
                             </Table.Cell>
                             <Table.Cell>
                               <Chip color={STATUS_COLOR[product.status]} size="sm" variant="soft">
-                                {product.status}
+                                {productStatusLabel(product.status)}
                               </Chip>
                             </Table.Cell>
                             <Table.Cell className="tabular-nums">{product.priceLabel}</Table.Cell>
@@ -675,7 +681,7 @@ export function ProductListing() {
                                   size="sm"
                                   variant="soft"
                                 >
-                                  {product.stock} available
+                                  {m.products_available({ count: product.stock })}
                                 </Chip>
                               )}
                             </Table.Cell>
@@ -685,7 +691,7 @@ export function ProductListing() {
                                 className="text-sm font-medium no-underline"
                                 href={`/products/${product.id}`}
                               >
-                                Edit
+                                {m.common_edit()}
                               </Link>
                             </Table.Cell>
                           </Table.Row>
@@ -695,10 +701,10 @@ export function ProductListing() {
                               <Table.Cell colSpan={8}>
                                 <div className="flex flex-col gap-2 py-1">
                                   <div className="flex items-center gap-4 text-xs font-medium text-muted">
-                                    <span className="w-48">Variant</span>
-                                    <span className="w-32">SKU</span>
-                                    <span className="w-28">Price</span>
-                                    <span>Stock</span>
+                                    <span className="w-48">{m.common_variant()}</span>
+                                    <span className="w-32">{m.common_sku()}</span>
+                                    <span className="w-28">{m.common_price()}</span>
+                                    <span>{m.common_stock()}</span>
                                   </div>
                                   {(variantRows.get(product.id) ?? []).map((variant) => (
                                     <div key={variant.id} className="flex items-center gap-4 text-xs">
@@ -712,7 +718,7 @@ export function ProductListing() {
                                       <span className="text-muted">
                                         {variant.stock === undefined
                                           ? "—"
-                                          : `${variant.stock} available`}
+                                          : m.products_available({ count: variant.stock })}
                                       </span>
                                     </div>
                                   ))}

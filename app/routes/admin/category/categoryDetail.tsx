@@ -12,6 +12,7 @@ import { PageHeader } from "@/lib/page-header";
 import { CATEGORY_FORM_ID, CategoryForm, useCategoryForm } from "@/lib/category-form";
 import { categorySchema, NO_PARENT, type CategoryFormValues } from "@/lib/category-schema";
 import { categoryDescendantIds, categoryPath, categoryTree, type Category } from "@/lib/catalog";
+import { m } from "@/paraglide/messages.js";
 
 export async function categoryDetailLoader({ params }: LoaderFunctionArgs) {
   const id = String(params.id);
@@ -78,7 +79,7 @@ export async function categoryDetailAction({ request, params }: ActionFunctionAr
     }
   }
 
-  return { errors: ["Unknown action."] };
+  return { errors: [m.common_unknown_action()] };
 }
 
 export function CategoryDetail() {
@@ -116,11 +117,7 @@ export function CategoryDetail() {
   }
 
   function remove() {
-    if (
-      !window.confirm(
-        `Delete category “${category.name}”? Products keep existing, they just lose this category.`,
-      )
-    ) {
+    if (!window.confirm(m.categories_delete_confirm({ name: category.name }))) {
       return;
     }
     const formData = new FormData();
@@ -131,14 +128,16 @@ export function CategoryDetail() {
   return (
     <div className="flex flex-col gap-4">
       <PageHeader
-        title="Edit category"
-        description={`${category.name} · ${productCount} ${
-          productCount === 1 ? "product" : "products"
+        title={m.categories_edit_title()}
+        description={`${category.name} · ${
+          productCount === 1
+            ? m.count_product_one({ count: productCount })
+            : m.count_product_other({ count: productCount })
         }`}
         actions={
           <>
             <Button variant="secondary" isDisabled={submitting} onPress={() => history.back()}>
-              Cancel
+              {m.common_cancel()}
             </Button>
             <ButtonGroup>
               <Button
@@ -147,10 +146,10 @@ export function CategoryDetail() {
                 isDisabled={submitting || !isValid}
                 isPending={submitting}
               >
-                {submitting ? "Saving…" : "Save changes"}
+                {submitting ? m.common_saving() : m.common_save()}
               </Button>
               <Dropdown>
-                <Button isIconOnly aria-label="More actions" isDisabled={submitting}>
+                <Button isIconOnly aria-label={m.common_more_actions()} isDisabled={submitting}>
                   <ButtonGroup.Separator />
                   <EllipsisVertical className="size-4" />
                 </Button>
@@ -160,9 +159,9 @@ export function CategoryDetail() {
                       if (key === "delete") void remove();
                     }}
                   >
-                    <Dropdown.Item id="delete" textValue="Delete category" variant="danger">
+                    <Dropdown.Item id="delete" textValue={m.categories_delete()} variant="danger">
                       <TrashBin className="size-4 shrink-0 text-danger" />
-                      <Label>Delete category</Label>
+                      <Label>{m.categories_delete()}</Label>
                     </Dropdown.Item>
                   </Dropdown.Menu>
                 </Dropdown.Popover>

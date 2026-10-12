@@ -4,6 +4,7 @@ import { pgbase, pgbaseErrorMessages } from "@/lib/pgbase";
 import { PageHeader } from "@/lib/page-header";
 import { OPTION_FORM_ID, OptionForm, useOptionForm } from "@/lib/option-form";
 import { optionSchema, type OptionFormValues } from "@/lib/option-schema";
+import { m } from "@/paraglide/messages.js";
 import type { OptionWithValues } from "@/lib/catalog";
 
 export async function optionNewLoader() {
@@ -65,12 +66,12 @@ export function OptionNew() {
   return (
     <div className="flex flex-col gap-4">
       <PageHeader
-        title="New option"
-        description="Define values once; any product can link this option."
+        title={m.options_new_title()}
+        description={m.options_description()}
         actions={
           <>
             <Button variant="secondary" isDisabled={submitting} onPress={() => history.back()}>
-              Cancel
+              {m.common_cancel()}
             </Button>
             <Button
               type="submit"
@@ -78,7 +79,7 @@ export function OptionNew() {
               isDisabled={submitting || !isValid}
               isPending={submitting}
             >
-              {submitting ? "Saving…" : "Create option"}
+              {submitting ? m.common_saving() : m.options_create()}
             </Button>
           </>
         }

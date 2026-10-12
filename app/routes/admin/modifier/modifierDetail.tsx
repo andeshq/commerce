@@ -18,6 +18,7 @@ import {
 } from "@/lib/modifier-form";
 import { modifierSchema, type ModifierFormValues } from "@/lib/modifier-schema";
 import { cents, currencySymbol, toCents } from "@/lib/catalog";
+import { m } from "@/paraglide/messages.js";
 import type { ModifierGroupWithValues } from "@/lib/catalog";
 
 export async function modifierDetailLoader({ params }: LoaderFunctionArgs) {
@@ -154,7 +155,7 @@ export async function modifierDetailAction({ request, params }: ActionFunctionAr
     }
   }
 
-  return { errors: ["Unknown action."] };
+  return { errors: [m.common_unknown_action()] };
 }
 
 export function ModifierDetail() {
@@ -177,7 +178,7 @@ export function ModifierDetail() {
   }
 
   function remove() {
-    if (!window.confirm(`Delete modifier “${group.name}”?`)) return;
+    if (!window.confirm(m.modifiers_delete_confirm({ name: group.name }))) return;
     const formData = new FormData();
     formData.set("intent", "delete");
     fetcher.submit(formData, { method: "post" });
@@ -186,12 +187,12 @@ export function ModifierDetail() {
   return (
     <div className="flex flex-col gap-4">
       <PageHeader
-        title="Edit modifier"
-        description={`${group.name} · used by ${usedBy} ${usedBy === 1 ? "product" : "products"}`}
+        title={m.modifiers_edit_title()}
+        description={`${group.name} · ${m.common_used_by()} ${usedBy}`}
         actions={
           <>
             <Button variant="secondary" isDisabled={submitting} onPress={() => history.back()}>
-              Cancel
+              {m.common_cancel()}
             </Button>
             <ButtonGroup>
               <Button
@@ -200,10 +201,10 @@ export function ModifierDetail() {
                 isDisabled={submitting || !isValid}
                 isPending={submitting}
               >
-                {submitting ? "Saving…" : "Save changes"}
+                {submitting ? m.common_saving() : m.common_save()}
               </Button>
               <Dropdown>
-                <Button isIconOnly aria-label="More actions" isDisabled={submitting}>
+                <Button isIconOnly aria-label={m.common_more_actions()} isDisabled={submitting}>
                   <ButtonGroup.Separator />
                   <EllipsisVertical className="size-4" />
                 </Button>
@@ -213,9 +214,9 @@ export function ModifierDetail() {
                       if (key === "delete") void remove();
                     }}
                   >
-                    <Dropdown.Item id="delete" textValue="Delete modifier" variant="danger">
+                    <Dropdown.Item id="delete" textValue={m.modifiers_delete()} variant="danger">
                       <TrashBin className="size-4 shrink-0 text-danger" />
-                      <Label>Delete modifier</Label>
+                      <Label>{m.modifiers_delete()}</Label>
                     </Dropdown.Item>
                   </Dropdown.Menu>
                 </Dropdown.Popover>
@@ -232,7 +233,7 @@ export function ModifierDetail() {
             symbol={symbol}
             submitting={submitting}
             errors={errors}
-            hint="To delete a modifier, first detach it from its products."
+            hint={m.modifiers_delete_hint()}
             onSubmit={submit}
           />
         </Card.Content>

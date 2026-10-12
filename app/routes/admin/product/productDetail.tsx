@@ -11,6 +11,7 @@ import {
 } from "react-router";
 import { useAdminStore } from "@/routes/admin/adminLayout";
 import { pgbase, pgbaseErrorMessages } from "@/lib/pgbase";
+import { m } from "@/paraglide/messages.js";
 import { PageHeader } from "@/lib/page-header";
 import { PRODUCT_FORM_ID, ProductForm, useProductForm } from "@/lib/product-form";
 import { ProductImages } from "@/lib/product-images";
@@ -236,7 +237,7 @@ export async function productDetailAction({ request, params }: ActionFunctionArg
     }
   }
 
-  return { errors: ["Unknown action."] };
+  return { errors: [m.common_unknown_action()] };
 }
 
 export function ProductDetail() {
@@ -361,7 +362,7 @@ function ProductEditor({ data }: { data: ProductDetailData }) {
           size="sm"
           variant="tertiary"
           isDisabled={!variant.id || imageEntries.length === 0}
-          aria-label={`Image for variant ${index + 1} (${variant.title})`}
+          aria-label={`${m.common_image()} ${index + 1} (${variant.title})`}
         >
           {selected ? (
             <img src={selected.url} alt="" className="size-6 rounded object-cover" />
@@ -379,18 +380,18 @@ function ProductEditor({ data }: { data: ProductDetailData }) {
               void setVariantImage(variant.id, key === "none" ? null : key);
             }}
           >
-            <Dropdown.Item id="none" textValue="No image">
-              <Label>No image</Label>
+            <Dropdown.Item id="none" textValue={m.product_no_image()}>
+              <Label>{m.product_no_image()}</Label>
               <Dropdown.ItemIndicator />
             </Dropdown.Item>
             {imageEntries.map((entry) => (
               <Dropdown.Item
                 key={entry.mediaId}
                 id={entry.mediaId}
-                textValue={entry.alt ?? "Image"}
+                textValue={entry.alt ?? m.common_image()}
               >
                 <img src={entry.url} alt="" className="size-6 rounded object-cover" />
-                <Label>{entry.alt ?? "Image"}</Label>
+                <Label>{entry.alt ?? m.common_image()}</Label>
                 <Dropdown.ItemIndicator />
               </Dropdown.Item>
             ))}
@@ -409,7 +410,7 @@ function ProductEditor({ data }: { data: ProductDetailData }) {
   }
 
   function remove() {
-    if (!window.confirm(`Delete "${product.title}"?`)) return;
+    if (!window.confirm(m.product_delete_confirm({ name: product.title }))) return;
     const formData = new FormData();
     formData.set("intent", "delete");
     fetcher.submit(formData, { method: "post" });
@@ -425,12 +426,12 @@ function ProductEditor({ data }: { data: ProductDetailData }) {
   return (
     <div className="flex flex-col gap-4">
       <PageHeader
-        title="Edit product"
+        title={m.product_edit_title()}
         description={`${product.title} · /${product.slug}`}
         actions={
           <>
             <Button variant="secondary" isDisabled={submitting} onPress={() => history.back()}>
-              Cancel
+              {m.common_cancel()}
             </Button>
             <ButtonGroup>
               <Button
@@ -439,10 +440,10 @@ function ProductEditor({ data }: { data: ProductDetailData }) {
                 isDisabled={submitting || !isValid}
                 isPending={submitting}
               >
-                {submitting ? "Saving…" : "Save changes"}
+                {submitting ? m.common_saving() : m.common_save()}
               </Button>
               <Dropdown>
-                <Button isIconOnly aria-label="More actions" isDisabled={submitting}>
+                <Button isIconOnly aria-label={m.common_more_actions()} isDisabled={submitting}>
                   <ButtonGroup.Separator />
                   <EllipsisVertical className="size-4" />
                 </Button>
@@ -453,13 +454,13 @@ function ProductEditor({ data }: { data: ProductDetailData }) {
                       if (key === "delete") remove();
                     }}
                   >
-                    <Dropdown.Item id="duplicate" textValue="Duplicate product">
+                    <Dropdown.Item id="duplicate" textValue={m.product_duplicate()}>
                       <Copy className="size-4 shrink-0 text-muted" />
-                      <Label>Duplicate product</Label>
+                      <Label>{m.product_duplicate()}</Label>
                     </Dropdown.Item>
-                    <Dropdown.Item id="delete" textValue="Delete product" variant="danger">
+                    <Dropdown.Item id="delete" textValue={m.product_delete()} variant="danger">
                       <TrashBin className="size-4 shrink-0 text-danger" />
-                      <Label>Delete product</Label>
+                      <Label>{m.product_delete()}</Label>
                     </Dropdown.Item>
                   </Dropdown.Menu>
                 </Dropdown.Popover>
@@ -495,17 +496,17 @@ function ProductEditor({ data }: { data: ProductDetailData }) {
 
       <Card>
         <Card.Header>
-          <Card.Title>Stock</Card.Title>
+          <Card.Title>{m.common_stock()}</Card.Title>
           <Card.Description>
-            On hand by location. Adjustments are recorded immediately.
+            {m.product_stock_hint()}
           </Card.Description>
         </Card.Header>
         <Card.Content>
           {variants.length === 0 ? (
-            <p className="text-sm text-muted">No variants yet.</p>
+            <p className="text-sm text-muted">{m.product_no_variants()}</p>
           ) : activeLocations.length === 0 ? (
             <p className="text-sm text-muted">
-              No active locations. Add one from the Inventory page.
+              {m.product_no_active_locations()}
             </p>
           ) : (
             <div className="flex flex-col">
@@ -516,7 +517,7 @@ function ProductEditor({ data }: { data: ProductDetailData }) {
                 >
                   <div className="min-w-40 flex-1">
                     <p className="truncate text-sm font-medium">{variant.title}</p>
-                    <p className="truncate text-xs text-muted">{variant.sku ?? "No SKU"}</p>
+                    <p className="truncate text-xs text-muted">{variant.sku ?? m.inventory_no_sku()}</p>
                   </div>
                   {activeLocations.map((location) => (
                     <div key={location.id} className="flex items-center gap-2">
@@ -527,12 +528,15 @@ function ProductEditor({ data }: { data: ProductDetailData }) {
                       <Button
                         size="sm"
                         variant="secondary"
-                        aria-label={`Adjust stock for ${variant.title} at ${location.name}`}
+                        aria-label={m.product_adjust_at({
+                          variant: variant.title,
+                          location: location.name,
+                        })}
                         onPress={() =>
                           setAdjust({ open: true, variantId: variant.id, locationId: location.id })
                         }
                       >
-                        Adjust
+                        {m.common_adjust()}
                       </Button>
                     </div>
                   ))}

@@ -9,6 +9,7 @@ import {
   type FieldPath,
   type FieldValues,
 } from "react-hook-form";
+import { m } from "@/paraglide/messages.js";
 
 /** Form state for one option value; `id`/`usage` are set for saved rows. */
 export interface ValueRow {
@@ -28,7 +29,7 @@ export interface ValueRow {
  */
 export function ValuesRows<T extends FieldValues & { values: ValueRow[] }>({
   control,
-  label = "Value",
+  label,
   isDisabled,
 }: {
   control: Control<T>;
@@ -36,6 +37,7 @@ export function ValuesRows<T extends FieldValues & { values: ValueRow[] }>({
   label?: string;
   isDisabled?: boolean;
 }) {
+  const valueLabel = label ?? m.common_value_placeholder();
   const { fields, append, remove } = useFieldArray({
     control,
     name: "values" as FieldArrayPath<T>,
@@ -64,14 +66,14 @@ export function ValuesRows<T extends FieldValues & { values: ValueRow[] }>({
               render={({ field, fieldState }) => (
                 <TextField
                   fullWidth
-                  aria-label={`${label} ${index + 1}`}
+                  aria-label={`${valueLabel} ${index + 1}`}
                   isDisabled={isDisabled}
                   isInvalid={fieldState.invalid}
                   value={field.value ?? ""}
                   onBlur={field.onBlur}
                   onChange={field.onChange}
                 >
-                  <Input placeholder="Value" />
+                  <Input placeholder={m.common_value_placeholder()} />
                   <FieldError>{fieldState.error?.message}</FieldError>
                 </TextField>
               )}
@@ -79,12 +81,14 @@ export function ValuesRows<T extends FieldValues & { values: ValueRow[] }>({
 
             {usage !== undefined && (
               <span className="pt-2.5 text-xs whitespace-nowrap text-muted">
-                {usage} {usage === 1 ? "variant" : "variants"}
+                {usage === 1
+                  ? m.count_variant_one({ count: usage })
+                  : m.count_variant_other({ count: usage })}
               </span>
             )}
 
             <Button
-              aria-label={`Remove ${label.toLowerCase()} ${index + 1}`}
+              aria-label={m.values_remove({ label: valueLabel, index: String(index + 1) })}
               isIconOnly
               size="sm"
               variant="tertiary"
@@ -99,8 +103,8 @@ export function ValuesRows<T extends FieldValues & { values: ValueRow[] }>({
       })}
 
       <Input
-        aria-label={`Add ${label.toLowerCase()}`}
-        placeholder="Add value"
+        aria-label={m.common_add_value()}
+        placeholder={m.common_add_value()}
         className="w-full"
         disabled={isDisabled}
         value={draft}

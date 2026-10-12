@@ -4,6 +4,7 @@ import { Grip, Picture, Xmark } from "@gravity-ui/icons";
 import { arrayMove } from "@dnd-kit/sortable";
 import { pgbase, pgbaseErrorMessages } from "./pgbase";
 import { SortableItem, SortableList, dragHandleClass } from "./sortable";
+import { m } from "@/paraglide/messages.js";
 
 export interface ImageEntry {
   mediaId: string;
@@ -61,7 +62,7 @@ export function ProductImages({
         const response = await fetch("/api/media", { method: "POST", body: form });
         if (!response.ok) {
           const body = (await response.json().catch(() => null)) as { message?: string } | null;
-          throw new Error(body?.message ?? "Upload failed.");
+          throw new Error(body?.message ?? m.product_upload_failed());
         }
 
         const created = (await response.json()) as {
@@ -106,7 +107,7 @@ export function ProductImages({
       report(next);
       onDetached?.(entry.mediaId);
     } catch (caught) {
-      setError(pgbaseErrorMessages(caught)[0] ?? "Could not detach the image.");
+      setError(pgbaseErrorMessages(caught)[0] ?? m.product_detach_failed());
     } finally {
       setBusy(false);
     }
@@ -125,7 +126,7 @@ export function ProductImages({
         entries.map((item) => (item.mediaId === entry.mediaId ? { ...item, alt } : item)),
       );
     } catch (caught) {
-      setError(pgbaseErrorMessages(caught)[0] ?? "Could not save the alt text.");
+      setError(pgbaseErrorMessages(caught)[0] ?? m.product_alt_failed());
     } finally {
       setBusy(false);
     }
@@ -141,7 +142,7 @@ export function ProductImages({
     try {
       await renumber(productId, next);
     } catch (caught) {
-      setError(pgbaseErrorMessages(caught)[0] ?? "Could not reorder the images.");
+      setError(pgbaseErrorMessages(caught)[0] ?? m.product_reorder_failed());
     } finally {
       setBusy(false);
     }
@@ -157,7 +158,7 @@ export function ProductImages({
     try {
       await renumber(productId, next);
     } catch (caught) {
-      setError(pgbaseErrorMessages(caught)[0] ?? "Could not reorder the images.");
+      setError(pgbaseErrorMessages(caught)[0] ?? m.product_reorder_failed());
     } finally {
       setBusy(false);
     }
@@ -183,7 +184,7 @@ export function ProductImages({
                     <div className="relative">
                       <button
                         type="button"
-                        aria-label={`Set image ${index + 1} as the main image`}
+                        aria-label={m.product_set_main({ index: String(index + 1) })}
                         disabled={busy || index === 0}
                         onClick={() => void makeMain(entry)}
                         className={
@@ -194,20 +195,20 @@ export function ProductImages({
                         <img src={entry.url} alt={entry.alt ?? ""} className="size-24 object-cover" />
                         {index === 0 && (
                           <span className="absolute start-1 bottom-1 rounded-full bg-accent px-2 py-0.5 text-[10px] font-medium text-accent-foreground">
-                            Main
+                            {m.product_main()}
                           </span>
                         )}
                       </button>
                       <button
                         type="button"
-                        aria-label={`Reorder image ${index + 1}`}
+                        aria-label={m.product_reorder_image({ index: String(index + 1) })}
                         className={`${dragHandleClass} absolute -start-2 -top-2 size-6 bg-surface shadow-surface`}
                         {...handleProps}
                       >
                         <Grip className="size-3.5" />
                       </button>
                       <Button
-                        aria-label={`Remove image ${index + 1}`}
+                        aria-label={m.product_remove_image({ index: String(index + 1) })}
                         isIconOnly
                         size="sm"
                         variant="tertiary"
@@ -219,10 +220,10 @@ export function ProductImages({
                       </Button>
                     </div>
                     <Input
-                      aria-label={`Alt text for image ${index + 1}`}
+                      aria-label={m.product_alt_for({ index: String(index + 1) })}
                       className="text-xs"
                       defaultValue={entry.alt ?? ""}
-                      placeholder="Alt text"
+                      placeholder={m.product_alt_text()}
                       disabled={busy || !productId}
                       onBlur={(event) => void saveAlt(entry, event.target.value)}
                     />
@@ -247,12 +248,12 @@ export function ProductImages({
         />
         <Button variant="secondary" isDisabled={busy} onPress={() => input.current?.click()}>
           <Picture className="size-4" />
-          {busy ? "Uploading…" : "Add images"}
+          {busy ? m.product_uploading() : m.product_add_images()}
         </Button>
       </div>
 
       {entries.length === 0 && !busy && (
-        <p className="text-xs text-muted">JPEG, PNG, WebP, AVIF or GIF, up to 10 MB.</p>
+        <p className="text-xs text-muted">{m.product_images_formats()}</p>
       )}
       {error && <p className="text-xs text-danger">{error}</p>}
     </div>

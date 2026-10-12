@@ -1,5 +1,6 @@
 import type { InventoryLevel, InventoryMovement } from "./catalog";
 import { pgbase } from "./pgbase";
+import { m } from "@/paraglide/messages.js";
 
 /**
  * Square's stock actions: additions, deductions, and physical recounts that set
@@ -8,24 +9,24 @@ import { pgbase } from "./pgbase";
 export const INVENTORY_ACTIONS = [
   {
     id: "stock_received",
-    label: "Stock received",
+    label: m.inventory_stock_received(),
     direction: "in",
-    inputLabel: "Received",
+    inputLabel: m.inventory_received(),
   },
   {
     id: "inventory_recount",
-    label: "Inventory recount",
+    label: m.inventory_recount(),
     direction: "recount",
-    inputLabel: "Counted quantity",
+    inputLabel: m.inventory_counted_quantity(),
   },
-  { id: "damage", label: "Damage", direction: "out", inputLabel: "Removed" },
-  { id: "theft", label: "Theft", direction: "out", inputLabel: "Removed" },
-  { id: "loss", label: "Loss", direction: "out", inputLabel: "Removed" },
+  { id: "damage", label: m.inventory_damage(), direction: "out", inputLabel: m.inventory_removed() },
+  { id: "theft", label: m.inventory_theft(), direction: "out", inputLabel: m.inventory_removed() },
+  { id: "loss", label: m.inventory_loss(), direction: "out", inputLabel: m.inventory_removed() },
   {
     id: "restock_return",
-    label: "Restock return",
+    label: m.inventory_restock_return(),
     direction: "in",
-    inputLabel: "Returned",
+    inputLabel: m.inventory_returned(),
   },
 ] as const;
 
@@ -130,6 +131,6 @@ export async function adjustStock(input: AdjustStockInput): Promise<{ available:
     .throwOnError();
 
   const row = (Array.isArray(data) ? data[0] : data) as { available: number } | null;
-  if (!row) throw new Error("The adjustment did not return a stock level.");
+  if (!row) throw new Error(m.inventory_adjustment_failed());
   return { available: row.available };
 }

@@ -12,6 +12,7 @@ import {
   StockHistoryDialog,
 } from "@/lib/inventory-dialogs";
 import type { InventoryItemRow } from "@/lib/inventory";
+import { m } from "@/paraglide/messages.js";
 import type {
   InventoryLevel,
   InventoryLocation,
@@ -61,16 +62,16 @@ type StatusFilter = "all" | "in" | "out";
 type LocationFilter = "all" | string;
 
 const STATUS_FILTERS = [
-  { id: "all", label: "All stock" },
-  { id: "in", label: "In stock" },
-  { id: "out", label: "Out of stock" },
+  { id: "all", label: m.inventory_all_stock() },
+  { id: "in", label: m.common_in_stock() },
+  { id: "out", label: m.common_out_of_stock() },
 ] as const;
 
 const SORT_OPTIONS = [
-  { id: "name", label: "Item A–Z", column: "item", direction: "ascending" },
-  { id: "updated", label: "Recently updated", column: "updated", direction: "descending" },
-  { id: "stock_low", label: "Lowest stock", column: "onHand", direction: "ascending" },
-  { id: "stock_high", label: "Highest stock", column: "onHand", direction: "descending" },
+  { id: "name", label: m.sort_item_az(), column: "item", direction: "ascending" },
+  { id: "updated", label: m.sort_recently_updated(), column: "updated", direction: "descending" },
+  { id: "stock_low", label: m.sort_lowest_stock(), column: "onHand", direction: "ascending" },
+  { id: "stock_high", label: m.sort_highest_stock(), column: "onHand", direction: "descending" },
 ] as const satisfies ReadonlyArray<{
   id: string;
   label: string;
@@ -215,11 +216,11 @@ export function InventoryListing() {
   return (
     <div className="flex flex-col gap-4">
       <PageHeader
-        title="Inventory"
-        description="On hand by variant and location."
+        title={m.inventory_title()}
+        description={m.inventory_description()}
         actions={
           <Button size="sm" onPress={() => openAdjust()}>
-            Adjust stock
+            {m.inventory_adjust_stock()}
           </Button>
         }
       />
@@ -228,21 +229,21 @@ export function InventoryListing() {
         <Card.Header className="flex-row flex-wrap items-center justify-between gap-3">
           <div className="flex flex-wrap items-center gap-2">
             <SearchField
-              aria-label="Search inventory"
+              aria-label={m.inventory_search()}
               variant="secondary"
               value={filter}
               onChange={setFilter}
             >
               <SearchField.Group>
                 <SearchField.SearchIcon />
-                <SearchField.Input className="w-44" placeholder="Search" />
+                <SearchField.Input className="w-44" placeholder={m.common_search()} />
                 <SearchField.ClearButton />
               </SearchField.Group>
             </SearchField>
 
             <Dropdown>
               <Button size="sm" variant="secondary">
-                Location: {currentLocation?.name ?? "All"}
+                {m.inventory_location()}: {currentLocation?.name ?? m.inventory_all()}
               </Button>
               <Dropdown.Popover>
                 <Dropdown.Menu
@@ -258,8 +259,8 @@ export function InventoryListing() {
                     setLocationId(key);
                   }}
                 >
-                  <Dropdown.Item id="all" textValue="All locations">
-                    <Label>All locations</Label>
+                  <Dropdown.Item id="all" textValue={m.inventory_all_locations()}>
+                    <Label>{m.inventory_all_locations()}</Label>
                     <Dropdown.ItemIndicator />
                   </Dropdown.Item>
                   {locations.map((location) => (
@@ -270,14 +271,14 @@ export function InventoryListing() {
                     >
                       <Label>
                         {location.name}
-                        {location.active ? "" : " (inactive)"}
+                        {location.active ? "" : ` (${m.common_inactive()})`}
                       </Label>
                       <Dropdown.ItemIndicator />
                     </Dropdown.Item>
                   ))}
                   <Separator />
-                  <Dropdown.Item id="manage" textValue="Manage locations">
-                    <Label>Manage locations…</Label>
+                  <Dropdown.Item id="manage" textValue={m.inventory_manage_locations()}>
+                    <Label>{m.inventory_manage_locations()}</Label>
                   </Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown.Popover>
@@ -285,7 +286,7 @@ export function InventoryListing() {
 
             <Dropdown>
               <Button size="sm" variant="secondary">
-                Status: {STATUS_FILTERS.find((option) => option.id === status)?.label}
+                {m.common_status()}: {STATUS_FILTERS.find((option) => option.id === status)?.label}
               </Button>
               <Dropdown.Popover>
                 <Dropdown.Menu
@@ -310,7 +311,7 @@ export function InventoryListing() {
           <Dropdown>
             <Button size="sm" variant="secondary">
               <BarsDescendingAlignLeft className="size-4" />
-              Sort by
+              {m.common_sort_by()}
             </Button>
             <Dropdown.Popover>
               <Dropdown.Menu
@@ -338,17 +339,17 @@ export function InventoryListing() {
         <Card.Content>
           {itemRows.length === 0 ? (
             <p className="mx-auto max-w-md py-12 text-center text-sm text-muted">
-              No products yet. Create one to start tracking stock.
+              {m.inventory_no_products()}
             </p>
           ) : rows.length === 0 ? (
             <p className="mx-auto max-w-md py-12 text-center text-sm text-muted">
-              No variants match your filters.
+              {m.inventory_no_variants_match()}
             </p>
           ) : (
             <Table>
               <Table.ScrollContainer>
                 <Table.Content
-                  aria-label="Inventory"
+                  aria-label={m.inventory_title()}
                   className="min-w-[900px]"
                   sortDescriptor={sortDescriptor}
                   onSortChange={setSortDescriptor}
@@ -357,27 +358,27 @@ export function InventoryListing() {
                     <Table.Column allowsSorting id="item" isRowHeader>
                       {({ sortDirection }) => (
                         <Table.SortableColumnHeader sortDirection={sortDirection}>
-                          Item
+                          {m.common_item()}
                         </Table.SortableColumnHeader>
                       )}
                     </Table.Column>
-                    <Table.Column id="sku">SKU</Table.Column>
+                    <Table.Column id="sku">{m.common_sku()}</Table.Column>
                     <Table.Column allowsSorting id="onHand">
                       {({ sortDirection }) => (
                         <Table.SortableColumnHeader sortDirection={sortDirection}>
-                          On hand
+                          {m.common_on_hand()}
                         </Table.SortableColumnHeader>
                       )}
                     </Table.Column>
-                    <Table.Column id="status">Status</Table.Column>
+                    <Table.Column id="status">{m.common_status()}</Table.Column>
                     <Table.Column allowsSorting id="updated">
                       {({ sortDirection }) => (
                         <Table.SortableColumnHeader sortDirection={sortDirection}>
-                          Updated
+                          {m.common_updated()}
                         </Table.SortableColumnHeader>
                       )}
                     </Table.Column>
-                    <Table.Column className="text-end">Actions</Table.Column>
+                    <Table.Column className="text-end">{m.common_actions()}</Table.Column>
                   </Table.Header>
                   <Table.Body>
                     {rows.map((row) => (
@@ -416,7 +417,10 @@ export function InventoryListing() {
                             size="sm"
                             variant="secondary"
                             className="tabular-nums"
-                            aria-label={`Adjust stock for ${row.productTitle} ${row.variantTitle}`}
+                            aria-label={m.inventory_adjust_for({
+                              product: row.productTitle,
+                              variant: row.variantTitle,
+                            })}
                             onPress={() => openAdjust(row)}
                           >
                             {row.onHand}
@@ -424,7 +428,7 @@ export function InventoryListing() {
                         </Table.Cell>
                         <Table.Cell>
                           <Chip color={row.onHand > 0 ? "success" : "warning"} size="sm" variant="soft">
-                            {row.onHand > 0 ? "In stock" : "Out of stock"}
+                            {row.onHand > 0 ? m.common_in_stock() : m.common_out_of_stock()}
                           </Chip>
                         </Table.Cell>
                         <Table.Cell className="text-muted">
@@ -436,7 +440,10 @@ export function InventoryListing() {
                               isIconOnly
                               size="sm"
                               variant="tertiary"
-                              aria-label={`Actions for ${row.productTitle} ${row.variantTitle}`}
+                              aria-label={m.inventory_actions_for({
+                                product: row.productTitle,
+                                variant: row.variantTitle,
+                              })}
                             >
                               <EllipsisVertical className="size-4" />
                             </Button>
@@ -447,11 +454,11 @@ export function InventoryListing() {
                                   if (key === "history") openHistory(row);
                                 }}
                               >
-                                <Dropdown.Item id="adjust" textValue="Adjust stock">
-                                  <Label>Adjust stock</Label>
+                                <Dropdown.Item id="adjust" textValue={m.inventory_adjust_stock()}>
+                                  <Label>{m.inventory_adjust_stock()}</Label>
                                 </Dropdown.Item>
-                                <Dropdown.Item id="history" textValue="View stock history">
-                                  <Label>View stock history</Label>
+                                <Dropdown.Item id="history" textValue={m.inventory_view_history()}>
+                                  <Label>{m.inventory_view_history()}</Label>
                                 </Dropdown.Item>
                               </Dropdown.Menu>
                             </Dropdown.Popover>

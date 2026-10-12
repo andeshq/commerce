@@ -6,6 +6,7 @@ import { BarsDescendingAlignLeft, Plus } from "@gravity-ui/icons";
 import { useLoaderData, useNavigate } from "react-router";
 import { PageHeader } from "@/lib/page-header";
 import { pgbase } from "@/lib/pgbase";
+import { m } from "@/paraglide/messages.js";
 import type { OptionWithValues, ProductOptionLink } from "@/lib/catalog";
 
 export async function optionListingLoader() {
@@ -25,10 +26,10 @@ export async function optionListingLoader() {
 }
 
 const SORT_OPTIONS = [
-  { id: "updated_at", label: "Last updated", direction: "descending" },
-  { id: "name", label: "Name A–Z", direction: "ascending" },
-  { id: "values", label: "Most values", direction: "descending" },
-  { id: "used_by", label: "Most used", direction: "descending" },
+  { id: "updated_at", label: m.sort_last_updated(), direction: "descending" },
+  { id: "name", label: m.sort_name_az(), direction: "ascending" },
+  { id: "values", label: m.sort_most_values(), direction: "descending" },
+  { id: "used_by", label: m.sort_most_used(), direction: "descending" },
 ] as const;
 
 interface Row {
@@ -94,12 +95,12 @@ export function OptionListing() {
   return (
     <div className="flex flex-col gap-4">
       <PageHeader
-        title="Options"
-        description="Reusable attributes — define once, link from any product."
+        title={m.options_title()}
+        description={m.options_description()}
         actions={
           <Button size="sm" onPress={() => navigate("/options/new")}>
             <Plus className="size-4" />
-            New option
+            {m.options_new()}
           </Button>
         }
       />
@@ -107,14 +108,14 @@ export function OptionListing() {
       <Card>
         <Card.Header className="flex-row flex-wrap items-center justify-between gap-3">
           <SearchField
-            aria-label="Search options"
+            aria-label={m.options_search()}
             variant="secondary"
             value={filter}
             onChange={setFilter}
           >
             <SearchField.Group>
               <SearchField.SearchIcon />
-              <SearchField.Input className="w-44" placeholder="Search" />
+              <SearchField.Input className="w-44" placeholder={m.common_search()} />
               <SearchField.ClearButton />
             </SearchField.Group>
           </SearchField>
@@ -122,7 +123,7 @@ export function OptionListing() {
           <Dropdown>
             <Button size="sm" variant="secondary">
               <BarsDescendingAlignLeft className="size-4" />
-              Sort by
+              {m.common_sort_by()}
             </Button>
             <Dropdown.Popover>
               <Dropdown.Menu
@@ -151,14 +152,14 @@ export function OptionListing() {
           {rows.length === 0 ? (
             <p className="mx-auto max-w-md py-12 text-center text-sm text-muted">
               {options.length === 0
-                ? "No options yet. Create your first one."
-                : "No options match your search."}
+                ? m.options_empty()
+                : m.options_no_match()}
             </p>
           ) : (
             <Table>
               <Table.ScrollContainer>
                 <Table.Content
-                  aria-label="Options"
+                  aria-label={m.options_title()}
                   className="min-w-[760px]"
                   sortDescriptor={sortDescriptor}
                   onSortChange={setSortDescriptor}
@@ -167,32 +168,32 @@ export function OptionListing() {
                     <Table.Column allowsSorting id="name" isRowHeader>
                       {({ sortDirection }) => (
                         <Table.SortableColumnHeader sortDirection={sortDirection}>
-                          Option
+                          {m.common_option()}
                         </Table.SortableColumnHeader>
                       )}
                     </Table.Column>
                     <Table.Column allowsSorting id="values">
                       {({ sortDirection }) => (
                         <Table.SortableColumnHeader sortDirection={sortDirection}>
-                          Values
+                          {m.common_values()}
                         </Table.SortableColumnHeader>
                       )}
                     </Table.Column>
                     <Table.Column allowsSorting id="used_by">
                       {({ sortDirection }) => (
                         <Table.SortableColumnHeader sortDirection={sortDirection}>
-                          Used by
+                          {m.common_used_by()}
                         </Table.SortableColumnHeader>
                       )}
                     </Table.Column>
                     <Table.Column allowsSorting id="updated_at">
                       {({ sortDirection }) => (
                         <Table.SortableColumnHeader sortDirection={sortDirection}>
-                          Updated
+                          {m.common_updated()}
                         </Table.SortableColumnHeader>
                       )}
                     </Table.Column>
-                    <Table.Column className="text-end">Actions</Table.Column>
+                    <Table.Column className="text-end">{m.common_actions()}</Table.Column>
                   </Table.Header>
                   <Table.Body>
                     {rows.map((option) => (
@@ -225,7 +226,7 @@ export function OptionListing() {
                             className="text-sm font-medium no-underline"
                             href={`/options/${option.id}`}
                           >
-                            Edit
+                            {m.common_edit()}
                           </Link>
                         </Table.Cell>
                       </Table.Row>

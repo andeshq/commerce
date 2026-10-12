@@ -12,6 +12,7 @@ import {
   TextField,
 } from "@heroui/react";
 import { useAuth } from "@/lib/auth-context";
+import { m } from "@/paraglide/messages.js";
 
 interface ProviderSummary {
   provider: string;
@@ -30,10 +31,10 @@ const CREDENTIAL_FIELDS: Record<
   Array<{ key: string; label: string; placeholder: string }>
 > = {
   wompi: [
-    { key: "publicKey", label: "Public key", placeholder: "pub_test_…" },
-    { key: "privateKey", label: "Private key", placeholder: "prv_test_…" },
-    { key: "integritySecret", label: "Integrity secret", placeholder: "test_integrity_…" },
-    { key: "eventsSecret", label: "Events secret", placeholder: "test_events_…" },
+    { key: "publicKey", label: m.payments_public_key(), placeholder: "pub_test_…" },
+    { key: "privateKey", label: m.payments_private_key(), placeholder: "prv_test_…" },
+    { key: "integritySecret", label: m.payments_integrity_secret(), placeholder: "test_integrity_…" },
+    { key: "eventsSecret", label: m.payments_events_secret(), placeholder: "test_events_…" },
   ],
 };
 
@@ -54,7 +55,7 @@ export function PaymentsCard() {
   const load = useCallback(async () => {
     const res = await fetch("/api/payments/providers");
     if (!res.ok) {
-      setError("Could not load payment providers.");
+      setError(m.payments_load_error());
       return;
     }
     setProviders((await res.json()) as ProviderSummary[]);
@@ -83,11 +84,11 @@ export function PaymentsCard() {
       });
       if (!res.ok) {
         const body = (await res.json().catch(() => null)) as { message?: string } | null;
-        throw new Error(body?.message ?? "Could not update the provider.");
+        throw new Error(body?.message ?? m.payments_update_error());
       }
       await load();
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "Could not update the provider.");
+      setError(caught instanceof Error ? caught.message : m.payments_update_error());
     } finally {
       setBusy(null);
     }
@@ -118,9 +119,9 @@ export function PaymentsCard() {
   return (
     <Card>
       <Card.Header>
-        <Card.Title>Payments</Card.Title>
+        <Card.Title>{m.payments_title()}</Card.Title>
         <Card.Description>
-          Gateways customers can pay with. Credentials stay on the server.
+          {m.payments_description()}
         </Card.Description>
       </Card.Header>
       <Card.Content className="flex flex-col gap-4">
@@ -133,13 +134,13 @@ export function PaymentsCard() {
             <div className="min-w-0">
               <p className="truncate text-sm font-medium capitalize">{provider.provider}</p>
               <p className="truncate text-xs text-muted">
-                {provider.configured ? "Credentials set" : "No credentials"}
+                {provider.configured ? m.payments_credentials_set() : m.payments_no_credentials()}
               </p>
             </div>
             <div className="flex items-center gap-3">
               {provider.is_default ? (
                 <Chip size="sm" variant="soft">
-                  Default
+                  {m.payments_default()}
                 </Chip>
               ) : (
                 <Button
@@ -148,7 +149,7 @@ export function PaymentsCard() {
                   isDisabled={busy === provider.provider}
                   onPress={() => update(provider.provider, { is_default: true })}
                 >
-                  Make default
+                  {m.payments_make_default()}
                 </Button>
               )}
               {CREDENTIAL_FIELDS[provider.provider] && (
@@ -157,11 +158,11 @@ export function PaymentsCard() {
                   variant="secondary"
                   onPress={() => openCredentials(provider.provider)}
                 >
-                  Configure
+                  {m.payments_configure()}
                 </Button>
               )}
               <Select
-                aria-label={`${provider.provider} mode`}
+                aria-label={`${provider.provider} ${m.common_mode()}`}
                 isDisabled={busy === provider.provider}
                 value={provider.mode}
                 onChange={(value) => update(provider.provider, { mode: value as "test" | "live" })}
@@ -190,7 +191,7 @@ export function PaymentsCard() {
                   <Switch.Control>
                     <Switch.Thumb />
                   </Switch.Control>
-                  <Label>Enabled</Label>
+                  <Label>{m.payments_enabled()}</Label>
                 </Switch.Content>
               </Switch>
             </div>
@@ -204,7 +205,9 @@ export function PaymentsCard() {
             <Modal.Dialog className="sm:max-w-[440px]">
               <Modal.CloseTrigger />
               <Modal.Header>
-                <Modal.Heading className="capitalize">{editing} credentials</Modal.Heading>
+                <Modal.Heading className="capitalize">
+                  {m.payments_credentials_title({ provider: editing ?? "" })}
+                </Modal.Heading>
               </Modal.Header>
               <Modal.Body className="flex flex-col gap-4">
                 {fields.map((field) => (
@@ -220,15 +223,15 @@ export function PaymentsCard() {
                   </TextField>
                 ))}
                 <p className="text-xs text-muted">
-                  Secrets are stored on the server and never sent back to the browser.
+                  {m.payments_secrets_hint()}
                 </p>
               </Modal.Body>
               <Modal.Footer>
                 <Button variant="secondary" isDisabled={saving} onPress={() => setEditing(null)}>
-                  Cancel
+                  {m.common_cancel()}
                 </Button>
                 <Button isDisabled={saving || !complete} isPending={saving} onPress={saveCredentials}>
-                  Save credentials
+                  {m.payments_save_credentials()}
                 </Button>
               </Modal.Footer>
             </Modal.Dialog>

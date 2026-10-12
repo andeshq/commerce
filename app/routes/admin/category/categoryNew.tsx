@@ -5,6 +5,7 @@ import { PageHeader } from "@/lib/page-header";
 import { CATEGORY_FORM_ID, CategoryForm, useCategoryForm } from "@/lib/category-form";
 import { categorySchema, NO_PARENT, type CategoryFormValues } from "@/lib/category-schema";
 import { categoryPath, categoryTree, type Category } from "@/lib/catalog";
+import { m } from "@/paraglide/messages.js";
 
 export async function categoryNewLoader() {
   const categories = await pgbase
@@ -72,12 +73,12 @@ export function CategoryNew() {
   return (
     <div className="flex flex-col gap-4">
       <PageHeader
-        title="New category"
-        description="Group products for your storefront and reports."
+        title={m.categories_new_title()}
+        description={m.categories_description()}
         actions={
           <>
             <Button variant="secondary" isDisabled={submitting} onPress={() => history.back()}>
-              Cancel
+              {m.common_cancel()}
             </Button>
             <Button
               type="submit"
@@ -85,7 +86,7 @@ export function CategoryNew() {
               isDisabled={submitting || !isValid}
               isPending={submitting}
             >
-              {submitting ? "Saving…" : "Create category"}
+              {submitting ? m.common_saving() : m.categories_create()}
             </Button>
           </>
         }

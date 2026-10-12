@@ -1,18 +1,19 @@
 import { z } from "zod";
 import { PRODUCT_STATUSES } from "./catalog";
+import { m } from "@/paraglide/messages.js";
 
 const optionalMoney = z
   .string()
   .trim()
   .refine((value) => value === "" || /^\d+(\.\d{1,2})?$/.test(value), {
-    message: "Enter an amount like 120000 or 120000.50.",
+    error: () => m.validation_product_money(),
   });
 
 const optionalWholeNumber = z
   .string()
   .trim()
   .refine((value) => value === "" || /^\d+$/.test(value), {
-    message: "Use whole numbers.",
+    error: () => m.validation_product_whole(),
   });
 
 /** Percent override; empty means "use the store rate". */
@@ -20,10 +21,10 @@ const optionalPercent = z
   .string()
   .trim()
   .refine((value) => value === "" || /^\d{1,3}(\.\d{1,2})?$/.test(value), {
-    message: "Enter a rate like 19 or 7.5.",
+    error: () => m.validation_product_percent(),
   })
   .refine((value) => value === "" || Number(value) <= 100, {
-    message: "The rate cannot exceed 100%.",
+    error: () => m.validation_product_percent_max(),
   });
 
 export const variantDraftSchema = z.object({
@@ -46,8 +47,8 @@ export const variantDraftSchema = z.object({
 export const NO_CATEGORY = "none";
 
 export const productFormSchema = z.object({
-  title: z.string().trim().min(1, "Enter a title."),
-  slug: z.string().trim().min(1, "Enter a slug."),
+  title: z.string().trim().min(1, { error: () => m.validation_product_title() }),
+  slug: z.string().trim().min(1, { error: () => m.validation_product_slug() }),
   status: z.enum(PRODUCT_STATUSES),
   vendor: z.string(),
   productType: z.string(),
@@ -55,7 +56,7 @@ export const productFormSchema = z.object({
   description: z.string(),
   optionIds: z.array(z.string()),
   modifierGroupIds: z.array(z.string()),
-  variants: z.array(variantDraftSchema).min(1, "Keep at least one variant."),
+  variants: z.array(variantDraftSchema).min(1, { error: () => m.validation_product_variants_min() }),
 });
 
 export type VariantDraft = z.infer<typeof variantDraftSchema>;

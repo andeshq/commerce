@@ -12,6 +12,7 @@ import {
   TextField,
 } from "@heroui/react";
 import { slugify } from "./catalog";
+import { m } from "@/paraglide/messages.js";
 import { categorySchema, NO_PARENT, type CategoryFormValues } from "./category-schema";
 
 /** The detail pages submit this form from the page header, outside the <form>. */
@@ -61,7 +62,7 @@ export function CategoryForm({
         <Alert status="danger">
           <Alert.Indicator />
           <Alert.Content>
-            <Alert.Title>Could not save</Alert.Title>
+            <Alert.Title>{m.common_could_not_save()}</Alert.Title>
             <Alert.Description>
               <ul className="list-inside list-disc">
                 {errors.map((message) => (
@@ -74,7 +75,7 @@ export function CategoryForm({
       )}
 
       <section className="flex flex-col gap-3">
-        <h3 className="text-sm font-semibold">Details</h3>
+        <h3 className="text-sm font-semibold">{m.common_details()}</h3>
 
         <div className="grid gap-5 sm:grid-cols-2">
           <Controller
@@ -95,8 +96,8 @@ export function CategoryForm({
                 onBlur={field.onBlur}
                 isInvalid={fieldState.invalid}
               >
-                <Label>Name</Label>
-                <Input placeholder="Ropa" />
+                <Label>{m.category_name()}</Label>
+                <Input placeholder={m.category_name_placeholder()} />
                 <FieldError>{fieldState.error?.message}</FieldError>
               </TextField>
             )}
@@ -118,8 +119,8 @@ export function CategoryForm({
                 onBlur={field.onBlur}
                 isInvalid={fieldState.invalid}
               >
-                <Label>Slug</Label>
-                <Input placeholder="ropa" />
+                <Label>{m.category_slug()}</Label>
+                <Input placeholder={m.category_slug_placeholder()} />
                 <FieldError>{fieldState.error?.message}</FieldError>
               </TextField>
             )}
@@ -135,15 +136,15 @@ export function CategoryForm({
                 value={field.value}
                 onChange={(value) => field.onChange(String(value))}
               >
-                <Label>Parent category</Label>
+                <Label>{m.category_parent()}</Label>
                 <Select.Trigger>
                   <Select.Value />
                   <Select.Indicator />
                 </Select.Trigger>
                 <Select.Popover>
                   <ListBox>
-                    <ListBox.Item id={NO_PARENT} textValue="None">
-                      None
+                    <ListBox.Item id={NO_PARENT} textValue={m.common_none()}>
+                      {m.common_none()}
                       <ListBox.ItemIndicator />
                     </ListBox.Item>
                     {parentOptions.map((option) => (
@@ -170,8 +171,8 @@ export function CategoryForm({
               onChange={field.onChange}
               onBlur={field.onBlur}
             >
-              <Label>Description</Label>
-              <TextArea placeholder="What belongs in this category…" rows={3} />
+              <Label>{m.category_description()}</Label>
+              <TextArea placeholder={m.category_description_placeholder()} rows={3} />
             </TextField>
           )}
         />

@@ -7,6 +7,7 @@ import { useLoaderData, useNavigate } from "react-router";
 import { useAdminStore } from "@/routes/admin/adminLayout";
 import { PageHeader } from "@/lib/page-header";
 import { pgbase } from "@/lib/pgbase";
+import { m } from "@/paraglide/messages.js";
 import {
   cents,
   formatMoney,
@@ -34,16 +35,16 @@ export async function modifierListingLoader() {
 }
 
 const SORT_OPTIONS = [
-  { id: "position", label: "Store order", direction: "ascending" },
-  { id: "name", label: "Name A–Z", direction: "ascending" },
-  { id: "values", label: "Most values", direction: "descending" },
-  { id: "used_by", label: "Most used", direction: "descending" },
+  { id: "position", label: m.categories_sort_position(), direction: "ascending" },
+  { id: "name", label: m.sort_name_az(), direction: "ascending" },
+  { id: "values", label: m.sort_most_values(), direction: "descending" },
+  { id: "used_by", label: m.sort_most_used(), direction: "descending" },
 ] as const;
 
 const TYPE_FILTERS = [
-  { id: "all", label: "All types" },
-  { id: "single", label: "Single choice" },
-  { id: "multiple", label: "Multiple choice" },
+  { id: "all", label: m.modifiers_all_types() },
+  { id: "single", label: m.modifiers_selection_single() },
+  { id: "multiple", label: m.modifiers_selection_multiple() },
 ] as const;
 
 type TypeFilter = (typeof TYPE_FILTERS)[number]["id"];
@@ -133,12 +134,12 @@ export function ModifierListing() {
   return (
     <div className="flex flex-col gap-4">
       <PageHeader
-        title="Modifiers"
-        description="Priced add-ons customers can pick at checkout."
+        title={m.modifiers_title()}
+        description={m.modifiers_description()}
         actions={
           <Button size="sm" onPress={() => navigate("/modifiers/new")}>
             <Plus className="size-4" />
-            New modifier
+            {m.modifiers_new()}
           </Button>
         }
       />
@@ -147,21 +148,21 @@ export function ModifierListing() {
         <Card.Header className="flex-row flex-wrap items-center justify-between gap-3">
           <div className="flex flex-wrap items-center gap-2">
             <SearchField
-              aria-label="Search modifiers"
+              aria-label={m.modifiers_search()}
               variant="secondary"
               value={filter}
               onChange={setFilter}
             >
               <SearchField.Group>
                 <SearchField.SearchIcon />
-                <SearchField.Input className="w-44" placeholder="Search" />
+                <SearchField.Input className="w-44" placeholder={m.common_search()} />
                 <SearchField.ClearButton />
               </SearchField.Group>
             </SearchField>
 
             <Dropdown>
               <Button size="sm" variant="secondary">
-                Type: {TYPE_FILTERS.find((item) => item.id === type)?.label ?? "All types"}
+                {m.modifiers_type()}: {TYPE_FILTERS.find((item) => item.id === type)?.label ?? m.modifiers_all_types()}
               </Button>
               <Dropdown.Popover>
                 <Dropdown.Menu
@@ -186,7 +187,7 @@ export function ModifierListing() {
           <Dropdown>
             <Button size="sm" variant="secondary">
               <BarsDescendingAlignLeft className="size-4" />
-              Sort by
+              {m.common_sort_by()}
             </Button>
             <Dropdown.Popover>
               <Dropdown.Menu
@@ -215,14 +216,14 @@ export function ModifierListing() {
           {rows.length === 0 ? (
             <p className="mx-auto max-w-md py-12 text-center text-sm text-muted">
               {modifiers.length === 0
-                ? "No modifiers yet. Create your first one."
-                : "No modifiers match your filters."}
+                ? m.modifiers_empty()
+                : m.modifiers_no_match()}
             </p>
           ) : (
             <Table>
               <Table.ScrollContainer>
                 <Table.Content
-                  aria-label="Modifiers"
+                  aria-label={m.modifiers_title()}
                   className="min-w-[860px]"
                   sortDescriptor={sortDescriptor}
                   onSortChange={setSortDescriptor}
@@ -231,33 +232,33 @@ export function ModifierListing() {
                     <Table.Column allowsSorting id="name" isRowHeader>
                       {({ sortDirection }) => (
                         <Table.SortableColumnHeader sortDirection={sortDirection}>
-                          Modifier
+                          {m.common_modifier()}
                         </Table.SortableColumnHeader>
                       )}
                     </Table.Column>
-                    <Table.Column id="type">Type</Table.Column>
+                    <Table.Column id="type">{m.modifiers_type()}</Table.Column>
                     <Table.Column allowsSorting id="values">
                       {({ sortDirection }) => (
                         <Table.SortableColumnHeader sortDirection={sortDirection}>
-                          Values
+                          {m.common_values()}
                         </Table.SortableColumnHeader>
                       )}
                     </Table.Column>
                     <Table.Column allowsSorting id="used_by">
                       {({ sortDirection }) => (
                         <Table.SortableColumnHeader sortDirection={sortDirection}>
-                          Used by
+                          {m.common_used_by()}
                         </Table.SortableColumnHeader>
                       )}
                     </Table.Column>
                     <Table.Column allowsSorting id="updated_at">
                       {({ sortDirection }) => (
                         <Table.SortableColumnHeader sortDirection={sortDirection}>
-                          Updated
+                          {m.common_updated()}
                         </Table.SortableColumnHeader>
                       )}
                     </Table.Column>
-                    <Table.Column className="text-end">Actions</Table.Column>
+                    <Table.Column className="text-end">{m.common_actions()}</Table.Column>
                   </Table.Header>
                   <Table.Body>
                     {rows.map((row) => (
@@ -269,13 +270,13 @@ export function ModifierListing() {
                           >
                             <span className="font-medium text-foreground">{row.name}</span>
                             {row.required && (
-                              <span className="text-xs text-muted">Required</span>
+                              <span className="text-xs text-muted">{m.common_required()}</span>
                             )}
                           </Link>
                         </Table.Cell>
                         <Table.Cell>
                           <Chip size="sm" variant="soft">
-                            {row.selectionType === "single" ? "Single" : "Multiple"}
+                            {row.selectionType === "single" ? m.common_single() : m.common_multiple()}
                           </Chip>
                         </Table.Cell>
                         <Table.Cell>
@@ -298,7 +299,7 @@ export function ModifierListing() {
                             className="text-sm font-medium no-underline"
                             href={`/modifiers/${row.id}`}
                           >
-                            Edit
+                            {m.common_edit()}
                           </Link>
                         </Table.Cell>
                       </Table.Row>

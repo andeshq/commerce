@@ -11,6 +11,7 @@ import {
   TextField,
 } from "@heroui/react";
 import { storeSchema, type StoreFormValues } from "./store-schema";
+import { m } from "@/paraglide/messages.js";
 import {
   CURRENCIES,
   CURRENCY_LABELS,
@@ -68,7 +69,7 @@ export function StoreForm({
         <Alert status="danger">
           <Alert.Indicator />
           <Alert.Content>
-            <Alert.Title>Could not save</Alert.Title>
+            <Alert.Title>{m.common_could_not_save()}</Alert.Title>
             <Alert.Description>
               <ul className="list-inside list-disc">
                 {errors.map((message) => (
@@ -81,7 +82,7 @@ export function StoreForm({
       )}
 
       <section className="flex flex-col gap-3">
-        <h3 className="text-sm font-semibold">Details</h3>
+        <h3 className="text-sm font-semibold">{m.common_details()}</h3>
 
         <div className="grid gap-5 sm:grid-cols-2">
           <Controller
@@ -98,8 +99,8 @@ export function StoreForm({
                 onBlur={field.onBlur}
                 isInvalid={fieldState.invalid}
               >
-                <Label>Store name</Label>
-                <Input placeholder="Safiro" />
+                <Label>{m.store_name()}</Label>
+                <Input placeholder={m.store_name_placeholder()} />
                 <FieldError>{fieldState.error?.message}</FieldError>
               </TextField>
             )}
@@ -116,7 +117,7 @@ export function StoreForm({
                 value={field.value}
                 onChange={(value) => field.onChange(String(value))}
               >
-                <Label>Currency</Label>
+                <Label>{m.store_currency()}</Label>
                 <Select.Trigger>
                   <Select.Value />
                   <Select.Indicator />
@@ -150,7 +151,7 @@ export function StoreForm({
                 value={field.value}
                 onChange={(value) => field.onChange(String(value))}
               >
-                <Label>Locale</Label>
+                <Label>{m.store_locale()}</Label>
                 <Select.Trigger>
                   <Select.Value />
                   <Select.Indicator />
@@ -183,7 +184,7 @@ export function StoreForm({
                 onBlur={field.onBlur}
                 isInvalid={fieldState.invalid}
               >
-                <Label>Tax label</Label>
+                <Label>{m.store_tax_label()}</Label>
                 <Input placeholder="IVA" />
                 <FieldError>{fieldState.error?.message}</FieldError>
               </TextField>
@@ -204,7 +205,7 @@ export function StoreForm({
                 onBlur={field.onBlur}
                 isInvalid={fieldState.invalid}
               >
-                <Label>Tax rate (%)</Label>
+                <Label>{m.store_tax_rate()}</Label>
                 <Input placeholder="19" />
                 <FieldError>{fieldState.error?.message}</FieldError>
               </TextField>
@@ -225,7 +226,7 @@ export function StoreForm({
                     <Switch.Control>
                       <Switch.Thumb />
                     </Switch.Control>
-                    Prices include tax
+                    {m.store_prices_include_tax()}
                   </Switch.Content>
                 </Switch>
               </div>
@@ -234,7 +235,7 @@ export function StoreForm({
         </div>
 
         <p className="text-xs text-muted">
-          Currency and locale drive how money is formatted across the admin.
+          {m.store_hint()}
         </p>
       </section>
     </form>

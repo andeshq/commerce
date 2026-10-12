@@ -1,24 +1,25 @@
 import { z } from "zod";
+import { m } from "@/paraglide/messages.js";
 
 const optionalMoney = z
   .string()
   .trim()
   .refine((value) => value === "" || /^-?\d+(\.\d{1,2})?$/.test(value), {
-    message: "Enter an amount like 2000 or -1500.",
+    error: () => m.validation_modifier_money(),
   });
 
 export const modifierValueSchema = z.object({
   id: z.string().optional(),
-  name: z.string().trim().min(1, "Enter a name."),
+  name: z.string().trim().min(1, { error: () => m.validation_option_name() }),
   price: optionalMoney,
 });
 
 export const modifierSchema = z
   .object({
-    name: z.string().trim().min(1, "Enter a name."),
+    name: z.string().trim().min(1, { error: () => m.validation_option_name() }),
     selectionType: z.enum(["single", "multiple"]),
     required: z.boolean(),
-    values: z.array(modifierValueSchema).min(1, "Add at least one value."),
+    values: z.array(modifierValueSchema).min(1, { error: () => m.validation_modifier_min_values() }),
   })
   .superRefine((modifier, ctx) => {
     const seen = new Set<string>();
@@ -29,7 +30,7 @@ export const modifierSchema = z
         ctx.addIssue({
           code: "custom",
           path: ["values", index, "name"],
-          message: "Duplicate value.",
+          message: m.validation_duplicate_value(),
         });
       } else {
         seen.add(key);

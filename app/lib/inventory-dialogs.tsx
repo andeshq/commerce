@@ -18,6 +18,7 @@ import {
 } from "@heroui/react";
 import { Pencil, Plus, Star, TrashBin } from "@gravity-ui/icons";
 import { pgbase, pgbaseErrorMessages } from "@/lib/pgbase";
+import { m } from "@/paraglide/messages.js";
 import type {
   InventoryLevel,
   InventoryLocation,
@@ -97,9 +98,12 @@ export function AdjustStockDialog({
     !item || !locationId
       ? null
       : total < 0
-        ? `Only ${current} on hand at ${location?.name ?? "this location"}.`
+        ? m.inventory_only_on_hand({
+            count: current,
+            location: location?.name ?? m.inventory_location(),
+          })
         : total === current
-          ? "No change to record."
+          ? m.inventory_no_change()
           : null;
   const invalid = Boolean(hint) || !item || !locationId;
 
@@ -118,7 +122,7 @@ export function AdjustStockDialog({
       onAdjusted(item.variantId, locationId, result.available);
       onOpenChange(false);
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "Something went wrong. Please try again.");
+      setError(caught instanceof Error ? caught.message : m.common_something_wrong());
     } finally {
       setSubmitting(false);
     }
@@ -131,7 +135,7 @@ export function AdjustStockDialog({
           <Modal.Dialog className="sm:max-w-[440px]">
             <Modal.CloseTrigger />
             <Modal.Header>
-              <Modal.Heading>Adjust stock</Modal.Heading>
+              <Modal.Heading>{m.inventory_adjust_stock()}</Modal.Heading>
             </Modal.Header>
 
             <Modal.Body className="flex flex-col gap-4">
@@ -159,13 +163,13 @@ export function AdjustStockDialog({
                     isDisabled={submitting}
                     onPress={() => setPicker(true)}
                   >
-                    Change
+                    {m.inventory_change()}
                   </Button>
                 </div>
               ) : (
                 <Autocomplete
                   className="w-full"
-                  placeholder="Select an item"
+                  placeholder={m.inventory_select_item()}
                   selectionMode="single"
                   value={variantId || null}
                   onChange={(key) => {
@@ -173,7 +177,7 @@ export function AdjustStockDialog({
                     setPicker(false);
                   }}
                 >
-                  <Label>Item</Label>
+                  <Label>{m.common_item()}</Label>
                   <Autocomplete.Trigger>
                     <Autocomplete.Value />
                     <Autocomplete.ClearButton />
@@ -183,19 +187,19 @@ export function AdjustStockDialog({
                     <Autocomplete.Filter filter={contains}>
                       <SearchField
                         autoFocus
-                        aria-label="Search items"
+                        aria-label={m.inventory_search_items()}
                         name="search"
                         variant="secondary"
                       >
                         <SearchField.Group>
                           <SearchField.SearchIcon />
-                          <SearchField.Input placeholder="Search by product or SKU" />
+                          <SearchField.Input placeholder={m.inventory_search_placeholder()} />
                           <SearchField.ClearButton />
                         </SearchField.Group>
                       </SearchField>
                       <ListBox
                         renderEmptyState={() => (
-                          <p className="p-3 text-sm text-muted">No items found.</p>
+                          <p className="p-3 text-sm text-muted">{m.inventory_no_items()}</p>
                         )}
                       >
                         {items.map((candidate) => (
@@ -209,7 +213,7 @@ export function AdjustStockDialog({
                                 {candidate.productTitle} — {candidate.variantTitle}
                               </span>
                               <span className="truncate text-xs text-muted">
-                                {candidate.sku ?? "No SKU"}
+                                {candidate.sku ?? m.inventory_no_sku()}
                               </span>
                             </span>
                             <ListBox.ItemIndicator />
@@ -227,7 +231,7 @@ export function AdjustStockDialog({
                 onChange={(value) => setLocationId(String(value))}
                 isDisabled={locations.length <= 1}
               >
-                <Label>Location</Label>
+                <Label>{m.inventory_location()}</Label>
                 <Select.Trigger>
                   <Select.Value />
                   <Select.Indicator />
@@ -253,7 +257,7 @@ export function AdjustStockDialog({
                 value={reason}
                 onChange={(value) => setReason(String(value) as InventoryReason)}
               >
-                <Label>Stock action</Label>
+                <Label>{m.inventory_stock_action()}</Label>
                 <Select.Trigger>
                   <Select.Value />
                   <Select.Indicator />
@@ -289,13 +293,13 @@ export function AdjustStockDialog({
               </NumberField>
 
               <TextField fullWidth value={note} onChange={setNote} isDisabled={submitting}>
-                <Label>Note</Label>
-                <Input placeholder="Optional, e.g. supplier invoice" />
+                <Label>{m.inventory_note()}</Label>
+                <Input placeholder={m.inventory_note_placeholder()} />
               </TextField>
 
               <div className="flex flex-col gap-1.5 rounded-2xl bg-surface-secondary p-3 text-sm">
                 <div className="flex items-center justify-between">
-                  <span className="text-muted">Current stock</span>
+                  <span className="text-muted">{m.inventory_current_stock()}</span>
                   <span className="tabular-nums">{current}</span>
                 </div>
                 {action.direction !== "recount" && (
@@ -308,7 +312,7 @@ export function AdjustStockDialog({
                   </div>
                 )}
                 <div className="flex items-center justify-between font-medium">
-                  <span>New total</span>
+                  <span>{m.inventory_new_total()}</span>
                   <span className="tabular-nums">{total}</span>
                 </div>
                 {hint && <p className="text-xs text-danger">{hint}</p>}
@@ -321,10 +325,10 @@ export function AdjustStockDialog({
                 isDisabled={submitting}
                 onPress={() => onOpenChange(false)}
               >
-                Cancel
+                {m.common_cancel()}
               </Button>
               <Button isDisabled={invalid || submitting} isPending={submitting} onPress={submit}>
-                Adjust stock
+                {m.inventory_adjust_stock()}
               </Button>
             </Modal.Footer>
           </Modal.Dialog>
@@ -386,7 +390,7 @@ export function StockHistoryDialog({
         if (!cancelled) setMovements((data ?? []) as InventoryMovement[]);
       } catch (caught) {
         if (!cancelled) {
-          setError(caught instanceof Error ? caught.message : "Could not load stock history.");
+          setError(caught instanceof Error ? caught.message : m.inventory_could_not_load_history());
         }
       }
     })();
@@ -410,7 +414,7 @@ export function StockHistoryDialog({
           <Modal.Dialog className="sm:max-w-[460px]">
             <Modal.CloseTrigger />
             <Modal.Header>
-              <Modal.Heading>Stock history</Modal.Heading>
+              <Modal.Heading>{m.inventory_stock_history()}</Modal.Heading>
             </Modal.Header>
 
             <Modal.Body className="flex flex-col gap-4">
@@ -430,7 +434,7 @@ export function StockHistoryDialog({
                 onChange={(value) => setLocationId(String(value))}
                 isDisabled={locations.length <= 1}
               >
-                <Label>Location</Label>
+                <Label>{m.inventory_location()}</Label>
                 <Select.Trigger>
                   <Select.Value />
                   <Select.Indicator />
@@ -460,7 +464,7 @@ export function StockHistoryDialog({
                 </div>
               ) : rows.length === 0 ? (
                 <p className="py-8 text-center text-sm text-muted">
-                  No stock movements at this location yet.
+                  {m.inventory_no_movements()}
                 </p>
               ) : (
                 <div className="-my-1 flex max-h-80 flex-col overflow-y-auto">
@@ -476,7 +480,7 @@ export function StockHistoryDialog({
                           <p className="text-sm font-medium">{reasonLabel(movement.reason)}</p>
                           <p className="text-xs text-muted">
                             {new Date(movement.created_at).toLocaleString()}
-                            {movement.created_by_name ? ` · by ${movement.created_by_name}` : ""}
+                            {movement.created_by_name ? ` · ${m.inventory_by({ name: movement.created_by_name })}` : ""}
                           </p>
                           {note && <p className="mt-0.5 text-xs">{note}</p>}
                         </div>
@@ -491,7 +495,9 @@ export function StockHistoryDialog({
                               ? `+${movement.delta}`
                               : `−${Math.abs(movement.delta)}`}
                           </p>
-                          <p className="text-xs text-muted tabular-nums">{after} on hand</p>
+                          <p className="text-xs text-muted tabular-nums">
+                            {m.inventory_on_hand({ count: after })}
+                          </p>
                         </div>
                       </div>
                     );
@@ -502,7 +508,7 @@ export function StockHistoryDialog({
 
             <Modal.Footer>
               <Button variant="secondary" onPress={() => onOpenChange(false)}>
-                Close
+                {m.common_close()}
               </Button>
             </Modal.Footer>
           </Modal.Dialog>
@@ -642,10 +648,7 @@ export function ManageLocationsDialog({
 
   /** Deleting a location cascades its levels and movement history. */
   async function remove(location: InventoryLocation) {
-    const confirmed = window.confirm(
-      `Delete "${location.name}"?\n\n` +
-        "Its stock levels and stock movement history are deleted too. This cannot be undone.",
-    );
+    const confirmed = window.confirm(m.inventory_delete_location_confirm({ name: location.name }));
     if (!confirmed) return;
 
     setSaving(true);
@@ -681,7 +684,9 @@ export function ManageLocationsDialog({
           <Modal.Dialog className="sm:max-w-[440px]">
             <Modal.CloseTrigger />
             <Modal.Header>
-              <Modal.Heading>{editing ? "Location" : "Locations"}</Modal.Heading>
+              <Modal.Heading>
+                {editing ? m.inventory_location_title() : m.inventory_locations()}
+              </Modal.Heading>
             </Modal.Header>
 
             <Modal.Body className="flex max-h-[70vh] flex-col gap-4 overflow-y-auto">
@@ -702,7 +707,7 @@ export function ManageLocationsDialog({
                     value={editing.name}
                     onChange={(value) => setEditing({ ...editing, name: value })}
                   >
-                    <Label>Name</Label>
+                    <Label>{m.inventory_name()}</Label>
                     <Input placeholder="Bodega Norte" />
                   </TextField>
                   <TextField
@@ -710,7 +715,7 @@ export function ManageLocationsDialog({
                     value={editing.code}
                     onChange={(value) => setEditing({ ...editing, code: value })}
                   >
-                    <Label>Code</Label>
+                    <Label>{m.inventory_code()}</Label>
                     <Input placeholder="NORTE" />
                   </TextField>
 
@@ -719,7 +724,7 @@ export function ManageLocationsDialog({
                     value={editing.line1}
                     onChange={(value) => setEditing({ ...editing, line1: value })}
                   >
-                    <Label>Address</Label>
+                    <Label>{m.inventory_address()}</Label>
                     <Input placeholder="Calle 123 #45-67" />
                   </TextField>
                   <TextField
@@ -727,7 +732,7 @@ export function ManageLocationsDialog({
                     value={editing.line2}
                     onChange={(value) => setEditing({ ...editing, line2: value })}
                   >
-                    <Label>Address line 2</Label>
+                    <Label>{m.inventory_address_line2()}</Label>
                     <Input placeholder="Apto 401" />
                   </TextField>
                   <div className="grid grid-cols-2 gap-3">
@@ -736,7 +741,7 @@ export function ManageLocationsDialog({
                       value={editing.city}
                       onChange={(value) => setEditing({ ...editing, city: value })}
                     >
-                      <Label>City</Label>
+                      <Label>{m.inventory_city()}</Label>
                       <Input placeholder="Bogotá" />
                     </TextField>
                     <TextField
@@ -744,7 +749,7 @@ export function ManageLocationsDialog({
                       value={editing.region}
                       onChange={(value) => setEditing({ ...editing, region: value })}
                     >
-                      <Label>Region</Label>
+                      <Label>{m.inventory_region()}</Label>
                       <Input placeholder="Cundinamarca" />
                     </TextField>
                     <TextField
@@ -752,7 +757,7 @@ export function ManageLocationsDialog({
                       value={editing.postalCode}
                       onChange={(value) => setEditing({ ...editing, postalCode: value })}
                     >
-                      <Label>Postal code</Label>
+                      <Label>{m.inventory_postal_code()}</Label>
                       <Input placeholder="110111" />
                     </TextField>
                     <TextField
@@ -760,7 +765,7 @@ export function ManageLocationsDialog({
                       value={editing.country}
                       onChange={(value) => setEditing({ ...editing, country: value })}
                     >
-                      <Label>Country</Label>
+                      <Label>{m.inventory_country()}</Label>
                       <Input placeholder="Colombia" />
                     </TextField>
                   </div>
@@ -774,18 +779,17 @@ export function ManageLocationsDialog({
                         <Switch.Control>
                           <Switch.Thumb />
                         </Switch.Control>
-                        Active
+                        {m.common_active()}
                       </Switch.Content>
                     </Switch>
                   )}
                   <p className="text-xs text-muted">
-                    Deactivate to hide a location from new adjustments, or delete it from the
-                    list to remove it along with its stock history.
+                    {m.inventory_location_hint()}
                   </p>
                 </div>
               ) : locations.length === 0 ? (
                 <p className="py-6 text-center text-sm text-muted">
-                  No locations yet. Add one to start tracking stock.
+                  {m.inventory_no_locations()}
                 </p>
               ) : (
                 <div className="flex flex-col">
@@ -799,12 +803,12 @@ export function ManageLocationsDialog({
                         <p className="truncate text-xs text-muted">
                           {[location.code, addressSummary(location.address)]
                             .filter(Boolean)
-                            .join(" · ") || "No code"}
+                            .join(" · ") || m.inventory_no_code()}
                         </p>
                       </div>
                       {location.is_default ? (
                         <Chip color="accent" size="sm" variant="soft">
-                          Default
+                          {m.common_default()}
                         </Chip>
                       ) : (
                         <Button
@@ -812,7 +816,7 @@ export function ManageLocationsDialog({
                           size="sm"
                           variant="tertiary"
                           isDisabled={saving}
-                          aria-label={`Set ${location.name} as default`}
+                          aria-label={m.inventory_set_default({ name: location.name })}
                           onPress={() => setDefault(location)}
                         >
                           <Star className="size-4 text-muted" />
@@ -820,14 +824,14 @@ export function ManageLocationsDialog({
                       )}
                       {!location.active && (
                         <Chip size="sm" variant="soft">
-                          Inactive
+                          {m.common_inactive()}
                         </Chip>
                       )}
                       <Button
                         isIconOnly
                         size="sm"
                         variant="tertiary"
-                        aria-label={`Edit ${location.name}`}
+                        aria-label={m.inventory_edit_named({ name: location.name })}
                         onPress={() => setEditing(draftFromLocation(location))}
                       >
                         <Pencil className="size-4" />
@@ -837,7 +841,7 @@ export function ManageLocationsDialog({
                         size="sm"
                         variant="tertiary"
                         isDisabled={saving}
-                        aria-label={`Delete ${location.name}`}
+                        aria-label={m.inventory_delete_named({ name: location.name })}
                         onPress={() => remove(location)}
                       >
                         <TrashBin className="size-4 text-danger" />
@@ -852,26 +856,26 @@ export function ManageLocationsDialog({
               {editing ? (
                 <>
                   <Button variant="secondary" isDisabled={saving} onPress={() => setEditing(null)}>
-                    Back
+                    {m.common_back()}
                   </Button>
                   <Button
                     isDisabled={saving || !editing.name.trim()}
                     isPending={saving}
                     onPress={save}
                   >
-                    Save location
+                    {m.inventory_save_location()}
                   </Button>
                 </>
               ) : (
                 <>
                   <Button variant="secondary" onPress={() => onOpenChange(false)}>
-                    Close
+                    {m.common_close()}
                   </Button>
                   <Button
                     onPress={() => setEditing({ ...EMPTY_LOCATION })}
                   >
                     <Plus className="size-4" />
-                    New location
+                    {m.inventory_new_location()}
                   </Button>
                 </>
               )}
