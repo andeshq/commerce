@@ -14,6 +14,7 @@
     "migrate:list": "bun run src/database/migrate.ts list",
     "seed:media": "bun run scripts/seed-media.ts",
     "seed:inventory": "bun run scripts/seed-inventory.ts",
+    "seed:info-sections": "bun run scripts/seed-info-sections.ts",
     "seed:orders": "bun run scripts/seed-orders.ts",
     "seed:team": "bun run scripts/seed-team.ts",
     "seed:customers": "bun run scripts/seed-customers.ts"

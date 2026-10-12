@@ -48,6 +48,7 @@ export const EXPOSED_TABLES = [
   "categories",
   "media",
   "product_media",
+  "product_info_sections",
   "variant_media",
   "variant_option_values",
   "inventory_locations",

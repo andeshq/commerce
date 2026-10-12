@@ -129,6 +129,17 @@ export interface ProductMediaLink {
   position: number;
 }
 
+/** A free-form rich-text block shown on the product page (title + HTML body). */
+export interface ProductInfoSection {
+  id: string;
+  product_id: string;
+  title: string;
+  body: string | null;
+  position: number;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface ProductVariantCost {
   variant_id: string;
   cost_cents: string;

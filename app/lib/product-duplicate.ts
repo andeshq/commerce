@@ -9,29 +9,41 @@ import type { Product, VariantWithLinks } from "./catalog";
  * stay behind: this is a catalog copy, not a clone of state.
  */
 export async function duplicateProduct(productId: string): Promise<string> {
-  const [product, variants, links, modifierLinks, productMedia, variantMedia] = await Promise.all([
-    pgbase.from("products").select("*").eq("id", productId).single().throwOnError(),
-    pgbase
-      .from("catalog_variants")
-      .select("*,variant_option_values(option_value_id),product_variant_costs(cost_cents)")
-      .eq("product_id", productId)
-      .order("position", { ascending: true })
-      .throwOnError(),
-    pgbase.from("product_options").select("option_id,position").eq("product_id", productId).throwOnError(),
-    pgbase
-      .from("product_modifier_groups")
-      .select("group_id,position")
-      .eq("product_id", productId)
-      .throwOnError(),
-    pgbase.from("product_media").select("media_id,position").eq("product_id", productId).throwOnError(),
-    pgbase.from("variant_media").select("variant_id,media_id").throwOnError(),
-  ]);
+  const [product, variants, links, modifierLinks, productMedia, variantMedia, infoSections] =
+    await Promise.all([
+      pgbase.from("products").select("*").eq("id", productId).single().throwOnError(),
+      pgbase
+        .from("catalog_variants")
+        .select("*,variant_option_values(option_value_id),product_variant_costs(cost_cents)")
+        .eq("product_id", productId)
+        .order("position", { ascending: true })
+        .throwOnError(),
+      pgbase.from("product_options").select("option_id,position").eq("product_id", productId).throwOnError(),
+      pgbase
+        .from("product_modifier_groups")
+        .select("group_id,position")
+        .eq("product_id", productId)
+        .throwOnError(),
+      pgbase.from("product_media").select("media_id,position").eq("product_id", productId).throwOnError(),
+      pgbase.from("variant_media").select("variant_id,media_id").throwOnError(),
+      pgbase
+        .from("product_info_sections")
+        .select("title,body,position")
+        .eq("product_id", productId)
+        .order("position", { ascending: true })
+        .throwOnError(),
+    ]);
 
   const source = product.data as Product;
   const sourceVariants = variants.data as VariantWithLinks[];
   const sourceLinks = links.data as Array<{ option_id: string; position: number }>;
   const sourceModifierLinks = modifierLinks.data as Array<{ group_id: string; position: number }>;
   const sourceMedia = productMedia.data as Array<{ media_id: string; position: number }>;
+  const sourceInfoSections = infoSections.data as Array<{
+    title: string;
+    body: string | null;
+    position: number;
+  }>;
   const sourceVariantMedia = new Map(
     (variantMedia.data as Array<{ variant_id: string; media_id: string }>).map((link) => [
       link.variant_id,
@@ -96,6 +108,12 @@ export async function duplicateProduct(productId: string): Promise<string> {
     product_media: sourceMedia.map((link) => ({
       media_id: link.media_id,
       position: link.position,
+    })),
+    product_info_sections: sourceInfoSections.map((section) => ({
+      id: crypto.randomUUID(),
+      title: section.title,
+      body: section.body,
+      position: section.position,
     })),
     product_variants: sourceVariants.map((variant, position) => ({
       id: crypto.randomUUID(),

@@ -24,6 +24,7 @@ import * as m21 from "./20260101000021_order_lifecycle.ts";
 import * as m22 from "./20260101000022_multi_provider.ts";
 import * as m23 from "./20260101000023_media_files_path.ts";
 import * as m24 from "./20260101000024_team_lockout.ts";
+import * as m25 from "./20260101000025_product_info_sections.ts";
 
 /**
  * Migrations are imported statically so `bun build --compile` can bundle them:
@@ -57,6 +58,7 @@ export const migrations: Record<string, Migration> = {
   "20260101000022_multi_provider": m22,
   "20260101000023_media_files_path": m23,
   "20260101000024_team_lockout": m24,
+  "20260101000025_product_info_sections": m25,
 };
 
 /** Kysely provider over the statically imported migrations. */

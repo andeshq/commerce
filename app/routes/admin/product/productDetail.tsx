@@ -15,6 +15,7 @@ import { m } from "@/paraglide/messages.js";
 import { PageHeader } from "@/lib/page-header";
 import { PRODUCT_FORM_ID, ProductForm, useProductForm } from "@/lib/product-form";
 import { ProductImages } from "@/lib/product-images";
+import { ProductInfoSections } from "@/lib/product-info-sections";
 import { AdjustStockDialog } from "@/lib/inventory-dialogs";
 import { levelFor, type InventoryItemRow } from "@/lib/inventory";
 import {
@@ -32,6 +33,7 @@ import type {
   ModifierGroupWithValues,
   OptionWithValues,
   Product,
+  ProductInfoSection,
   ProductMediaLink,
   ProductModifierLink,
   ProductOptionLink,
@@ -55,6 +57,7 @@ export async function productDetailLoader({ params }: LoaderFunctionArgs) {
     variantMedia,
     inventory,
     locations,
+    infoSections,
   ] = await Promise.all([
     pgbase.from("products").select("*").eq("id", id).maybeSingle().throwOnError(),
     pgbase
@@ -106,6 +109,12 @@ export async function productDetailLoader({ params }: LoaderFunctionArgs) {
       .select("id,name,code,address,active,is_default")
       .order("name", { ascending: true })
       .throwOnError(),
+    pgbase
+      .from("product_info_sections")
+      .select("id,product_id,title,body,position,created_at,updated_at")
+      .eq("product_id", id)
+      .order("position", { ascending: true })
+      .throwOnError(),
   ]);
 
   if (!product.data) throw redirect("/products");
@@ -123,6 +132,7 @@ export async function productDetailLoader({ params }: LoaderFunctionArgs) {
     variantMedia: variantMedia.data as VariantMediaLink[],
     inventory: inventory.data as InventoryLevel[],
     locations: locations.data as InventoryLocation[],
+    infoSections: infoSections.data as ProductInfoSection[],
   };
 }
 
@@ -263,6 +273,7 @@ function ProductEditor({ data }: { data: ProductDetailData }) {
     variantMedia: variantMediaLinks,
     inventory,
     locations,
+    infoSections,
   } = data;
   const store = useAdminStore();
   const revalidator = useRevalidator();
@@ -546,6 +557,8 @@ function ProductEditor({ data }: { data: ProductDetailData }) {
           )}
         </Card.Content>
       </Card>
+
+      <ProductInfoSections productId={product.id} initialSections={infoSections} />
 
       <AdjustStockDialog
         open={adjust.open}
