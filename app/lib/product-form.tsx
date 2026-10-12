@@ -8,6 +8,7 @@ import {
   Dropdown,
   FieldError,
   Input,
+  InputGroup,
   Label,
   ListBox,
   Select,
@@ -22,6 +23,7 @@ import {
   categoryPath,
   categoryTree,
   cents,
+  currencySymbol,
   formatMoney,
   PRODUCT_STATUSES,
   slugify,
@@ -99,6 +101,7 @@ export function ProductForm({
 }) {
   const { control, getValues, setValue, watch } = form;
   const slugTouched = useRef(Boolean(form.getValues("slug")));
+  const symbol = currencySymbol(currency, locale);
 
   // `keyName` keeps the generated React key off the `id` field, which carries
   // the database id for saved rows.
@@ -483,16 +486,15 @@ export function ProductForm({
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[980px] border-separate border-spacing-y-1 text-sm">
+          <table className="w-full min-w-[720px] border-separate border-spacing-y-1 text-sm">
+            {/* Compare-at, barcode and weight are hidden for now; they will come
+                back in a per-variant expandable row. */}
             <thead>
               <tr className="text-left text-xs text-muted">
                 <th className="pe-3 pb-1 font-medium">Variant</th>
                 {variantImage && <th className="pe-3 pb-1 font-medium">Image</th>}
                 <th className="pe-3 pb-1 font-medium">Price</th>
-                <th className="pe-3 pb-1 font-medium">Compare at</th>
                 <th className="pe-3 pb-1 font-medium">SKU</th>
-                <th className="pe-3 pb-1 font-medium">Barcode</th>
-                <th className="pe-3 pb-1 font-medium">Weight (g)</th>
                 <th className="pe-3 pb-1 font-medium">Cost</th>
                 <th className="pe-3 pb-1 font-medium">Ships</th>
                 <th className="pe-3 pb-1 font-medium">Tax</th>
@@ -512,35 +514,16 @@ export function ProductForm({
                       name={`variants.${index}.price`}
                       render={({ field, fieldState }) => (
                         <>
-                          <Input
-                            aria-label={`${variant.title} price`}
-                            className="w-24"
-                            aria-invalid={fieldState.invalid}
-                            value={field.value}
-                            onBlur={field.onBlur}
-                            onChange={(event) => field.onChange(event.target.value)}
-                          />
-                          {fieldState.error && (
-                            <p className="mt-1 text-xs text-danger">{fieldState.error.message}</p>
-                          )}
-                        </>
-                      )}
-                    />
-                  </td>
-                  <td className="pe-3">
-                    <Controller
-                      control={control}
-                      name={`variants.${index}.compareAt`}
-                      render={({ field, fieldState }) => (
-                        <>
-                          <Input
-                            aria-label={`${variant.title} compare at price`}
-                            className="w-24"
-                            aria-invalid={fieldState.invalid}
-                            value={field.value}
-                            onBlur={field.onBlur}
-                            onChange={(event) => field.onChange(event.target.value)}
-                          />
+                          <InputGroup className="w-28">
+                            <InputGroup.Prefix>{symbol}</InputGroup.Prefix>
+                            <InputGroup.Input
+                              aria-label={`${variant.title} price`}
+                              aria-invalid={fieldState.invalid}
+                              value={field.value}
+                              onBlur={field.onBlur}
+                              onChange={(event) => field.onChange(event.target.value)}
+                            />
+                          </InputGroup>
                           {fieldState.error && (
                             <p className="mt-1 text-xs text-danger">{fieldState.error.message}</p>
                           )}
@@ -566,53 +549,19 @@ export function ProductForm({
                   <td className="pe-3">
                     <Controller
                       control={control}
-                      name={`variants.${index}.barcode`}
-                      render={({ field }) => (
-                        <Input
-                          aria-label={`${variant.title} barcode`}
-                          className="w-32"
-                          value={field.value}
-                          onBlur={field.onBlur}
-                          onChange={(event) => field.onChange(event.target.value)}
-                        />
-                      )}
-                    />
-                  </td>
-                  <td className="pe-3">
-                    <Controller
-                      control={control}
-                      name={`variants.${index}.weightGrams`}
-                      render={({ field, fieldState }) => (
-                        <>
-                          <Input
-                            aria-label={`${variant.title} weight`}
-                            className="w-20"
-                            aria-invalid={fieldState.invalid}
-                            value={field.value}
-                            onBlur={field.onBlur}
-                            onChange={(event) => field.onChange(event.target.value)}
-                          />
-                          {fieldState.error && (
-                            <p className="mt-1 text-xs text-danger">{fieldState.error.message}</p>
-                          )}
-                        </>
-                      )}
-                    />
-                  </td>
-                  <td className="pe-3">
-                    <Controller
-                      control={control}
                       name={`variants.${index}.cost`}
                       render={({ field, fieldState }) => (
                         <>
-                          <Input
-                            aria-label={`${variant.title} cost`}
-                            className="w-24"
-                            aria-invalid={fieldState.invalid}
-                            value={field.value}
-                            onBlur={field.onBlur}
-                            onChange={(event) => field.onChange(event.target.value)}
-                          />
+                          <InputGroup className="w-28">
+                            <InputGroup.Prefix>{symbol}</InputGroup.Prefix>
+                            <InputGroup.Input
+                              aria-label={`${variant.title} cost`}
+                              aria-invalid={fieldState.invalid}
+                              value={field.value}
+                              onBlur={field.onBlur}
+                              onChange={(event) => field.onChange(event.target.value)}
+                            />
+                          </InputGroup>
                           {fieldState.error && (
                             <p className="mt-1 text-xs text-danger">{fieldState.error.message}</p>
                           )}
@@ -640,7 +589,7 @@ export function ProductForm({
                     />
                   </td>
                   <td className="pe-3">
-                    <div className="flex flex-col items-center gap-1">
+                    <div className="flex items-center gap-2">
                       <Controller
                         control={control}
                         name={`variants.${index}.taxable`}
