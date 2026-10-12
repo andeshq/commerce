@@ -126,7 +126,7 @@ export function CustomerListing() {
                         <Table.Row key={customer.id} id={customer.id}>
                           <Table.Cell>
                             <Link
-                              className="flex flex-col no-underline"
+                              className="flex flex-col items-start no-underline"
                               href={`/customers/${customer.id}`}
                             >
                               <span className="font-medium text-foreground">

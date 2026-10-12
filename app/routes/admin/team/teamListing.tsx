@@ -80,7 +80,7 @@ export function TeamListing() {
                       <Table.Row key={member.id} id={member.id}>
                         <Table.Cell>
                           <Link
-                            className="flex flex-col no-underline"
+                            className="flex flex-col items-start no-underline"
                             href={`/team/${member.id}`}
                           >
                             <span className="font-medium text-foreground">{member.name}</span>

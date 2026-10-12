@@ -256,7 +256,7 @@ export function CategoryListing() {
                                 <span className="w-8" aria-hidden />
                               )}
                               <Link
-                                className="flex flex-col no-underline"
+                                className="flex flex-col items-start no-underline"
                                 href={`/categories/${row.id}`}
                               >
                                 <span className="font-medium text-foreground">{row.name}</span>

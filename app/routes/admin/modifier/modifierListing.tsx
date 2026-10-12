@@ -264,7 +264,7 @@ export function ModifierListing() {
                       <Table.Row key={row.id} id={row.id}>
                         <Table.Cell>
                           <Link
-                            className="flex flex-col no-underline"
+                            className="flex flex-col items-start no-underline"
                             href={`/modifiers/${row.id}`}
                           >
                             <span className="font-medium text-foreground">{row.name}</span>
