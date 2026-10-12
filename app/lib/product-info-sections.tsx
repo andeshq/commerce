@@ -268,7 +268,9 @@ export function ProductInfoSections({
                       <Input placeholder={m.product_info_name_placeholder()} />
                     </TextField>
                     <div className="flex flex-col gap-2">
-                      <span className="text-sm font-medium">{m.product_info_body()}</span>
+                      <span className="text-sm font-medium text-foreground">
+                        {m.product_info_body()}
+                      </span>
                       <RichTextEditor
                         key={draft.id ?? "new"}
                         value={draft.body}
