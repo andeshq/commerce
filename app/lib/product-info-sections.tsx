@@ -175,7 +175,7 @@ export function ProductInfoSections({
                       <span className="w-56 shrink-0 truncate text-sm font-medium">
                         {section.title}
                       </span>
-                      <span className="min-w-0 flex-1 truncate text-sm text-muted">
+                      <span className="min-w-0 flex-1 truncate text-sm">
                         {preview(section.body)}
                       </span>
                       <Dropdown>
