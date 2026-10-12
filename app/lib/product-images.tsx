@@ -1,7 +1,9 @@
 import { useRef, useState } from "react";
 import { Button, Input } from "@heroui/react";
-import { Picture, Xmark } from "@gravity-ui/icons";
+import { Grip, Picture, Xmark } from "@gravity-ui/icons";
+import { arrayMove } from "@dnd-kit/sortable";
 import { pgbase, pgbaseErrorMessages } from "./pgbase";
+import { SortableItem, SortableList, dragHandleClass } from "./sortable";
 
 export interface ImageEntry {
   mediaId: string;
@@ -145,51 +147,91 @@ export function ProductImages({
     }
   }
 
+  async function reorder(from: number, to: number) {
+    const next = arrayMove(entries, from, to);
+    report(next);
+    if (!productId) return;
+
+    setBusy(true);
+    setError(null);
+    try {
+      await renumber(productId, next);
+    } catch (caught) {
+      setError(pgbaseErrorMessages(caught)[0] ?? "Could not reorder the images.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   return (
     <div className="flex flex-col gap-2">
       <div className="flex flex-wrap items-center gap-3">
-        {entries.map((entry, index) => (
-          <div key={entry.mediaId} className="flex w-24 flex-col gap-1">
-            <div className="relative">
-              <button
-                type="button"
-                aria-label={`Set image ${index + 1} as the main image`}
-                disabled={busy || index === 0}
-                onClick={() => void makeMain(entry)}
-                className={
-                  "block overflow-hidden rounded-xl " +
-                  (index === 0 ? "ring-2 ring-accent" : "hover:opacity-80")
-                }
-              >
-                <img src={entry.url} alt={entry.alt ?? ""} className="size-24 object-cover" />
-                {index === 0 && (
-                  <span className="absolute start-1 bottom-1 rounded-full bg-accent px-2 py-0.5 text-[10px] font-medium text-accent-foreground">
-                    Main
-                  </span>
+        <SortableList
+          ids={entries.map((entry) => entry.mediaId)}
+          onReorder={(from, to) => void reorder(from, to)}
+          strategy="grid"
+        >
+          <div className="flex flex-wrap items-center gap-3">
+            {entries.map((entry, index) => (
+              <SortableItem key={entry.mediaId} id={entry.mediaId}>
+                {({ itemRef, itemStyle, handleProps }) => (
+                  <div
+                    ref={itemRef}
+                    style={itemStyle}
+                    className="flex w-24 flex-col gap-1"
+                  >
+                    <div className="relative">
+                      <button
+                        type="button"
+                        aria-label={`Set image ${index + 1} as the main image`}
+                        disabled={busy || index === 0}
+                        onClick={() => void makeMain(entry)}
+                        className={
+                          "block overflow-hidden rounded-xl " +
+                          (index === 0 ? "ring-2 ring-accent" : "hover:opacity-80")
+                        }
+                      >
+                        <img src={entry.url} alt={entry.alt ?? ""} className="size-24 object-cover" />
+                        {index === 0 && (
+                          <span className="absolute start-1 bottom-1 rounded-full bg-accent px-2 py-0.5 text-[10px] font-medium text-accent-foreground">
+                            Main
+                          </span>
+                        )}
+                      </button>
+                      <button
+                        type="button"
+                        aria-label={`Reorder image ${index + 1}`}
+                        className={`${dragHandleClass} absolute -start-2 -top-2 size-6 bg-surface shadow-surface`}
+                        {...handleProps}
+                      >
+                        <Grip className="size-3.5" />
+                      </button>
+                      <Button
+                        aria-label={`Remove image ${index + 1}`}
+                        isIconOnly
+                        size="sm"
+                        variant="tertiary"
+                        className="absolute -end-2 -top-2"
+                        isDisabled={busy}
+                        onPress={() => void detach(entry)}
+                      >
+                        <Xmark className="size-3.5" />
+                      </Button>
+                    </div>
+                    <Input
+                      aria-label={`Alt text for image ${index + 1}`}
+                      className="text-xs"
+                      defaultValue={entry.alt ?? ""}
+                      placeholder="Alt text"
+                      disabled={busy || !productId}
+                      onBlur={(event) => void saveAlt(entry, event.target.value)}
+                    />
+                  </div>
                 )}
-              </button>
-              <Button
-                aria-label={`Remove image ${index + 1}`}
-                isIconOnly
-                size="sm"
-                variant="tertiary"
-                className="absolute -end-2 -top-2"
-                isDisabled={busy}
-                onPress={() => void detach(entry)}
-              >
-                <Xmark className="size-3.5" />
-              </Button>
-            </div>
-            <Input
-              aria-label={`Alt text for image ${index + 1}`}
-              className="text-xs"
-              defaultValue={entry.alt ?? ""}
-              placeholder="Alt text"
-              disabled={busy || !productId}
-              onBlur={(event) => void saveAlt(entry, event.target.value)}
-            />
+              </SortableItem>
+            ))}
           </div>
-        ))}
+        </SortableList>
 
         <input
           ref={input}

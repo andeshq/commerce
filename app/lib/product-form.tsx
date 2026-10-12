@@ -13,12 +13,12 @@ import {
   ListBox,
   Select,
   Separator,
-  Tag,
-  TagGroup,
   TextField,
 } from "@heroui/react";
-import { Plus, Xmark } from "@gravity-ui/icons";
+import { Grip, Plus, Xmark } from "@gravity-ui/icons";
+import { arrayMove } from "@dnd-kit/sortable";
 import { RichTextEditor } from "./rich-text-editor";
+import { SortableItem, SortableList, dragHandleClass } from "./sortable";
 import {
   categoryPath,
   categoryTree,
@@ -109,13 +109,19 @@ export function ProductForm({
   const [optionError, setOptionError] = useState<string | null>(null);
   const optionIds = watch("optionIds");
   const modifierGroupIds = watch("modifierGroupIds");
-  const selectedOptions = options.filter((option) => optionIds.includes(option.id));
+  const selectedOptions = optionIds
+    .map((id) => options.find((option) => option.id === id))
+    .filter((option): option is OptionWithValues => Boolean(option));
   const availableOptions = options.filter((option) => !optionIds.includes(option.id));
-  const selectedModifiers = modifiers.filter((group) => modifierGroupIds.includes(group.id));
+  const selectedModifiers = modifierGroupIds
+    .map((id) => modifiers.find((group) => group.id === id))
+    .filter((group): group is ModifierGroupWithValues => Boolean(group));
   const availableModifiers = modifiers.filter((group) => !modifierGroupIds.includes(group.id));
 
   function applyOptionIds(ids: string[]) {
-    const nextOptions = options.filter((option) => ids.includes(option.id));
+    const nextOptions = ids
+      .map((id) => options.find((option) => option.id === id))
+      .filter((option): option is OptionWithValues => Boolean(option));
     const count = combinationCount(nextOptions);
     if (count > MAX_VARIANTS) {
       setOptionError(
@@ -350,21 +356,45 @@ export function ProductForm({
         ) : (
           <div className="flex flex-wrap items-center gap-3">
             {selectedOptions.length > 0 && (
-              <TagGroup
-                aria-label="Selected options"
-                onRemove={(keys) => applyOptionIds(optionIds.filter((id) => !keys.has(id)))}
+              <SortableList
+                ids={selectedOptions.map((option) => option.id)}
+                onReorder={(from, to) => applyOptionIds(arrayMove(optionIds, from, to))}
+                strategy="grid"
               >
-                <TagGroup.List>
+                <div className="flex flex-wrap items-center gap-2">
                   {selectedOptions.map((option) => (
-                    <Tag key={option.id} id={option.id} textValue={option.name}>
-                      {option.name}
-                      <Tag.RemoveButton>
-                        <Xmark className="size-3" />
-                      </Tag.RemoveButton>
-                    </Tag>
+                    <SortableItem key={option.id} id={option.id}>
+                      {({ itemRef, itemStyle, handleProps }) => (
+                        <div
+                          ref={itemRef}
+                          style={itemStyle}
+                          className="flex items-center gap-1 rounded-full bg-surface-secondary py-1 ps-1 pe-2 text-sm"
+                        >
+                          <button
+                            type="button"
+                            aria-label={`Reorder ${option.name}`}
+                            className={`${dragHandleClass} size-5`}
+                            {...handleProps}
+                          >
+                            <Grip className="size-3.5" />
+                          </button>
+                          <span>{option.name}</span>
+                          <button
+                            type="button"
+                            aria-label={`Remove ${option.name}`}
+                            className="text-muted hover:text-foreground"
+                            onClick={() =>
+                              applyOptionIds(optionIds.filter((id) => id !== option.id))
+                            }
+                          >
+                            <Xmark className="size-3.5" />
+                          </button>
+                        </div>
+                      )}
+                    </SortableItem>
                   ))}
-                </TagGroup.List>
-              </TagGroup>
+                </div>
+              </SortableList>
             )}
 
             {availableOptions.length > 0 && (
@@ -410,23 +440,45 @@ export function ProductForm({
         ) : (
           <div className="flex flex-wrap items-center gap-3">
             {selectedModifiers.length > 0 && (
-              <TagGroup
-                aria-label="Selected modifiers"
-                onRemove={(keys) =>
-                  applyModifierIds(modifierGroupIds.filter((id) => !keys.has(id)))
-                }
+              <SortableList
+                ids={selectedModifiers.map((group) => group.id)}
+                onReorder={(from, to) => applyModifierIds(arrayMove(modifierGroupIds, from, to))}
+                strategy="grid"
               >
-                <TagGroup.List>
+                <div className="flex flex-wrap items-center gap-2">
                   {selectedModifiers.map((group) => (
-                    <Tag key={group.id} id={group.id} textValue={group.name}>
-                      {group.name}
-                      <Tag.RemoveButton>
-                        <Xmark className="size-3" />
-                      </Tag.RemoveButton>
-                    </Tag>
+                    <SortableItem key={group.id} id={group.id}>
+                      {({ itemRef, itemStyle, handleProps }) => (
+                        <div
+                          ref={itemRef}
+                          style={itemStyle}
+                          className="flex items-center gap-1 rounded-full bg-surface-secondary py-1 ps-1 pe-2 text-sm"
+                        >
+                          <button
+                            type="button"
+                            aria-label={`Reorder ${group.name}`}
+                            className={`${dragHandleClass} size-5`}
+                            {...handleProps}
+                          >
+                            <Grip className="size-3.5" />
+                          </button>
+                          <span>{group.name}</span>
+                          <button
+                            type="button"
+                            aria-label={`Remove ${group.name}`}
+                            className="text-muted hover:text-foreground"
+                            onClick={() =>
+                              applyModifierIds(modifierGroupIds.filter((id) => id !== group.id))
+                            }
+                          >
+                            <Xmark className="size-3.5" />
+                          </button>
+                        </div>
+                      )}
+                    </SortableItem>
                   ))}
-                </TagGroup.List>
-              </TagGroup>
+                </div>
+              </SortableList>
             )}
 
             {availableModifiers.length > 0 && (
@@ -485,12 +537,17 @@ export function ProductForm({
           )}
         </div>
 
+        <SortableList
+          ids={variantArray.fields.map((field) => field.key)}
+          onReorder={(from, to) => variantArray.move(from, to)}
+        >
         <div className="overflow-x-auto">
           <table className="w-full min-w-[720px] border-separate border-spacing-y-1 text-sm">
             {/* Compare-at, barcode and weight are hidden for now; they will come
                 back in a per-variant expandable row. */}
             <thead>
               <tr className="text-left text-xs text-muted">
+                <th className="w-8 pb-1" />
                 <th className="pe-3 pb-1 font-medium">Variant</th>
                 {variantImage && <th className="pe-3 pb-1 font-medium">Image</th>}
                 <th className="pe-3 pb-1 font-medium">Price</th>
@@ -503,7 +560,19 @@ export function ProductForm({
             </thead>
             <tbody>
               {variantArray.fields.map((variant, index) => (
-                <tr key={variant.key}>
+                <SortableItem key={variant.key} id={variant.key}>
+                  {({ itemRef, itemStyle, handleProps }) => (
+                <tr ref={itemRef} style={itemStyle}>
+                  <td className="w-8 pe-1 align-middle">
+                    <button
+                      type="button"
+                      aria-label={`Reorder ${variant.title}`}
+                      className={`${dragHandleClass} size-7`}
+                      {...handleProps}
+                    >
+                      <Grip className="size-4" />
+                    </button>
+                  </td>
                   <td className="pe-3 align-middle font-medium">{variant.title}</td>
                   {variantImage && (
                     <td className="pe-3 align-middle">{variantImage(variant, index)}</td>
@@ -637,10 +706,13 @@ export function ProductForm({
                     </Button>
                   </td>
                 </tr>
+                  )}
+                </SortableItem>
               ))}
             </tbody>
           </table>
         </div>
+        </SortableList>
       </section>
     </form>
   );

@@ -62,7 +62,12 @@ export async function productDetailLoader({ params }: LoaderFunctionArgs) {
       .eq("product_id", id)
       .order("position", { ascending: true })
       .throwOnError(),
-    pgbase.from("product_options").select("option_id,position").eq("product_id", id).throwOnError(),
+    pgbase
+      .from("product_options")
+      .select("option_id,position")
+      .eq("product_id", id)
+      .order("position", { ascending: true })
+      .throwOnError(),
     pgbase
       .from("options")
       .select("id,name,position,created_at,updated_at,option_values(id,option_id,value,position)")
@@ -84,6 +89,7 @@ export async function productDetailLoader({ params }: LoaderFunctionArgs) {
       .from("product_modifier_groups")
       .select("product_id,group_id,position")
       .eq("product_id", id)
+      .order("position", { ascending: true })
       .throwOnError(),
     pgbase.from("media").select("id,url,alt,width,height").throwOnError(),
     pgbase
@@ -163,6 +169,27 @@ export async function productDetailAction({ request, params }: ActionFunctionArg
         )
         .eq("id", productId)
         .throwOnError();
+
+      // The nested PATCH ensures option/modifier links but ignores their
+      // position, so write the display order explicitly (like image renumber).
+      await Promise.all([
+        ...parsed.data.optionIds.map((option_id, position) =>
+          pgbase
+            .from("product_options")
+            .update({ position })
+            .eq("product_id", productId)
+            .eq("option_id", option_id)
+            .throwOnError(),
+        ),
+        ...parsed.data.modifierGroupIds.map((group_id, position) =>
+          pgbase
+            .from("product_modifier_groups")
+            .update({ position })
+            .eq("product_id", productId)
+            .eq("group_id", group_id)
+            .throwOnError(),
+        ),
+      ]);
 
       const removals = computeRemovals(
         productId,
