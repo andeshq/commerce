@@ -313,12 +313,16 @@ export function ProductForm({
         name="description"
         render={({ field }) => (
           <div className="flex flex-col gap-2">
-            <span className="text-sm font-medium">{m.common_description()}</span>
+            <span className="text-sm font-medium text-foreground">
+              {m.common_description()}
+            </span>
             <RichTextEditor
               value={field.value}
               onChange={field.onChange}
               onBlur={field.onBlur}
               isDisabled={submitting}
+              label={m.common_description()}
+              placeholder={m.product_description_placeholder()}
             />
           </div>
         )}

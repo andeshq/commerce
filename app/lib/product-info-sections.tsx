@@ -275,6 +275,7 @@ export function ProductInfoSections({
                         key={draft.id ?? "new"}
                         value={draft.body}
                         isDisabled={busy}
+                        label={m.product_info_body()}
                         placeholder={m.product_info_body_placeholder()}
                         onChange={(html) =>
                           setDraft((current) => (current ? { ...current, body: html } : current))

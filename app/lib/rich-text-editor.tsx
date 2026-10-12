@@ -145,13 +145,20 @@ export function RichTextEditor({
   onChange,
   onBlur,
   isDisabled,
-  placeholder = "Describe the product…",
+  placeholder,
+  label,
 }: {
   value: string;
   onChange(html: string): void;
   onBlur?(): void;
   isDisabled?: boolean;
   placeholder?: string;
+  /**
+   * Accessible name for the editor. The surface is a `contenteditable` div,
+   * which is not a labelable control, so it takes `aria-label` rather than a
+   * `<label>` element.
+   */
+  label?: string;
 }) {
   const [formats, setFormats] = useState<ToolbarFormats>(NO_FORMATS);
 
@@ -174,13 +181,16 @@ export function RichTextEditor({
             contentEditable={
               <ContentEditable
                 className="min-h-24 px-3 py-2 text-sm outline-none"
+                ariaLabel={label}
                 onBlur={onBlur}
               />
             }
             placeholder={
-              <p className="pointer-events-none absolute start-3 top-2 text-sm text-field-placeholder">
-                {placeholder}
-              </p>
+              placeholder ? (
+                <p className="pointer-events-none absolute start-3 top-2 text-sm text-field-placeholder">
+                  {placeholder}
+                </p>
+              ) : null
             }
             ErrorBoundary={LexicalErrorBoundary}
           />

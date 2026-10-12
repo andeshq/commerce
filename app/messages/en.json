@@ -533,5 +533,6 @@
   "product_info_max": "You can add up to {max} info sections.",
   "product_info_error": "Could not save the info section.",
   "product_info_delete_error": "Could not delete the info section.",
-  "product_info_reorder_error": "Could not reorder the info sections."
+  "product_info_reorder_error": "Could not reorder the info sections.",
+  "product_description_placeholder": "Describe the product…"
 }

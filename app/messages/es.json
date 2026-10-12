@@ -533,5 +533,6 @@
   "product_info_max": "Puedes agregar hasta {max} secciones de información.",
   "product_info_error": "No se pudo guardar la sección de información.",
   "product_info_delete_error": "No se pudo eliminar la sección de información.",
-  "product_info_reorder_error": "No se pudieron reordenar las secciones de información."
+  "product_info_reorder_error": "No se pudieron reordenar las secciones de información.",
+  "product_description_placeholder": "Describe el producto…"
 }
