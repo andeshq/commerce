@@ -1,4 +1,5 @@
 import { authClient } from "./auth-client";
+import { m } from "@/paraglide/messages.js";
 
 export interface AuthUser {
   id: string;
@@ -43,11 +44,11 @@ export function isStaff(user: AuthUser | null | undefined): boolean {
 
 export function authErrorMessages(error: unknown): string[] {
   if (!(error instanceof AuthError)) {
-    return ["Something went wrong. Please try again."];
+    return [m.common_something_wrong()];
   }
   if (error.status === 401 || error.status === 403) {
-    return ["Invalid email or password."];
+    return [m.sign_in_invalid()];
   }
   const body = error.body as { message?: string } | null;
-  return [body?.message ?? `Sign-in failed (${error.status}).`];
+  return [body?.message ?? m.sign_in_failed({ status: error.status })];
 }

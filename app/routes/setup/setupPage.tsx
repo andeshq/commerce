@@ -17,6 +17,8 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { getSetupStatus, runSetup, setupErrorMessages } from "@/lib/api";
+import { LanguageSwitcher } from "@/lib/language-switcher";
+import { m } from "@/paraglide/messages.js";
 import {
   CURRENCIES,
   CURRENCY_LABELS,
@@ -26,7 +28,13 @@ import {
   type LocaleCode,
 } from "@/lib/ref-data";
 
-const STEPS = ["Store", "Administrator", "Review"] as const;
+const STEPS = ["store", "admin", "review"] as const;
+
+const STEP_LABELS: Record<(typeof STEPS)[number], () => string> = {
+  store: m.setup_step_store,
+  admin: m.setup_step_admin,
+  review: m.setup_step_review,
+};
 
 /** Per-step schemas gate the wizard buttons; the full schema validates submit. */
 const storeStepSchema = z.object({
@@ -46,18 +54,18 @@ const adminStepSchema = z
 
 const setupSchema = z
   .object({
-    storeName: z.string().trim().min(1, "Enter a store name."),
+    storeName: z.string().trim().min(1, { error: () => m.validation_store_name() }),
     currencyCode: z.enum(CURRENCIES),
     locale: z.enum(LOCALES),
     pricesIncludeTax: z.boolean(),
-    name: z.string().trim().min(1, "Enter your name."),
-    email: z.email("Enter a valid email address."),
-    password: z.string().min(8, "Use at least 8 characters."),
-    confirmPassword: z.string().min(1, "Confirm your password."),
+    name: z.string().trim().min(1, { error: () => m.validation_your_name() }),
+    email: z.email({ error: () => m.validation_email() }),
+    password: z.string().min(8, { error: () => m.validation_password_min() }),
+    confirmPassword: z.string().min(1, { error: () => m.validation_confirm_password() }),
   })
   .refine((values) => values.password === values.confirmPassword, {
     path: ["confirmPassword"],
-    message: "Passwords do not match.",
+    error: () => m.validation_passwords_mismatch(),
   });
 
 type SetupValues = z.infer<typeof setupSchema>;
@@ -119,12 +127,14 @@ export function SetupPage() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-background p-6">
       <form className="w-full max-w-lg" onSubmit={handleSubmit(submit)}>
+        <div className="mb-3 flex justify-end">
+          <LanguageSwitcher />
+        </div>
+
         <Card className="w-full">
           <Card.Header>
-            <Card.Title>Set up your store</Card.Title>
-            <Card.Description>
-              One-time configuration. This page locks once an administrator exists.
-            </Card.Description>
+            <Card.Title>{m.setup_title()}</Card.Title>
+            <Card.Description>{m.setup_description()}</Card.Description>
           </Card.Header>
 
           <Card.Content className="flex flex-col gap-6">
@@ -141,7 +151,9 @@ export function SetupPage() {
                   >
                     {index + 1}
                   </span>
-                  <span className={index === step ? "font-medium" : "text-muted"}>{label}</span>
+                  <span className={index === step ? "font-medium" : "text-muted"}>
+                    {STEP_LABELS[label]()}
+                  </span>
                 </li>
               ))}
             </ol>
@@ -150,7 +162,7 @@ export function SetupPage() {
               <Alert status="danger">
                 <Alert.Indicator />
                 <Alert.Content>
-                  <Alert.Title>Setup failed</Alert.Title>
+                  <Alert.Title>{m.setup_failed()}</Alert.Title>
                   <Alert.Description>
                     <ul className="list-inside list-disc">
                       {errors.map((message) => (
@@ -177,12 +189,15 @@ export function SetupPage() {
                       onBlur={field.onBlur}
                       isInvalid={fieldState.invalid}
                     >
-                      <Label>Store name</Label>
-                      <Input placeholder="Andes" autoComplete="organization" />
+                      <Label>{m.setup_store_name()}</Label>
+                      <Input
+                        placeholder={m.setup_store_name_placeholder()}
+                        autoComplete="organization"
+                      />
                       {fieldState.invalid ? (
                         <FieldError>{fieldState.error?.message}</FieldError>
                       ) : (
-                        <Description>Shown on receipts and storefront.</Description>
+                        <Description>{m.setup_store_name_hint()}</Description>
                       )}
                     </TextField>
                   )}
@@ -198,7 +213,7 @@ export function SetupPage() {
                       value={field.value}
                       onChange={(value) => field.onChange(String(value))}
                     >
-                      <Label>Currency</Label>
+                      <Label>{m.setup_currency()}</Label>
                       <Select.Trigger>
                         <Select.Value />
                         <Select.Indicator />
@@ -231,7 +246,7 @@ export function SetupPage() {
                       value={field.value}
                       onChange={(value) => field.onChange(String(value))}
                     >
-                      <Label>Locale</Label>
+                      <Label>{m.setup_locale()}</Label>
                       <Select.Trigger>
                         <Select.Value />
                         <Select.Indicator />
@@ -259,7 +274,7 @@ export function SetupPage() {
                         <Switch.Control>
                           <Switch.Thumb />
                         </Switch.Control>
-                        Prices include tax
+                        {m.setup_prices_include_tax()}
                       </Switch.Content>
                     </Switch>
                   )}
@@ -282,8 +297,8 @@ export function SetupPage() {
                       onBlur={field.onBlur}
                       isInvalid={fieldState.invalid}
                     >
-                      <Label>Your name</Label>
-                      <Input placeholder="Owner" autoComplete="name" />
+                      <Label>{m.setup_your_name()}</Label>
+                      <Input placeholder={m.setup_name_placeholder()} autoComplete="name" />
                       <FieldError>{fieldState.error?.message}</FieldError>
                     </TextField>
                   )}
@@ -303,7 +318,7 @@ export function SetupPage() {
                       onBlur={field.onBlur}
                       isInvalid={fieldState.invalid}
                     >
-                      <Label>Email</Label>
+                      <Label>{m.setup_email()}</Label>
                       <Input placeholder="owner@example.com" autoComplete="username" />
                       <FieldError>{fieldState.error?.message}</FieldError>
                     </TextField>
@@ -324,12 +339,12 @@ export function SetupPage() {
                       onBlur={field.onBlur}
                       isInvalid={fieldState.invalid}
                     >
-                      <Label>Password</Label>
+                      <Label>{m.setup_password()}</Label>
                       <Input autoComplete="new-password" />
                       {fieldState.invalid ? (
                         <FieldError>{fieldState.error?.message}</FieldError>
                       ) : (
-                        <Description>At least 8 characters.</Description>
+                        <Description>{m.setup_password_hint()}</Description>
                       )}
                     </TextField>
                   )}
@@ -349,7 +364,7 @@ export function SetupPage() {
                       onBlur={field.onBlur}
                       isInvalid={fieldState.invalid}
                     >
-                      <Label>Confirm password</Label>
+                      <Label>{m.setup_confirm_password()}</Label>
                       <Input autoComplete="new-password" />
                       <FieldError>{fieldState.error?.message}</FieldError>
                     </TextField>
@@ -360,19 +375,21 @@ export function SetupPage() {
 
             {step === 2 && (
               <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
-                <dt className="text-muted">Store</dt>
+                <dt className="text-muted">{m.setup_summary_store()}</dt>
                 <dd className="font-medium">{values.storeName.trim() || "—"}</dd>
-                <dt className="text-muted">Currency</dt>
+                <dt className="text-muted">{m.setup_summary_currency()}</dt>
                 <dd>
                   {values.currencyCode} — {CURRENCY_LABELS[values.currencyCode as CurrencyCode]}
                 </dd>
-                <dt className="text-muted">Locale</dt>
+                <dt className="text-muted">{m.setup_summary_locale()}</dt>
                 <dd>{LOCALE_LABELS[values.locale as LocaleCode]}</dd>
-                <dt className="text-muted">Prices</dt>
-                <dd>{values.pricesIncludeTax ? "Tax included" : "Tax added at checkout"}</dd>
-                <dt className="text-muted">Administrator</dt>
+                <dt className="text-muted">{m.setup_summary_prices()}</dt>
+                <dd>
+                  {values.pricesIncludeTax ? m.setup_tax_included() : m.setup_tax_added()}
+                </dd>
+                <dt className="text-muted">{m.setup_summary_admin()}</dt>
                 <dd>{values.name.trim() || "—"}</dd>
-                <dt className="text-muted">Email</dt>
+                <dt className="text-muted">{m.setup_summary_email()}</dt>
                 <dd>{values.email.trim() || "—"}</dd>
               </dl>
             )}
@@ -385,7 +402,7 @@ export function SetupPage() {
               isDisabled={step === 0 || isSubmitting}
               onPress={() => setStep((value) => Math.max(0, value - 1))}
             >
-              Back
+              {m.common_back()}
             </Button>
 
             {step < STEPS.length - 1 ? (
@@ -394,11 +411,11 @@ export function SetupPage() {
                 isDisabled={step === 0 ? !storeValid : !adminValid}
                 onPress={() => setStep((value) => value + 1)}
               >
-                Continue
+                {m.common_continue()}
               </Button>
             ) : (
               <Button type="submit" isDisabled={!isValid} isPending={isSubmitting}>
-                {isSubmitting ? "Setting up…" : "Create store"}
+                {isSubmitting ? m.setup_creating() : m.setup_create()}
               </Button>
             )}
           </Card.Footer>

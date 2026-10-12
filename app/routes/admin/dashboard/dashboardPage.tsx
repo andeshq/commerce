@@ -12,7 +12,9 @@ import {
 import { useLoaderData } from "react-router";
 import { PageHeader } from "@/lib/page-header";
 import { pgbase } from "@/lib/pgbase";
+import { productStatusLabel } from "@/lib/i18n";
 import { useAdminStore } from "@/routes/admin/adminLayout";
+import { m } from "@/paraglide/messages.js";
 import { formatMoney, type Order, type Product, type ProductStatus } from "@/lib/catalog";
 
 const STATUS_COLOR: Record<ProductStatus, "success" | "warning" | "default"> = {
@@ -22,10 +24,10 @@ const STATUS_COLOR: Record<ProductStatus, "success" | "warning" | "default"> = {
 };
 
 const SORT_OPTIONS = [
-  { id: "updated_at", label: "Last updated", direction: "descending" },
-  { id: "title", label: "Title A–Z", direction: "ascending" },
-  { id: "status", label: "Status", direction: "ascending" },
-  { id: "vendor", label: "Vendor A–Z", direction: "ascending" },
+  { id: "updated_at", label: m.sort_last_updated(), direction: "descending" },
+  { id: "title", label: m.sort_title_az(), direction: "ascending" },
+  { id: "status", label: m.common_status(), direction: "ascending" },
+  { id: "vendor", label: m.sort_vendor_az(), direction: "ascending" },
 ] as const;
 
 function compare(a: Product, b: Product, column: string): number {
@@ -115,40 +117,40 @@ export function DashboardPage() {
 
   const stats = [
     {
-      label: "Products",
+      label: m.dashboard_stat_products(),
       value: counts.total,
       icon: Boxes3,
-      footer: `${share(counts.active)}% published`,
+      footer: m.dashboard_footer_published({ percent: share(counts.active) }),
     },
     {
-      label: "Active",
+      label: m.dashboard_stat_active(),
       value: counts.active,
       icon: CircleCheck,
-      footer: "Visible in the storefront",
+      footer: m.dashboard_footer_active(),
     },
     {
-      label: "Drafts",
+      label: m.dashboard_stat_drafts(),
       value: counts.draft,
       icon: Pencil,
-      footer: "Not published yet",
+      footer: m.dashboard_footer_drafts(),
     },
     {
-      label: "Archived",
+      label: m.dashboard_stat_archived(),
       value: counts.archived,
       icon: Archive,
-      footer: "Hidden from the catalog",
+      footer: m.dashboard_footer_archived(),
     },
   ];
 
   const breakdown = [
-    { label: "Active", value: counts.active, color: "success" as const },
-    { label: "Draft", value: counts.draft, color: "warning" as const },
-    { label: "Archived", value: counts.archived, color: "default" as const },
+    { label: m.status_active(), value: counts.active, color: "success" as const },
+    { label: m.status_draft(), value: counts.draft, color: "warning" as const },
+    { label: m.status_archived(), value: counts.archived, color: "default" as const },
   ];
 
   return (
     <div className="flex flex-col gap-4">
-      <PageHeader title="Overview" description="A quick look at your store." />
+      <PageHeader title={m.dashboard_title()} description={m.dashboard_description()} />
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {stats.map(({ label, value, icon: Icon, footer }) => (
@@ -167,38 +169,38 @@ export function DashboardPage() {
 
       <div className="grid gap-4 sm:grid-cols-3">
         <Card>
-          <span className="text-sm text-muted">Orders</span>
+          <span className="text-sm text-muted">{m.common_orders()}</span>
           <span className="text-3xl font-semibold tabular-nums">{sales.count}</span>
-          <span className="text-xs text-muted">All time</span>
+          <span className="text-xs text-muted">{m.dashboard_all_time()}</span>
         </Card>
         <Card>
-          <span className="text-sm text-muted">Revenue</span>
+          <span className="text-sm text-muted">{m.dashboard_revenue()}</span>
           <span className="text-3xl font-semibold tabular-nums">
             {store ? formatMoney(sales.revenue, store.currency_code, store.locale) : sales.revenue}
           </span>
-          <span className="text-xs text-muted">Paid orders</span>
+          <span className="text-xs text-muted">{m.dashboard_paid_orders()}</span>
         </Card>
         <Card>
-          <span className="text-sm text-muted">To fulfill</span>
+          <span className="text-sm text-muted">{m.dashboard_to_fulfill()}</span>
           <span className="text-3xl font-semibold tabular-nums">{sales.toFulfill}</span>
-          <span className="text-xs text-muted">Awaiting fulfillment</span>
+          <span className="text-xs text-muted">{m.dashboard_awaiting_fulfillment()}</span>
         </Card>
       </div>
 
       <div className="grid gap-4 xl:grid-cols-3">
         <Card className="xl:col-span-2">
           <Card.Header className="flex-row flex-wrap items-center justify-between gap-3">
-            <Card.Title>Recent products</Card.Title>
+            <Card.Title>{m.dashboard_recent_products()}</Card.Title>
             <div className="flex flex-wrap items-center gap-2">
               <SearchField
-                aria-label="Filter products"
+                aria-label={m.dashboard_filter_products()}
                 variant="secondary"
                 value={filter}
                 onChange={setFilter}
               >
                 <SearchField.Group>
                   <SearchField.SearchIcon />
-                  <SearchField.Input className="w-40" placeholder="Filter" />
+                  <SearchField.Input className="w-40" placeholder={m.dashboard_filter_placeholder()} />
                   <SearchField.ClearButton />
                 </SearchField.Group>
               </SearchField>
@@ -206,7 +208,7 @@ export function DashboardPage() {
               <Dropdown>
                 <Button size="sm" variant="secondary">
                   <BarsDescendingAlignLeft className="size-4" />
-                  Sort by
+                  {m.common_sort_by()}
                 </Button>
                 <Dropdown.Popover>
                   <Dropdown.Menu
@@ -238,13 +240,13 @@ export function DashboardPage() {
           <Card.Content>
             {recent.length === 0 ? (
               <p className="py-8 text-center text-sm text-muted">
-                {products.length === 0 ? "No products yet." : "No products match this filter."}
+                {products.length === 0 ? m.dashboard_no_products() : m.dashboard_no_match()}
               </p>
             ) : (
               <Table>
                 <Table.ScrollContainer>
                   <Table.Content
-                    aria-label="Recent products"
+                    aria-label={m.dashboard_recent_products()}
                     className="min-w-[640px]"
                     sortDescriptor={sortDescriptor}
                     onSortChange={setSortDescriptor}
@@ -253,28 +255,28 @@ export function DashboardPage() {
                       <Table.Column allowsSorting id="title" isRowHeader>
                         {({ sortDirection }) => (
                           <Table.SortableColumnHeader sortDirection={sortDirection}>
-                            Product
+                            {m.common_product()}
                           </Table.SortableColumnHeader>
                         )}
                       </Table.Column>
                       <Table.Column allowsSorting id="status">
                         {({ sortDirection }) => (
                           <Table.SortableColumnHeader sortDirection={sortDirection}>
-                            Status
+                            {m.common_status()}
                           </Table.SortableColumnHeader>
                         )}
                       </Table.Column>
                       <Table.Column allowsSorting id="vendor">
                         {({ sortDirection }) => (
                           <Table.SortableColumnHeader sortDirection={sortDirection}>
-                            Vendor
+                            {m.common_vendor()}
                           </Table.SortableColumnHeader>
                         )}
                       </Table.Column>
                       <Table.Column allowsSorting id="updated_at">
                         {({ sortDirection }) => (
                           <Table.SortableColumnHeader sortDirection={sortDirection}>
-                            Updated
+                            {m.common_updated()}
                           </Table.SortableColumnHeader>
                         )}
                       </Table.Column>
@@ -292,7 +294,7 @@ export function DashboardPage() {
                           </Table.Cell>
                           <Table.Cell>
                             <Chip color={STATUS_COLOR[product.status]} size="sm" variant="soft">
-                              {product.status}
+                              {productStatusLabel(product.status)}
                             </Chip>
                           </Table.Cell>
                           <Table.Cell>{product.vendor ?? "—"}</Table.Cell>
@@ -309,8 +311,8 @@ export function DashboardPage() {
 
         <Card>
           <Card.Header>
-            <Card.Title>Catalog status</Card.Title>
-            <Card.Description>How your products are distributed.</Card.Description>
+            <Card.Title>{m.dashboard_catalog_status()}</Card.Title>
+            <Card.Description>{m.dashboard_catalog_description()}</Card.Description>
           </Card.Header>
           <Card.Content className="gap-4">
             {breakdown.map(({ label, value, color }) => (

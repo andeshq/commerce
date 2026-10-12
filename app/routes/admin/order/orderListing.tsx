@@ -6,27 +6,29 @@ import { BarsDescendingAlignLeft } from "@gravity-ui/icons";
 import { useLoaderData } from "react-router";
 import { PageHeader } from "@/lib/page-header";
 import { pgbase } from "@/lib/pgbase";
+import { fulfillmentStatusLabel, itemCountLabel, paymentStatusLabel } from "@/lib/i18n";
 import { useAdminStore } from "@/routes/admin/adminLayout";
+import { m } from "@/paraglide/messages.js";
 import { formatMoney, type Order, type PaymentStatus, type FulfillmentStatus } from "@/lib/catalog";
 
 const PAYMENT_FILTERS = [
-  { id: "all", label: "All payments" },
-  { id: "pending", label: "Pending" },
-  { id: "paid", label: "Paid" },
-  { id: "refunded", label: "Refunded" },
-  { id: "partially_refunded", label: "Partially refunded" },
+  { id: "all", label: m.orders_all_payments() },
+  { id: "pending", label: m.payment_pending() },
+  { id: "paid", label: m.payment_paid() },
+  { id: "refunded", label: m.payment_refunded() },
+  { id: "partially_refunded", label: m.payment_partially_refunded() },
 ] as const;
 
 const FULFILLMENT_FILTERS = [
-  { id: "all", label: "All fulfillment" },
-  { id: "unfulfilled", label: "Unfulfilled" },
-  { id: "fulfilled", label: "Fulfilled" },
+  { id: "all", label: m.orders_all_fulfillment() },
+  { id: "unfulfilled", label: m.fulfillment_unfulfilled() },
+  { id: "fulfilled", label: m.fulfillment_fulfilled() },
 ] as const;
 
 const SORT_OPTIONS = [
-  { id: "placed_at", label: "Newest", direction: "descending" },
-  { id: "number", label: "Order number", direction: "descending" },
-  { id: "total_cents", label: "Total", direction: "descending" },
+  { id: "placed_at", label: m.sort_newest(), direction: "descending" },
+  { id: "number", label: m.sort_order_number(), direction: "descending" },
+  { id: "total_cents", label: m.common_total(), direction: "descending" },
 ] as const;
 
 const PAYMENT_COLOR: Record<PaymentStatus, "success" | "warning" | "danger" | "default"> = {
@@ -107,21 +109,21 @@ export function OrderListing() {
   return (
     <div className="flex flex-col gap-4">
       <PageHeader
-        title="Orders"
-        description="Everything customers have ordered, newest first."
+        title={m.orders_title()}
+        description={m.orders_description()}
       />
 
       <Card>
         <Card.Header className="flex-row flex-wrap items-center justify-between gap-3">
           <SearchField
-            aria-label="Search orders"
+            aria-label={m.orders_search()}
             variant="secondary"
             value={query}
             onChange={setQuery}
           >
             <SearchField.Group>
               <SearchField.SearchIcon />
-              <SearchField.Input className="w-56" placeholder="Order number or email" />
+              <SearchField.Input className="w-56" placeholder={m.orders_search_placeholder()} />
               <SearchField.ClearButton />
             </SearchField.Group>
           </SearchField>
@@ -208,13 +210,13 @@ export function OrderListing() {
         <Card.Content>
           {rows.length === 0 ? (
             <p className="py-8 text-center text-sm text-muted">
-              {orders.length === 0 ? "No orders yet." : "No orders match these filters."}
+              {orders.length === 0 ? m.orders_empty() : m.orders_no_match()}
             </p>
           ) : (
             <Table>
               <Table.ScrollContainer>
                 <Table.Content
-                  aria-label="Orders"
+                    aria-label={m.orders_title()}
                   className="min-w-[820px]"
                   sortDescriptor={sortDescriptor}
                   onSortChange={setSortDescriptor}
@@ -223,24 +225,24 @@ export function OrderListing() {
                     <Table.Column allowsSorting id="number" isRowHeader>
                       {({ sortDirection }) => (
                         <Table.SortableColumnHeader sortDirection={sortDirection}>
-                          Order
+                          {m.common_order()}
                         </Table.SortableColumnHeader>
                       )}
                     </Table.Column>
-                    <Table.Column>Customer</Table.Column>
-                    <Table.Column>Payment</Table.Column>
-                    <Table.Column>Fulfillment</Table.Column>
+                    <Table.Column>{m.common_customer()}</Table.Column>
+                    <Table.Column>{m.common_payment()}</Table.Column>
+                    <Table.Column>{m.common_fulfillment()}</Table.Column>
                     <Table.Column allowsSorting id="total_cents">
                       {({ sortDirection }) => (
                         <Table.SortableColumnHeader sortDirection={sortDirection}>
-                          Total
+                          {m.common_total()}
                         </Table.SortableColumnHeader>
                       )}
                     </Table.Column>
                     <Table.Column allowsSorting id="placed_at">
                       {({ sortDirection }) => (
                         <Table.SortableColumnHeader sortDirection={sortDirection}>
-                          Date
+                          {m.common_date()}
                         </Table.SortableColumnHeader>
                       )}
                     </Table.Column>
@@ -256,14 +258,13 @@ export function OrderListing() {
                             #{order.number}
                           </Link>
                           <span className="ms-2 text-xs text-muted">
-                            {counts.get(order.id) ?? 0} item
-                            {(counts.get(order.id) ?? 0) === 1 ? "" : "s"}
+                            {itemCountLabel(counts.get(order.id) ?? 0)}
                           </span>
                         </Table.Cell>
                         <Table.Cell>{order.email}</Table.Cell>
                         <Table.Cell>
                           <Chip color={PAYMENT_COLOR[order.payment_status]} size="sm" variant="soft">
-                            {order.payment_status.replace(/_/g, " ")}
+                            {paymentStatusLabel(order.payment_status)}
                           </Chip>
                         </Table.Cell>
                         <Table.Cell>
@@ -272,7 +273,7 @@ export function OrderListing() {
                             size="sm"
                             variant="soft"
                           >
-                            {order.fulfillment_status.replace(/_/g, " ")}
+                            {fulfillmentStatusLabel(order.fulfillment_status)}
                           </Chip>
                         </Table.Cell>
                         <Table.Cell className="tabular-nums">

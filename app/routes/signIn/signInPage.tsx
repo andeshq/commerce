@@ -7,10 +7,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useAuth } from "@/lib/auth-context";
 import { authErrorMessages, getSession, isStaff } from "@/lib/auth";
+import { LanguageSwitcher } from "@/lib/language-switcher";
+import { m } from "@/paraglide/messages.js";
 
 const signInSchema = z.object({
-  email: z.email("Enter a valid email address."),
-  password: z.string().min(1, "Enter your password."),
+  email: z.email({ error: () => m.sign_in_email_invalid() }),
+  password: z.string().min(1, { error: () => m.sign_in_password_required() }),
 });
 
 type SignInValues = z.infer<typeof signInSchema>;
@@ -50,17 +52,20 @@ export function SignInPage() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-background p-6">
       <div className="flex w-full max-w-sm flex-col gap-4">
-        <div className="flex items-center gap-2.5">
-          <span className="flex size-9 items-center justify-center rounded-xl bg-accent text-accent-foreground">
-            <ShoppingBag className="size-4" />
-          </span>
-          <span className="font-semibold">Commerce</span>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <span className="flex size-9 items-center justify-center rounded-xl bg-accent text-accent-foreground">
+              <ShoppingBag className="size-4" />
+            </span>
+            <span className="font-semibold">{m.app_name()}</span>
+          </div>
+          <LanguageSwitcher />
         </div>
 
         <Card>
           <Card.Header>
-            <Card.Title>Sign in</Card.Title>
-            <Card.Description>Access the merchant dashboard.</Card.Description>
+            <Card.Title>{m.sign_in_title()}</Card.Title>
+            <Card.Description>{m.sign_in_description()}</Card.Description>
           </Card.Header>
 
           <Card.Content className="flex flex-col gap-4">
@@ -88,7 +93,7 @@ export function SignInPage() {
                     onBlur={field.onBlur}
                     isInvalid={fieldState.invalid}
                   >
-                    <Label>Email</Label>
+                    <Label>{m.sign_in_email()}</Label>
                     <Input placeholder="owner@example.com" autoComplete="username" />
                     <FieldError>{fieldState.error?.message}</FieldError>
                   </TextField>
@@ -109,7 +114,7 @@ export function SignInPage() {
                     onBlur={field.onBlur}
                     isInvalid={fieldState.invalid}
                   >
-                    <Label>Password</Label>
+                    <Label>{m.sign_in_password()}</Label>
                     <Input autoComplete="current-password" />
                     <FieldError>{fieldState.error?.message}</FieldError>
                   </TextField>
@@ -122,7 +127,7 @@ export function SignInPage() {
                 isDisabled={!isValid}
                 isPending={isSubmitting}
               >
-                {isSubmitting ? "Signing in…" : "Sign in"}
+                {isSubmitting ? m.sign_in_submitting() : m.sign_in_submit()}
               </Button>
             </form>
           </Card.Content>

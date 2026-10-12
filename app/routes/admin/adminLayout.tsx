@@ -18,7 +18,9 @@ import {
 import { useNavigate, useLocation, useLoaderData, redirect, Outlet, useRouteLoaderData } from "react-router";
 import { useAuth } from "@/lib/auth-context";
 import { getSession, isStaff } from "@/lib/auth";
+import { LanguageSwitcher } from "@/lib/language-switcher";
 import { pgbase } from "@/lib/pgbase";
+import { m } from "@/paraglide/messages.js";
 import type { Store } from "@/lib/catalog";
 
 /**
@@ -62,33 +64,33 @@ interface NavGroup {
 
 const NAV_GROUPS: NavGroup[] = [
   {
-    label: "General",
-    links: [{ href: "/", label: "Dashboard", icon: LayoutHeaderCells }],
+    label: m.nav_general(),
+    links: [{ href: "/", label: m.nav_dashboard(), icon: LayoutHeaderCells }],
   },
   {
-    label: "Sales",
+    label: m.nav_sales(),
     links: [
-      { href: "/orders", label: "Orders", icon: Receipt },
-      { href: "/customers", label: "Customers", icon: Persons, adminOnly: true },
+      { href: "/orders", label: m.nav_orders(), icon: Receipt },
+      { href: "/customers", label: m.nav_customers(), icon: Persons, adminOnly: true },
     ],
   },
   {
-    label: "Catalog",
+    label: m.nav_catalog(),
     links: [
-      { href: "/products", label: "Products", icon: Boxes3 },
-      { href: "/inventory", label: "Inventory", icon: Cube },
-      { href: "/options", label: "Options", icon: ListCheck },
-      { href: "/modifiers", label: "Modifiers", icon: Sliders },
-      { href: "/categories", label: "Categories", icon: FolderTree },
+      { href: "/products", label: m.nav_products(), icon: Boxes3 },
+      { href: "/inventory", label: m.nav_inventory(), icon: Cube },
+      { href: "/options", label: m.nav_options(), icon: ListCheck },
+      { href: "/modifiers", label: m.nav_modifiers(), icon: Sliders },
+      { href: "/categories", label: m.nav_categories(), icon: FolderTree },
     ],
   },
 ];
 
 const ADMIN_GROUP: NavGroup = {
-  label: "System",
+  label: m.nav_system(),
   links: [
-    { href: "/team", label: "Team", icon: Persons, adminOnly: true },
-    { href: "/settings", label: "Settings", icon: Gear, adminOnly: true },
+    { href: "/team", label: m.nav_team(), icon: Persons, adminOnly: true },
+    { href: "/settings", label: m.nav_settings(), icon: Gear, adminOnly: true },
   ],
 };
 
@@ -105,7 +107,7 @@ export function AdminLayout() {
     mainRef.current?.scrollTo({ top: 0 });
   }, [urlPathname]);
 
-  const storeName = data.store?.name ?? "Commerce";
+  const storeName = data.store?.name ?? m.app_name();
   const isAdmin = user?.role === "admin";
   const groups = [...NAV_GROUPS, ADMIN_GROUP]
     .map((group) => ({
@@ -148,7 +150,7 @@ export function AdminLayout() {
 
           <div className="hidden flex-1 justify-center md:flex">
             <SearchField
-              aria-label="Search products"
+              aria-label={m.nav_search_products()}
               className="w-full max-w-md"
               variant="secondary"
               value={query}
@@ -157,13 +159,14 @@ export function AdminLayout() {
             >
               <SearchField.Group>
                 <SearchField.SearchIcon />
-                <SearchField.Input placeholder="Search products" />
+                <SearchField.Input placeholder={m.nav_search_products()} />
                 <SearchField.ClearButton />
               </SearchField.Group>
             </SearchField>
           </div>
 
           <div className="ms-auto flex items-center gap-2">
+            <LanguageSwitcher />
             <Dropdown>
               <Button
                 className="h-auto gap-2 rounded-full py-1 pe-2 ps-1"
@@ -173,18 +176,18 @@ export function AdminLayout() {
                   <Avatar.Fallback>{initials}</Avatar.Fallback>
                 </Avatar>
                 <span className="hidden flex-col items-start leading-tight sm:flex">
-                  <span className="text-sm font-medium">{user?.name || "Merchant"}</span>
-                  <span className="text-xs text-muted capitalize">
-                    {user?.role ?? "staff"}
+                  <span className="text-sm font-medium">{user?.name || m.common_merchant()}</span>
+                  <span className="text-xs text-muted">
+                    {user?.role === "admin" ? m.role_admin() : m.role_staff()}
                   </span>
                 </span>
                 <ChevronDown className="size-4 text-muted" />
               </Button>
               <Dropdown.Popover>
                 <Dropdown.Menu onAction={handleUserAction}>
-                  <Dropdown.Item id="sign-out" textValue="Sign out" variant="danger">
+                  <Dropdown.Item id="sign-out" textValue={m.common_sign_out()} variant="danger">
                     <ArrowRightFromSquare className="size-4 shrink-0 text-danger" />
-                    <Label>Sign out</Label>
+                    <Label>{m.common_sign_out()}</Label>
                   </Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown.Popover>
@@ -227,7 +230,7 @@ export function AdminLayout() {
                 onPress={handleSignOut}
               >
                 <ArrowRightFromSquare className="size-4" />
-                Sign out
+                {m.common_sign_out()}
               </Button>
             </div>
           </aside>

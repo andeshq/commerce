@@ -1,3 +1,5 @@
+import { m } from "@/paraglide/messages.js";
+
 export interface SetupStatus {
   needsSetup: boolean;
 }
@@ -70,10 +72,10 @@ export async function runSetup(input: SetupInput): Promise<SetupResult> {
 /** Turn an unknown thrown value into user-facing messages. */
 export function setupErrorMessages(error: unknown): string[] {
   if (!(error instanceof SetupError)) {
-    return ["Something went wrong. Please try again."];
+    return [m.common_something_wrong()];
   }
   if (error.status === 409) {
-    return ["This instance has already been set up."];
+    return [m.setup_error_already()];
   }
 
   const body = error.body as
@@ -81,10 +83,13 @@ export function setupErrorMessages(error: unknown): string[] {
     | null;
 
   if (body?.error === "validation_error" && body.issues?.length) {
-    return body.issues.map(
-      (issue) => `${issue.path.join(".") || "field"}: ${issue.message}`,
+    return body.issues.map((issue) =>
+      m.setup_error_field({
+        field: issue.path.join(".") || m.setup_error_field_fallback(),
+        message: issue.message,
+      }),
     );
   }
   if (body?.message) return [body.message];
-  return [`Request failed (${error.status}).`];
+  return [m.setup_error_request({ status: error.status })];
 }

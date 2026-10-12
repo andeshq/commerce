@@ -1,5 +1,6 @@
 import { Button, Card } from "@heroui/react";
 import { useNavigate } from "react-router";
+import { m } from "@/paraglide/messages.js";
 
 export function NotFoundPage() {
   const navigate = useNavigate();
@@ -8,11 +9,11 @@ export function NotFoundPage() {
     <main className="flex min-h-screen items-center justify-center bg-background p-6">
       <Card className="w-full max-w-md">
         <Card.Header>
-          <Card.Title>Page not found</Card.Title>
-          <Card.Description>That address does not exist in this app.</Card.Description>
+          <Card.Title>{m.not_found_title()}</Card.Title>
+          <Card.Description>{m.not_found_description()}</Card.Description>
         </Card.Header>
         <Card.Footer>
-          <Button onPress={() => navigate("/")}>Back to dashboard</Button>
+          <Button onPress={() => navigate("/")}>{m.not_found_back()}</Button>
         </Card.Footer>
       </Card>
     </main>
