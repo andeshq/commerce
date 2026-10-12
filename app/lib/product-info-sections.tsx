@@ -268,14 +268,14 @@ export function ProductInfoSections({
                       <Input placeholder={m.product_info_name_placeholder()} />
                     </TextField>
                     <div className="flex flex-col gap-2">
-                      <span className="text-sm font-medium text-foreground">
+                      <Label id="product-info-section-description-label">
                         {m.product_info_body()}
-                      </span>
+                      </Label>
                       <RichTextEditor
                         key={draft.id ?? "new"}
                         value={draft.body}
                         isDisabled={busy}
-                        label={m.product_info_body()}
+                        labelId="product-info-section-description-label"
                         placeholder={m.product_info_body_placeholder()}
                         onChange={(html) =>
                           setDraft((current) => (current ? { ...current, body: html } : current))

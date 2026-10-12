@@ -146,7 +146,7 @@ export function RichTextEditor({
   onBlur,
   isDisabled,
   placeholder,
-  label,
+  labelId,
 }: {
   value: string;
   onChange(html: string): void;
@@ -154,11 +154,11 @@ export function RichTextEditor({
   isDisabled?: boolean;
   placeholder?: string;
   /**
-   * Accessible name for the editor. The surface is a `contenteditable` div,
-   * which is not a labelable control, so it takes `aria-label` rather than a
-   * `<label>` element.
+   * Id of the visible caption. The editor is a `contenteditable` div, which is
+   * not a labelable control, so it takes its accessible name from the caption
+   * through `aria-labelledby` rather than a `<label for>` association.
    */
-  label?: string;
+  labelId?: string;
 }) {
   const [formats, setFormats] = useState<ToolbarFormats>(NO_FORMATS);
 
@@ -181,7 +181,7 @@ export function RichTextEditor({
             contentEditable={
               <ContentEditable
                 className="min-h-24 px-3 py-2 text-sm outline-none"
-                ariaLabel={label}
+                ariaLabelledBy={labelId}
                 onBlur={onBlur}
               />
             }
