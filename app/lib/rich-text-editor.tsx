@@ -167,7 +167,7 @@ export function RichTextEditor({
         },
       }}
     >
-      <div className="flex flex-col overflow-hidden rounded-field border border-field-border bg-field shadow-field focus-within:border-field-border-focus">
+      <div className="flex flex-col overflow-hidden rounded-field border border-field-border bg-field text-foreground shadow-field focus-within:border-field-border-focus">
         <EditorToolbar formats={formats} isDisabled={isDisabled} />
         <div className="relative">
           <RichTextPlugin
