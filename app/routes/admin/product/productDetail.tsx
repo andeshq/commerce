@@ -132,21 +132,11 @@ export async function productDetailAction({ request, params }: ActionFunctionArg
     }
 
     try {
-      // Nested PATCH upserts the graph; nested writes never delete, so rows the
-      // form dropped are removed with explicit DELETEs afterwards.
-      await pgbase
-        .from("products")
-        .update(
-          buildUpdatePayload(
-            parsed.data,
-            parsed.data.optionIds,
-            parsed.data.modifierGroupIds,
-            parsed.data.variants,
-          ),
-        )
-        .eq("id", productId)
-        .throwOnError();
-
+      // Snapshot the current graph BEFORE the upsert. Nested writes never
+      // delete, so rows the form dropped are removed afterwards — but the
+      // comparison must be against the pre-PATCH state: variants the PATCH
+      // inserts get server ids the form drafts never carried, so comparing
+      // against the post-PATCH state would delete them right after insert.
       const [variants, optionLinks, modifierLinks] = await Promise.all([
         pgbase
           .from("product_variants")
@@ -160,6 +150,19 @@ export async function productDetailAction({ request, params }: ActionFunctionArg
           .eq("product_id", productId)
           .throwOnError(),
       ]);
+
+      await pgbase
+        .from("products")
+        .update(
+          buildUpdatePayload(
+            parsed.data,
+            parsed.data.optionIds,
+            parsed.data.modifierGroupIds,
+            parsed.data.variants,
+          ),
+        )
+        .eq("id", productId)
+        .throwOnError();
 
       const removals = computeRemovals(
         productId,
