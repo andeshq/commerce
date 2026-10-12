@@ -1,5 +1,5 @@
-import { Button, Card, Dropdown, Label } from "@heroui/react";
-import { ChevronDown, TrashBin } from "@gravity-ui/icons";
+import { Button, ButtonGroup, Card, Dropdown, Label } from "@heroui/react";
+import { EllipsisVertical, TrashBin } from "@gravity-ui/icons";
 import {
   redirect,
   useFetcher,
@@ -137,35 +137,37 @@ export function CategoryDetail() {
         }`}
         actions={
           <>
-            <Dropdown>
-              <Button variant="secondary" isDisabled={submitting}>
-                Actions
-                <ChevronDown className="size-4 text-muted" />
-              </Button>
-              <Dropdown.Popover>
-                <Dropdown.Menu
-                  onAction={(key) => {
-                    if (key === "delete") void remove();
-                  }}
-                >
-                  <Dropdown.Item id="delete" textValue="Delete category" variant="danger">
-                    <TrashBin className="size-4 shrink-0 text-danger" />
-                    <Label>Delete category</Label>
-                  </Dropdown.Item>
-                </Dropdown.Menu>
-              </Dropdown.Popover>
-            </Dropdown>
             <Button variant="secondary" isDisabled={submitting} onPress={() => history.back()}>
               Cancel
             </Button>
-            <Button
-              type="submit"
-              form={CATEGORY_FORM_ID}
-              isDisabled={submitting || !isValid}
-              isPending={submitting}
-            >
-              {submitting ? "Saving…" : "Save changes"}
-            </Button>
+            <ButtonGroup>
+              <Button
+                type="submit"
+                form={CATEGORY_FORM_ID}
+                isDisabled={submitting || !isValid}
+                isPending={submitting}
+              >
+                {submitting ? "Saving…" : "Save changes"}
+              </Button>
+              <Dropdown>
+                <Button isIconOnly aria-label="More actions" isDisabled={submitting}>
+                  <ButtonGroup.Separator />
+                  <EllipsisVertical className="size-4" />
+                </Button>
+                <Dropdown.Popover placement="bottom end">
+                  <Dropdown.Menu
+                    onAction={(key) => {
+                      if (key === "delete") void remove();
+                    }}
+                  >
+                    <Dropdown.Item id="delete" textValue="Delete category" variant="danger">
+                      <TrashBin className="size-4 shrink-0 text-danger" />
+                      <Label>Delete category</Label>
+                    </Dropdown.Item>
+                  </Dropdown.Menu>
+                </Dropdown.Popover>
+              </Dropdown>
+            </ButtonGroup>
           </>
         }
       />

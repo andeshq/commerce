@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Button, Card, Dropdown, Label } from "@heroui/react";
-import { ChevronDown, Copy, Picture, TrashBin } from "@gravity-ui/icons";
+import { Button, ButtonGroup, Card, Dropdown, Label } from "@heroui/react";
+import { Copy, EllipsisVertical, Picture, TrashBin } from "@gravity-ui/icons";
 import {
   redirect,
   useFetcher,
@@ -399,40 +399,42 @@ function ProductEditor({ data }: { data: ProductDetailData }) {
         description={`${product.title} · /${product.slug}`}
         actions={
           <>
-            <Dropdown>
-              <Button variant="secondary" isDisabled={submitting}>
-                Actions
-                <ChevronDown className="size-4 text-muted" />
-              </Button>
-              <Dropdown.Popover>
-                <Dropdown.Menu
-                  onAction={(key) => {
-                    if (key === "duplicate") duplicate();
-                    if (key === "delete") remove();
-                  }}
-                >
-                  <Dropdown.Item id="duplicate" textValue="Duplicate product">
-                    <Copy className="size-4 shrink-0 text-muted" />
-                    <Label>Duplicate product</Label>
-                  </Dropdown.Item>
-                  <Dropdown.Item id="delete" textValue="Delete product" variant="danger">
-                    <TrashBin className="size-4 shrink-0 text-danger" />
-                    <Label>Delete product</Label>
-                  </Dropdown.Item>
-                </Dropdown.Menu>
-              </Dropdown.Popover>
-            </Dropdown>
             <Button variant="secondary" isDisabled={submitting} onPress={() => history.back()}>
               Cancel
             </Button>
-            <Button
-              type="submit"
-              form={PRODUCT_FORM_ID}
-              isDisabled={submitting || !isValid}
-              isPending={submitting}
-            >
-              {submitting ? "Saving…" : "Save changes"}
-            </Button>
+            <ButtonGroup>
+              <Button
+                type="submit"
+                form={PRODUCT_FORM_ID}
+                isDisabled={submitting || !isValid}
+                isPending={submitting}
+              >
+                {submitting ? "Saving…" : "Save changes"}
+              </Button>
+              <Dropdown>
+                <Button isIconOnly aria-label="More actions" isDisabled={submitting}>
+                  <ButtonGroup.Separator />
+                  <EllipsisVertical className="size-4" />
+                </Button>
+                <Dropdown.Popover placement="bottom end">
+                  <Dropdown.Menu
+                    onAction={(key) => {
+                      if (key === "duplicate") duplicate();
+                      if (key === "delete") remove();
+                    }}
+                  >
+                    <Dropdown.Item id="duplicate" textValue="Duplicate product">
+                      <Copy className="size-4 shrink-0 text-muted" />
+                      <Label>Duplicate product</Label>
+                    </Dropdown.Item>
+                    <Dropdown.Item id="delete" textValue="Delete product" variant="danger">
+                      <TrashBin className="size-4 shrink-0 text-danger" />
+                      <Label>Delete product</Label>
+                    </Dropdown.Item>
+                  </Dropdown.Menu>
+                </Dropdown.Popover>
+              </Dropdown>
+            </ButtonGroup>
           </>
         }
       />
