@@ -5,8 +5,10 @@ import {
   Cube,
   FolderTree,
   Gear,
+  Layers,
   LayoutHeaderCells,
   ListCheck,
+  Percent,
   Persons,
   Receipt,
   ShoppingBag,
@@ -82,6 +84,7 @@ const NAV_GROUPS: NavGroup[] = [
     label: m.nav_sales(),
     links: [
       { href: "/orders", label: m.nav_orders(), icon: Receipt },
+      { href: "/discounts", label: m.nav_discounts(), icon: Percent },
       { href: "/customers", label: m.nav_customers(), icon: Persons, adminOnly: true },
     ],
   },
@@ -93,6 +96,7 @@ const NAV_GROUPS: NavGroup[] = [
       { href: "/options", label: m.nav_options(), icon: ListCheck },
       { href: "/modifiers", label: m.nav_modifiers(), icon: Sliders },
       { href: "/categories", label: m.nav_categories(), icon: FolderTree },
+      { href: "/collections", label: m.nav_collections(), icon: Layers },
     ],
   },
 ];

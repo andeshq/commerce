@@ -43,6 +43,30 @@ export const router = createBrowserRouter(
               path: "categories/:id",
               lazy: () => import("./routes/admin/category/categoryDetail"),
             },
+            {
+              path: "collections",
+              lazy: () => import("./routes/admin/collection/collectionListing"),
+            },
+            {
+              path: "collections/new",
+              lazy: () => import("./routes/admin/collection/collectionNew"),
+            },
+            {
+              path: "collections/:id",
+              lazy: () => import("./routes/admin/collection/collectionDetail"),
+            },
+            {
+              path: "discounts",
+              lazy: () => import("./routes/admin/discount/discountListing"),
+            },
+            {
+              path: "discounts/new",
+              lazy: () => import("./routes/admin/discount/discountNew"),
+            },
+            {
+              path: "discounts/:id",
+              lazy: () => import("./routes/admin/discount/discountDetail"),
+            },
             { path: "inventory", lazy: () => import("./routes/admin/inventory/inventoryListing") },
             { path: "team", lazy: () => import("./routes/admin/team/teamListing") },
             { path: "team/new", lazy: () => import("./routes/admin/team/teamNew") },

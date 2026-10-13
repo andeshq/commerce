@@ -6,12 +6,13 @@ system.
 
 ## Features
 
-- **Catalog** — products, variants, store-scoped options, modifiers, categories
-  and media.
+- **Catalog** — products, variants, store-scoped options, modifiers, categories,
+  collections and media.
 - **Inventory** — multiple locations with a stock ledger; adjustments recorded,
   never overwritten.
 - **Orders** — carts (guest or signed-in) → checkout → orders, with fulfillment,
   refunds and cancellation. Unpaid orders expire and restock automatically.
+  Discount codes apply at checkout.
 - **Payments** — pluggable gateways, chosen per checkout. Wompi (Colombia) ships
   alongside a test provider.
 - **Tax** — a store rate with per-variant overrides, inclusive or exclusive
@@ -85,12 +86,16 @@ to the `admin` role.
 | --- | --- | --- |
 | `GET /api/rest/storefront_products` | Product list — filter, `order`, `limit`, `search=plfts(spanish).term` | postgrest-js `.from()` |
 | `GET /api/rest/storefront_categories` | Categories with product counts | postgrest-js `.from()` |
+| `GET /api/rest/storefront_collections` | Collections with product counts | postgrest-js `.from()` |
 | `POST /api/rest/rpc/storefront_product` `{ p_slug }` | Full product page (variants, options, modifiers) | postgrest-js `.rpc()` |
+| `POST /api/rest/rpc/storefront_collection` `{ p_slug }` | A collection and its products | postgrest-js `.rpc()` |
 | `POST /api/rest/rpc/cart_create` `{ p_email? }` | New cart → `{ id, token }` | postgrest-js `.rpc()` |
 | `POST /api/rest/rpc/cart_add_item` `{ p_token, p_variant, p_quantity? }` | Add or increment a line | postgrest-js `.rpc()` |
 | `POST /api/rest/rpc/cart_update_item` `{ p_token, p_item, p_quantity }` | Set a line's quantity (`0` removes it) | postgrest-js `.rpc()` |
 | `POST /api/rest/rpc/cart_remove_item` `{ p_token, p_item }` | Remove a line | postgrest-js `.rpc()` |
 | `POST /api/rest/rpc/cart_get` `{ p_token }` | Cart with live prices and availability | postgrest-js `.rpc()` |
+| `POST /api/rest/rpc/cart_apply_discount` `{ p_token, p_code }` | Apply a discount code to the cart | postgrest-js `.rpc()` |
+| `POST /api/rest/rpc/cart_remove_discount` `{ p_token }` | Remove the cart's discount code | postgrest-js `.rpc()` |
 | `POST /api/rest/rpc/checkout` `{ p_cart_token, p_email?, p_shipping_address?, … }` | Cart → order (idempotent) | postgrest-js `.rpc()` |
 | `POST /api/rest/rpc/order_get` `{ p_token }` | An order by its access token | postgrest-js `.rpc()` |
 | `GET /api/setup/status` | Whether first-run setup is still needed | `fetch` |
@@ -175,4 +180,4 @@ pulls Postgres, the build pulls the base image): `DOCKERHUB_USERNAME` and
 ## Roadmap
 
 Next: DIAN e-invoicing, more payment gateways (MercadoPago/PayU), shipping rates
-and shipments, discounts, collections, i18n.
+and shipments, smart collections, i18n.

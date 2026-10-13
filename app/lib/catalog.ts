@@ -35,6 +35,18 @@ export interface Category {
   updated_at: string;
 }
 
+/** A manual, hand-picked product group (see `product_collections`). */
+export interface Collection {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  type: "manual" | "smart";
+  position: number;
+  created_at: string;
+  updated_at: string;
+}
+
 export type ModifierSelection = "single" | "multiple";
 
 /** Store-scoped group of priced add-ons, attachable to any product. */
