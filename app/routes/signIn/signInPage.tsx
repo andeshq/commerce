@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useAuth } from "@/lib/auth-context";
 import { authErrorMessages, getSession, isStaff } from "@/lib/auth";
+import { getSetupStatus } from "@/lib/api";
 import { LanguageSwitcher } from "@/lib/language-switcher";
 import { m } from "@/paraglide/messages.js";
 
@@ -19,6 +20,9 @@ type SignInValues = z.infer<typeof signInSchema>;
 
 /** Signed-in staff skip the form. */
 export async function signInLoader() {
+  // An unconfigured instance has no accounts to sign in with.
+  if ((await getSetupStatus()).needsSetup) throw redirect("/setup");
+
   const user = await getSession();
   if (isStaff(user)) throw redirect("/");
   return null;

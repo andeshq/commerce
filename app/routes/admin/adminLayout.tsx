@@ -18,6 +18,7 @@ import {
 import { useNavigate, useLocation, useLoaderData, redirect, Outlet, useRouteLoaderData } from "react-router";
 import { useAuth } from "@/lib/auth-context";
 import { getSession, isStaff } from "@/lib/auth";
+import { getSetupStatus } from "@/lib/api";
 import { LanguageSwitcher } from "@/lib/language-switcher";
 import { pgbase } from "@/lib/pgbase";
 import { m } from "@/paraglide/messages.js";
@@ -28,6 +29,9 @@ import type { Store } from "@/lib/catalog";
  * store identity every admin page formats with.
  */
 export async function adminLoader() {
+  // Bootstrap lock: an unconfigured instance can only reach the setup wizard.
+  if ((await getSetupStatus()).needsSetup) throw redirect("/setup");
+
   const user = await getSession();
   if (!user) throw redirect("/sign-in");
   if (!isStaff(user)) throw redirect("/");
