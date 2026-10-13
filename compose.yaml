@@ -37,6 +37,13 @@ services:
       PORT: 8080
       # Public origin: the API also serves the admin UI, so this is the app too.
       BASE_URL: ${BASE_URL:-http://localhost:8080}
+      # Image storage: unset/empty means local disk (media_data volume below).
+      # S3-compatible example (matches the minio service below):
+      # STORAGE_URL: s3+http://minioadmin:minioadmin@minio:9000/commerce-media
+      # Public <img> base (CDN). Defaults to endpoint/bucket.
+      # STORAGE_PUBLIC_BASE_URL: https://cdn.example.com
+      STORAGE_URL: ${STORAGE_URL:-}
+      STORAGE_PUBLIC_BASE_URL: ${STORAGE_PUBLIC_BASE_URL:-}
     ports:
       # Host port (container listens on 8080); override with API_PORT.
       - "${API_PORT:-8080}:8080"
@@ -52,6 +59,31 @@ services:
       retries: 5
       start_period: 20s
 
+  # Local S3-compatible storage. Optional: the API defaults to local disk.
+  # To use it, set STORAGE_URL (see api env above). MinIO left Docker Hub in
+  # 2026; this uses a community rebuild.
+  minio:
+    image: ghcr.io/coollabsio/minio:latest
+    profiles: ["local"]
+    restart: unless-stopped
+    entrypoint: >
+      /bin/sh -c "
+      minio server /data --console-address ':9001' & pid=$$! &&
+      until mc alias set local http://127.0.0.1:9000 ${MINIO_ROOT_USER:-minioadmin} ${MINIO_ROOT_PASSWORD:-minioadmin} >/dev/null 2>&1; do sleep 1; done &&
+      mc mb --ignore-existing local/commerce-media >/dev/null &&
+      mc anonymous set download local/commerce-media >/dev/null &&
+      wait $$pid
+      "
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+    ports:
+      - "${MINIO_PORT:-9000}:9000"
+      - "${MINIO_CONSOLE_PORT:-9001}:9001"
+    volumes:
+      - minio_data:/data
+
 volumes:
   database_data:
   media_data:
+  minio_data:

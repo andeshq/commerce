@@ -2,8 +2,20 @@ import { singleton } from "tsyringe";
 import { HTTPException } from "hono/http-exception";
 import { join } from "node:path";
 import { mkdir, unlink } from "node:fs/promises";
+import { S3Client } from "bun";
 import { Database } from "../database/database.ts";
+import { Config } from "../config/config.ts";
 import { MEDIA_DIR } from "../lib/paths.ts";
+import {
+  createS3Client,
+  deleteS3Object,
+  filenameFromUrl,
+  isStorageFilename,
+  publicUrlFor,
+  putS3Object,
+  storageKeyFor,
+  type StorageConfig,
+} from "../lib/storage.ts";
 
 const MAX_BYTES = 10 * 1024 * 1024;
 
@@ -15,8 +27,6 @@ const EXTENSION_BY_TYPE: Record<string, string> = {
   "image/gif": "gif",
 };
 
-const FILENAME = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.[a-z0-9]{2,4}$/;
-
 export interface MediaRow {
   id: string;
   url: string;
@@ -26,16 +36,27 @@ export interface MediaRow {
   height: number | null;
 }
 
-/**
- * Image bytes live on local disk (`api/storage/media`) and their metadata in
- * `commerce.media`; `media.url` stays relative so the origin can move without
- * rewriting rows. Swapping in object storage later only changes this service.
- */
+// Local disk by default, S3-compatible storage when STORAGE_URL is set.
+// Local rows use the relative /api/media/files/<file> URL; S3 rows store the
+// absolute public URL.
 @singleton()
 export class MediaService {
   private readonly directory = MEDIA_DIR;
+  private readonly storage: StorageConfig;
+  private s3: S3Client | null = null;
 
-  constructor(private readonly database: Database) {}
+  constructor(
+    private readonly database: Database,
+    config: Config,
+  ) {
+    this.storage = config.storage;
+  }
+
+  private client(): S3Client {
+    if (this.storage.driver !== "s3") throw new Error("S3 client used with local storage");
+    if (!this.s3) this.s3 = createS3Client(this.storage);
+    return this.s3;
+  }
 
   async upload(request: Request): Promise<MediaRow> {
     const form = await request.formData();
@@ -59,8 +80,17 @@ export class MediaService {
     const filename = `${id}.${extension}`;
     const alt = form.get("alt");
 
-    await mkdir(this.directory, { recursive: true });
-    await Bun.write(join(this.directory, filename), bytes);
+    const url =
+      this.storage.driver === "s3"
+        ? `${publicUrlFor(this.storage, filename)}`
+        : `/api/media/files/${filename}`;
+
+    if (this.storage.driver === "s3") {
+      await putS3Object(this.client(), storageKeyFor(this.storage, filename), bytes, file.type);
+    } else {
+      await mkdir(this.directory, { recursive: true });
+      await Bun.write(join(this.directory, filename), bytes);
+    }
 
     const dimensions = await new Bun.Image(bytes)
       .metadata()
@@ -73,7 +103,7 @@ export class MediaService {
         .insertInto("media")
         .values({
           id,
-          url: `/api/media/files/${filename}`,
+          url,
           alt: typeof alt === "string" && alt.trim() ? alt.trim() : null,
           content_type: file.type,
           width: dimensions.width,
@@ -84,8 +114,7 @@ export class MediaService {
 
       return row as MediaRow;
     } catch (error) {
-      // Never leave bytes on disk without their row.
-      await unlink(join(this.directory, filename)).catch(() => {});
+      await this.deleteBytes(filename).catch(() => {});
       throw error;
     }
   }
@@ -101,15 +130,32 @@ export class MediaService {
 
     await this.database.withSchema("commerce").deleteFrom("media").where("id", "=", id).execute();
 
-    const filename = row.url.split("/").pop();
-    if (filename && FILENAME.test(filename)) {
-      await unlink(join(this.directory, filename)).catch(() => {});
+    const filename = filenameFromUrl(row.url);
+    if (filename) {
+      await this.deleteBytes(filename).catch(() => {});
     }
   }
 
+  private async deleteBytes(filename: string): Promise<void> {
+    if (this.storage.driver === "s3") {
+      await deleteS3Object(this.client(), storageKeyFor(this.storage, filename));
+      return;
+    }
+    await unlink(join(this.directory, filename)).catch(() => {});
+  }
+
   async file(name: string): Promise<Bun.BunFile | null> {
-    if (!FILENAME.test(name)) return null;
+    if (this.storage.driver !== "local") return null;
+    if (!isStorageFilename(name)) return null;
     const file = Bun.file(join(this.directory, name));
     return (await file.exists()) ? file : null;
+  }
+
+  // Absolute public URL for the /api/media/files/:file shim on S3, so old
+  // relative URLs keep working. Null on local disk (serve bytes directly).
+  fileUrl(name: string): string | null {
+    if (!isStorageFilename(name)) return null;
+    if (this.storage.driver === "s3") return publicUrlFor(this.storage, name);
+    return null;
   }
 }

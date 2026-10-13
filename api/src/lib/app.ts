@@ -69,6 +69,8 @@ export class App {
       return c.body(null, 204);
     });
     app.get("/api/media/files/:file", async (c) => {
+      const redirected = media.fileUrl(c.req.param("file"));
+      if (redirected) return c.redirect(redirected, 302);
       const file = await media.file(c.req.param("file"));
       if (!file) return c.notFound();
       return new Response(file, {

@@ -2,13 +2,11 @@ import { SQL } from "bun";
 import { deflateSync } from "node:zlib";
 import { mkdir } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
+import { parseStorageUrl, publicUrlFor, storageKeyFor, createS3Client } from "../src/lib/storage.ts";
 
 /**
- * Demo images for the seeded products: gradients generated as real PNGs on
- * disk (no binary assets in the repo) plus their `commerce.media` rows and
- * `product_media` links. Idempotent: skips once any media exists.
- *
- *   cd api && bun run seed:media
+ * Demo images for seeded products. Idempotent: skips once any media exists.
+ * Writes to local disk by default, S3 when STORAGE_URL is set.
  */
 
 const DIRECTORY = fileURLToPath(new URL("../storage/media/", import.meta.url));
@@ -95,6 +93,9 @@ function gradientPng(from: string, to: string): Buffer {
   ]);
 }
 
+const storage = parseStorageUrl(process.env.STORAGE_URL, process.env.STORAGE_PUBLIC_BASE_URL);
+const s3 = storage.driver === "s3" ? createS3Client(storage) : null;
+
 const sql = new SQL(process.env.DATABASE_URL!);
 
 const [{ count }] = await sql`select count(*)::int as count from commerce.media`;
@@ -104,7 +105,9 @@ if (count > 0) {
   process.exit(0);
 }
 
-await mkdir(DIRECTORY, { recursive: true });
+if (storage.driver === "local") {
+  await mkdir(DIRECTORY, { recursive: true });
+}
 
 for (const seed of SEEDS) {
   const [product] = await sql`
@@ -118,11 +121,24 @@ for (const seed of SEEDS) {
   for (const [position, [from, to, alt]] of seed.gradients.entries()) {
     const id = crypto.randomUUID();
     const filename = `${id}.png`;
-    await Bun.write(DIRECTORY + filename, gradientPng(from, to));
+    const png = gradientPng(from, to);
+
+    const url =
+      storage.driver === "s3"
+        ? publicUrlFor(storage, filename)!
+        : `/api/media/files/${filename}`;
+
+    if (storage.driver === "s3") {
+      await s3!.write(storageKeyFor(storage, filename), new Uint8Array(png), {
+        type: "image/png",
+      });
+    } else {
+      await Bun.write(DIRECTORY + filename, png);
+    }
 
     await sql`
       insert into commerce.media (id, url, alt, content_type, width, height)
-      values (${id}, ${`/media/${filename}`}, ${alt}, 'image/png', ${SIZE}, ${SIZE})
+      values (${id}, ${url}, ${alt}, 'image/png', ${SIZE}, ${SIZE})
     `;
     await sql`
       insert into commerce.product_media (product_id, media_id, position)

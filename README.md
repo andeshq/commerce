@@ -59,14 +59,14 @@ redirects to `/setup`.
 
 ## Configuration
 
-Four environment variables, nothing else:
-
 | variable | |
 | --- | --- |
 | `DATABASE_URL` | Postgres connection string |
 | `AUTH_SECRET` | 32+ characters |
 | `PORT` | default `8080` |
 | `BASE_URL` | public app origin (default `http://localhost:5173`) |
+| `STORAGE_URL` | image storage; unset means local disk (`api/storage/media`). S3-compatible URL: `s3://KEY:SECRET@host/bucket` (https) or `s3+http://…` (http, e.g. MinIO) |
+| `STORAGE_PUBLIC_BASE_URL` | public `<img>` base (CDN); defaults to endpoint/bucket |
 
 Currency, locale, tax and the first admin are chosen at first-run setup, not from
 the environment.
@@ -147,8 +147,9 @@ docker compose up -d api
 ```
 
 The container applies migrations then starts; `BASE_URL` is its public origin, so
-cookies stay first-party. Uploaded media lives on local disk — mount a volume
-(compose does) or swap in object storage.
+cookies stay first-party. Uploaded media lives on local disk by default — mount
+a volume (compose does) — or set `STORAGE_URL` (+ `STORAGE_PUBLIC_BASE_URL`)
+for S3-compatible object storage.
 
 Images are published to GitHub Container Registry by
 `.github/workflows/publish.yml` on `main` and `v*` tags, tagged by branch

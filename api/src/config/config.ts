@@ -2,12 +2,15 @@ import { existsSync } from "node:fs";
 import { z } from "zod";
 import { singleton } from "tsyringe";
 import { STATIC_DIR } from "../lib/paths.ts";
+import { parseStorageUrl, type StorageConfig } from "../lib/storage.ts";
 
 const envSchema = z.object({
   DATABASE_URL: z.string().min(1, "DATABASE_URL is required"),
   AUTH_SECRET: z.string().min(32, "AUTH_SECRET must be at least 32 characters"),
   PORT: z.coerce.number().int().positive().default(8080),
   BASE_URL: z.string().url().default("http://localhost:5173"),
+  STORAGE_URL: z.string().optional(),
+  STORAGE_PUBLIC_BASE_URL: z.string().optional(),
 });
 
 export type Env = z.infer<typeof envSchema>;
@@ -72,6 +75,7 @@ export class Config {
   readonly authSecret: string;
   readonly port: number;
   readonly baseUrl: string;
+  readonly storage: StorageConfig;
 
   readonly nodeEnv: NodeJS.ProcessEnv["NODE_ENV"];
   readonly isProduction: boolean;
@@ -107,6 +111,11 @@ export class Config {
     this.authSecret = value.AUTH_SECRET;
     this.port = value.PORT;
     this.baseUrl = value.BASE_URL;
+    try {
+      this.storage = parseStorageUrl(value.STORAGE_URL, value.STORAGE_PUBLIC_BASE_URL);
+    } catch (error) {
+      throw new Error(`Invalid storage configuration:\n  - ${(error as Error).message}`);
+    }
 
     this.nodeEnv = process.env.NODE_ENV;
     this.isProduction = this.nodeEnv === "production";
