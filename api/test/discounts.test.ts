@@ -303,3 +303,52 @@ describe("discount codes: checkout", () => {
     expect(res.status).toBeGreaterThanOrEqual(400);
   });
 });
+
+describe("discount codes: admin REST surface", () => {
+  test("staff can create, list and update a discount", async () => {
+    const create = await app.fetch(
+      new Request(
+        "http://localhost/api/rest/discounts",
+        json(
+          {
+            code: "ADMIN10",
+            type: "percentage",
+            value: 1500,
+            min_subtotal_cents: 0,
+            active: true,
+          },
+          adminCookie,
+        ),
+      ),
+    );
+    expect(create.status).toBe(201);
+
+    const list = await app.fetch(
+      new Request("http://localhost/api/rest/discounts?select=code,type,value&code=eq.ADMIN10", {
+        headers: { cookie: adminCookie },
+      }),
+    );
+    expect(list.status).toBe(200);
+    const rows = (await list.json()) as Array<{ code: string; type: string; value: number }>;
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toMatchObject({ code: "ADMIN10", type: "percentage", value: 1500 });
+
+    const update = await app.fetch(
+      new Request("http://localhost/api/rest/discounts?code=eq.ADMIN10", {
+        ...json({ active: false }, adminCookie),
+        method: "PATCH",
+      }),
+    );
+    expect(update.status).toBeLessThan(300);
+  });
+
+  test("the code column rejects a malformed code", async () => {
+    const bad = await app.fetch(
+      new Request(
+        "http://localhost/api/rest/discounts",
+        json({ code: "not valid", type: "percentage", value: 1000 }, adminCookie),
+      ),
+    );
+    expect(bad.status).toBeGreaterThanOrEqual(400);
+  });
+});
