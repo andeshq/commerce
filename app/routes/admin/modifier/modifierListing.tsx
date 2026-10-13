@@ -1,13 +1,8 @@
-import { useMemo, useState } from "react";
-import { Button, Card, Chip, Dropdown, Label, SearchField, Table } from "@heroui/react";
-import { Link } from "@/lib/link";
-import type { SortDescriptor } from "@heroui/react";
 import { BarsDescendingAlignLeft, Plus } from "@gravity-ui/icons";
+import type { SortDescriptor } from "@heroui/react";
+import { Button, Card, Chip, Dropdown, Label, SearchField, Table } from "@heroui/react";
+import { useMemo, useState } from "react";
 import { useLoaderData, useNavigate } from "react-router";
-import { useAdminStore } from "@/routes/admin/adminLayout";
-import { PageHeader } from "@/lib/page-header";
-import { pgbase } from "@/lib/pgbase";
-import { m } from "@/paraglide/messages.js";
 import {
   cents,
   formatMoney,
@@ -15,6 +10,11 @@ import {
   type ModifierSelection,
   type ProductModifierLink,
 } from "@/lib/catalog";
+import { Link } from "@/lib/link";
+import { PageHeader } from "@/lib/page-header";
+import { pgbase } from "@/lib/pgbase";
+import { m } from "@/paraglide/messages.js";
+import { useAdminStore } from "@/routes/admin/adminLayout";
 
 export async function modifierListingLoader() {
   const [modifiers, modifierLinks] = await Promise.all([
@@ -107,7 +107,8 @@ export function ModifierListing() {
           const delta = cents(value.price_delta_cents);
           return {
             id: value.id,
-            label: delta === 0 ? value.name : `${value.name} +${formatMoney(delta, currency, locale)}`,
+            label:
+              delta === 0 ? value.name : `${value.name} +${formatMoney(delta, currency, locale)}`,
           };
         }),
       usedBy: usage.get(group.id) ?? 0,
@@ -162,7 +163,8 @@ export function ModifierListing() {
 
             <Dropdown>
               <Button size="sm" variant="secondary">
-                {m.modifiers_type()}: {TYPE_FILTERS.find((item) => item.id === type)?.label ?? m.modifiers_all_types()}
+                {m.modifiers_type()}:{" "}
+                {TYPE_FILTERS.find((item) => item.id === type)?.label ?? m.modifiers_all_types()}
               </Button>
               <Dropdown.Popover>
                 <Dropdown.Menu
@@ -215,9 +217,7 @@ export function ModifierListing() {
         <Card.Content>
           {rows.length === 0 ? (
             <p className="mx-auto max-w-md py-12 text-center text-sm text-muted">
-              {modifiers.length === 0
-                ? m.modifiers_empty()
-                : m.modifiers_no_match()}
+              {modifiers.length === 0 ? m.modifiers_empty() : m.modifiers_no_match()}
             </p>
           ) : (
             <Table>
@@ -276,7 +276,9 @@ export function ModifierListing() {
                         </Table.Cell>
                         <Table.Cell>
                           <Chip size="sm" variant="soft">
-                            {row.selectionType === "single" ? m.common_single() : m.common_multiple()}
+                            {row.selectionType === "single"
+                              ? m.common_single()
+                              : m.common_multiple()}
                           </Chip>
                         </Table.Cell>
                         <Table.Cell>

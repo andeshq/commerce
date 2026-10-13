@@ -1,5 +1,4 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
-import { createHarness, type Harness } from "./helpers/harness.ts";
 import { createMigrationDatabase } from "../src/database/migrator.ts";
 import type { App } from "../src/lib/app.ts";
 import {
@@ -7,6 +6,7 @@ import {
   wompiIntegritySignature,
   wompiProvider,
 } from "../src/service/payment/wompi.provider.ts";
+import { createHarness, type Harness } from "./helpers/harness.ts";
 
 /**
  * Wompi: known-answer signature vectors from the docs, the Web Checkout URL,
@@ -30,14 +30,14 @@ describe("wompi signatures (docs vectors)", () => {
     // (the Step 1 id differs from the sample body), so we pin the SHA256 of the
     // exact concatenation they describe: properties + timestamp + secret.
     const checksum = wompiEventChecksum(
-      { transaction: { id: "1234-1610641025-49201", status: "APPROVED", amount_in_cents: 4490000 } },
+      {
+        transaction: { id: "1234-1610641025-49201", status: "APPROVED", amount_in_cents: 4490000 },
+      },
       ["transaction.id", "transaction.status", "transaction.amount_in_cents"],
       1530291411,
       "prod_events_OcHnIzeBl5socpwByQ4hA52Em3USQ93Z",
     );
-    expect(checksum).toBe(
-      "5a18ec5e8fdb7df463e9f94774cba8f583ba21bd04a09ceff2ea68a4bc0aefbe",
-    );
+    expect(checksum).toBe("5a18ec5e8fdb7df463e9f94774cba8f583ba21bd04a09ceff2ea68a4bc0aefbe");
   });
 });
 
@@ -75,12 +75,7 @@ describe("wompi createIntent", () => {
     expect(url.searchParams.get("redirect-url")).toBe("https://shop.example.com/thanks");
     expect(url.searchParams.get("tax-in-cents:vat")).toBe("19000");
     expect(url.searchParams.get("signature:integrity")).toBe(
-      wompiIntegritySignature(
-        intent.providerRef,
-        119000,
-        "COP",
-        ctx.credentials.integritySecret,
-      ),
+      wompiIntegritySignature(intent.providerRef, 119000, "COP", ctx.credentials.integritySecret),
     );
   });
 
@@ -152,7 +147,12 @@ beforeAll(async () => {
   await app.fetch(
     new Request(
       "http://localhost/api/setup",
-      json({ email: "admin@andeshq.dev", password: "supersecret123", name: "Admin", storeName: "Wompi Store" }),
+      json({
+        email: "admin@andeshq.dev",
+        password: "supersecret123",
+        name: "Admin",
+        storeName: "Wompi Store",
+      }),
     ),
   );
   const signIn = await app.fetch(
@@ -186,7 +186,10 @@ beforeAll(async () => {
   variantId = variant.id;
 
   await rest("/rpc/adjust_inventory", {
-    ...json({ variant: variantId, location: locationId, reason: "stock_received", quantity: 10 }, adminCookie),
+    ...json(
+      { variant: variantId, location: locationId, reason: "stock_received", quantity: 10 },
+      adminCookie,
+    ),
   });
 
   // Make Wompi the enabled provider (checkout picks the single enabled one).
@@ -224,9 +227,12 @@ describe("wompi end to end", () => {
   test("checkout uses wompi and pay returns a signed checkout URL", async () => {
     const { accessToken } = await createOrder();
     const res = await app.fetch(
-      new Request(`http://localhost/api/checkout/${accessToken}/pay?returnUrl=https://shop.example.com/thanks`, {
-        method: "POST",
-      }),
+      new Request(
+        `http://localhost/api/checkout/${accessToken}/pay?returnUrl=https://shop.example.com/thanks`,
+        {
+          method: "POST",
+        },
+      ),
     );
     expect(res.status).toBe(200);
     const body = (await res.json()) as any;
@@ -237,7 +243,9 @@ describe("wompi end to end", () => {
   test("a signed transaction.updated event marks the order paid", async () => {
     const { orderId, accessToken, total } = await createOrder();
     const intent = (await (
-      await app.fetch(new Request(`http://localhost/api/checkout/${accessToken}/pay`, { method: "POST" }))
+      await app.fetch(
+        new Request(`http://localhost/api/checkout/${accessToken}/pay`, { method: "POST" }),
+      )
     ).json()) as any;
 
     const properties = ["transaction.id", "transaction.status", "transaction.amount_in_cents"];
@@ -251,7 +259,12 @@ describe("wompi end to end", () => {
         payment_method_type: "NEQUI",
       },
     };
-    const checksum = wompiEventChecksum(data, properties, timestamp, WOMPI_CREDENTIALS.eventsSecret);
+    const checksum = wompiEventChecksum(
+      data,
+      properties,
+      timestamp,
+      WOMPI_CREDENTIALS.eventsSecret,
+    );
     const event = {
       event: "transaction.updated",
       data,
@@ -291,7 +304,9 @@ describe("wompi end to end", () => {
   test("a tampered checksum is rejected", async () => {
     const { accessToken, total } = await createOrder();
     const intent = (await (
-      await app.fetch(new Request(`http://localhost/api/checkout/${accessToken}/pay`, { method: "POST" }))
+      await app.fetch(
+        new Request(`http://localhost/api/checkout/${accessToken}/pay`, { method: "POST" }),
+      )
     ).json()) as any;
 
     const properties = ["transaction.id", "transaction.status", "transaction.amount_in_cents"];

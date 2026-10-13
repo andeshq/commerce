@@ -1,21 +1,21 @@
-import { useState } from "react";
 import { Button, Card } from "@heroui/react";
+import { useState } from "react";
 import {
+  type ActionFunctionArgs,
   redirect,
   useFetcher,
   useLoaderData,
   useNavigate,
-  type ActionFunctionArgs,
 } from "react-router";
-import { useAdminStore } from "@/routes/admin/adminLayout";
+import type { Category, ModifierGroupWithValues, OptionWithValues } from "@/lib/catalog";
+import { PageHeader } from "@/lib/page-header";
+import { pgbase, pgbaseErrorMessages } from "@/lib/pgbase";
+import { buildCreatePayload } from "@/lib/product-draft";
 import { PRODUCT_FORM_ID, ProductForm, useProductForm } from "@/lib/product-form";
 import { ProductImages } from "@/lib/product-images";
-import { buildCreatePayload } from "@/lib/product-draft";
-import { productFormSchema, type ProductFormValues } from "@/lib/product-schema";
-import { pgbase, pgbaseErrorMessages } from "@/lib/pgbase";
-import { PageHeader } from "@/lib/page-header";
+import { type ProductFormValues, productFormSchema } from "@/lib/product-schema";
 import { m } from "@/paraglide/messages.js";
-import type { Category, ModifierGroupWithValues, OptionWithValues } from "@/lib/catalog";
+import { useAdminStore } from "@/routes/admin/adminLayout";
 
 export async function productNewLoader() {
   const [options, categories, modifiers] = await Promise.all([
@@ -140,4 +140,4 @@ export function ProductNew() {
 }
 
 /* React Router lazy-route contract. */
-export { ProductNew as Component, productNewLoader as loader, productNewAction as action };
+export { ProductNew as Component, productNewAction as action, productNewLoader as loader };

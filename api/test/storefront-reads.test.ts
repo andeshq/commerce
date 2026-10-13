@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
-import { createHarness, type Harness } from "./helpers/harness.ts";
 import type { App } from "../src/lib/app.ts";
+import { createHarness, type Harness } from "./helpers/harness.ts";
 
 /**
  * Storefront reads through pgbase: relationship embedding under RLS, and proof
@@ -37,10 +37,7 @@ async function signIn(email: string, password: string): Promise<string> {
   return cookieFrom(res);
 }
 
-async function rest(
-  path: string,
-  init?: RequestInit,
-): Promise<{ status: number; body: any }> {
+async function rest(path: string, init?: RequestInit): Promise<{ status: number; body: any }> {
   const res = await app.fetch(new Request(`http://localhost/api/rest${path}`, init));
   const text = await res.text();
   try {
@@ -159,9 +156,7 @@ describe("storefront reads: embedding", () => {
   });
 
   test("anon embeds media via the product_media junction", async () => {
-    const { body } = await rest(
-      "/products?select=title,media:media(url,alt)&slug=eq.live-shirt",
-    );
+    const { body } = await rest("/products?select=title,media:media(url,alt)&slug=eq.live-shirt");
     expect(body).toEqual([
       {
         title: "Live shirt",
@@ -217,9 +212,7 @@ describe("storefront reads: visibility", () => {
   });
 
   test("anon cannot see a draft product's variants", async () => {
-    const { body } = await rest(
-      `/product_variants?select=sku&product_id=eq.${draftProductId}`,
-    );
+    const { body } = await rest(`/product_variants?select=sku&product_id=eq.${draftProductId}`);
     expect(body).toEqual([]);
   });
 });

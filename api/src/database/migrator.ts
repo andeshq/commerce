@@ -35,9 +35,7 @@ export async function runMigrations(
 ): Promise<MigrationResult[]> {
   const migrator = createMigrator(db);
   const { error, results } =
-    direction === "down"
-      ? await migrator.migrateDown()
-      : await migrator.migrateToLatest();
+    direction === "down" ? await migrator.migrateDown() : await migrator.migrateToLatest();
 
   if (error) throw error;
 

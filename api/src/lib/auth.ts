@@ -1,7 +1,7 @@
-import { singleton } from "tsyringe";
 import { betterAuth } from "better-auth";
 import { admin } from "better-auth/plugins";
 import { HTTPException } from "hono/http-exception";
+import { singleton } from "tsyringe";
 import { Config } from "../config/config.ts";
 import { Database } from "../database/database.ts";
 

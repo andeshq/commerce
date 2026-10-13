@@ -1,6 +1,6 @@
-import { createContext, useContext, type ReactNode } from "react";
+import { createContext, type ReactNode, useContext } from "react";
+import { type AuthUser, signIn as authSignIn, signOut as authSignOut } from "./auth";
 import { authClient } from "./auth-client";
-import { signIn as authSignIn, signOut as authSignOut, type AuthUser } from "./auth";
 
 interface AuthState {
   user: AuthUser | null;

@@ -1,17 +1,17 @@
-import { Button, ButtonGroup, Card, Dropdown, Label } from "@heroui/react";
 import { EllipsisVertical, TrashBin } from "@gravity-ui/icons";
+import { Button, ButtonGroup, Card, Dropdown, Label } from "@heroui/react";
 import {
+  type ActionFunctionArgs,
+  type LoaderFunctionArgs,
   redirect,
   useFetcher,
   useLoaderData,
-  type ActionFunctionArgs,
-  type LoaderFunctionArgs,
 } from "react-router";
-import { pgbase, pgbaseErrorMessages } from "@/lib/pgbase";
-import { PageHeader } from "@/lib/page-header";
+import { type Category, categoryDescendantIds, categoryPath, categoryTree } from "@/lib/catalog";
 import { CATEGORY_FORM_ID, CategoryForm, useCategoryForm } from "@/lib/category-form";
-import { categorySchema, NO_PARENT, type CategoryFormValues } from "@/lib/category-schema";
-import { categoryDescendantIds, categoryPath, categoryTree, type Category } from "@/lib/catalog";
+import { type CategoryFormValues, categorySchema, NO_PARENT } from "@/lib/category-schema";
+import { PageHeader } from "@/lib/page-header";
+import { pgbase, pgbaseErrorMessages } from "@/lib/pgbase";
 import { m } from "@/paraglide/messages.js";
 
 export async function categoryDetailLoader({ params }: LoaderFunctionArgs) {
@@ -187,4 +187,8 @@ export function CategoryDetail() {
 }
 
 /* React Router lazy-route contract. */
-export { CategoryDetail as Component, categoryDetailLoader as loader, categoryDetailAction as action };
+export {
+  CategoryDetail as Component,
+  categoryDetailAction as action,
+  categoryDetailLoader as loader,
+};

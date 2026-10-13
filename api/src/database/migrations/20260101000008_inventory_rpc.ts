@@ -1,4 +1,4 @@
-import { sql, type Kysely } from "kysely";
+import { type Kysely, sql } from "kysely";
 
 /**
  * Inventory adjustments move into the database. `commerce.adjust_inventory`
@@ -10,7 +10,8 @@ import { sql, type Kysely } from "kysely";
  * checks the impersonated role itself and pins `search_path`.
  */
 export async function up(db: Kysely<any>): Promise<void> {
-  await sql.raw(`
+  await sql
+    .raw(`
     create type commerce.inventory_reason as enum (
       'stock_received', 'inventory_recount', 'damage', 'theft', 'loss', 'restock_return'
     );
@@ -29,9 +30,11 @@ export async function up(db: Kysely<any>): Promise<void> {
     create trigger inventory_levels_updated_at
       before update on commerce.inventory_levels
       for each row execute function commerce.set_updated_at();
-  `).execute(db);
+  `)
+    .execute(db);
 
-  await sql.raw(`
+  await sql
+    .raw(`
     create or replace function commerce.adjust_inventory(
       variant uuid,
       location uuid,
@@ -146,11 +149,13 @@ export async function up(db: Kysely<any>): Promise<void> {
     -- The function is the only write path for stock.
     revoke insert, update, delete on commerce.inventory_levels from web_staff, web_admin;
     revoke insert, update, delete on commerce.inventory_movements from web_staff, web_admin;
-  `).execute(db);
+  `)
+    .execute(db);
 }
 
 export async function down(db: Kysely<any>): Promise<void> {
-  await sql.raw(`
+  await sql
+    .raw(`
     grant insert, update, delete on commerce.inventory_levels to web_staff, web_admin;
     grant insert, update, delete on commerce.inventory_movements to web_staff, web_admin;
 
@@ -168,5 +173,6 @@ export async function down(db: Kysely<any>): Promise<void> {
       alter column reason type text using reason::text;
 
     drop type if exists commerce.inventory_reason;
-  `).execute(db);
+  `)
+    .execute(db);
 }

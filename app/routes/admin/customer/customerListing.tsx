@@ -1,14 +1,14 @@
-import { useMemo, useState } from "react";
 import { Card, Chip, SearchField, Table } from "@heroui/react";
-import { Link } from "@/lib/link";
+import { useMemo, useState } from "react";
 import { redirect, useLoaderData } from "react-router";
-import { PageHeader } from "@/lib/page-header";
 import { getSession } from "@/lib/auth";
-import { useAdminStore } from "@/routes/admin/adminLayout";
+import { formatMoney, type Order } from "@/lib/catalog";
+import { Link } from "@/lib/link";
+import { PageHeader } from "@/lib/page-header";
 import { pgbase } from "@/lib/pgbase";
 import { listCustomers } from "@/lib/users";
 import { m } from "@/paraglide/messages.js";
-import { formatMoney, type Order } from "@/lib/catalog";
+import { useAdminStore } from "@/routes/admin/adminLayout";
 
 interface OrderStat {
   count: number;
@@ -38,8 +38,7 @@ export async function customerListingLoader() {
 }
 
 export function CustomerListing() {
-  const { customers, orders } =
-    useLoaderData<Awaited<ReturnType<typeof customerListingLoader>>>();
+  const { customers, orders } = useLoaderData<Awaited<ReturnType<typeof customerListingLoader>>>();
   const store = useAdminStore();
   const [filter, setFilter] = useState("");
 
@@ -80,10 +79,7 @@ export function CustomerListing() {
 
   return (
     <div className="flex flex-col gap-4">
-      <PageHeader
-        title={m.customers_title()}
-        description={m.customers_description()}
-      />
+      <PageHeader title={m.customers_title()} description={m.customers_description()} />
 
       <Card>
         <Card.Header className="flex-row flex-wrap items-center justify-between gap-3">
@@ -104,9 +100,7 @@ export function CustomerListing() {
         <Card.Content>
           {rows.length === 0 ? (
             <p className="mx-auto max-w-md py-12 text-center text-sm text-muted">
-              {customers.length === 0
-                ? m.customers_empty()
-                : m.customers_no_match()}
+              {customers.length === 0 ? m.customers_empty() : m.customers_no_match()}
             </p>
           ) : (
             <Table>
@@ -130,9 +124,7 @@ export function CustomerListing() {
                               className="flex flex-col items-start no-underline"
                               href={`/customers/${customer.id}`}
                             >
-                              <span className="font-medium text-foreground">
-                                {customer.name}
-                              </span>
+                              <span className="font-medium text-foreground">{customer.name}</span>
                               <span className="text-xs text-muted">{customer.email}</span>
                             </Link>
                           </Table.Cell>

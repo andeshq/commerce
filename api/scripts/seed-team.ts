@@ -1,6 +1,6 @@
-import { SQL } from "bun";
 import { randomUUID } from "node:crypto";
 import { hashPassword } from "better-auth/crypto";
+import { SQL } from "bun";
 
 /**
  * Demo team members for the admin Team screen. Creates a second admin and a

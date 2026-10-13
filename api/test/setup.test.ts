@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
-import { createHarness, type Harness } from "./helpers/harness.ts";
 import { createMigrationDatabase } from "../src/database/migrator.ts";
 import type { App } from "../src/lib/app.ts";
+import { createHarness, type Harness } from "./helpers/harness.ts";
 
 /**
  * Bootstrap lock semantics: `/api/setup` is open exactly until the first admin

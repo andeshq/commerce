@@ -1,4 +1,4 @@
-import { sql, type Kysely } from "kysely";
+import { type Kysely, sql } from "kysely";
 
 /**
  * Carts. Carts are RPC-only (no grant to any `web_*` role, not exposed through
@@ -7,7 +7,8 @@ import { sql, type Kysely } from "kysely";
  * functions, with the token linking the cart to their account.
  */
 export async function up(db: Kysely<any>): Promise<void> {
-  await sql.raw(`
+  await sql
+    .raw(`
     create type commerce.cart_status as enum ('open', 'converted', 'abandoned');
 
     create table commerce.carts (
@@ -52,13 +53,16 @@ export async function up(db: Kysely<any>): Promise<void> {
 
     alter table commerce.carts enable row level security;
     alter table commerce.cart_items enable row level security;
-  `).execute(db);
+  `)
+    .execute(db);
 }
 
 export async function down(db: Kysely<any>): Promise<void> {
-  await sql.raw(`
+  await sql
+    .raw(`
     drop table if exists commerce.cart_items;
     drop table if exists commerce.carts;
     drop type if exists commerce.cart_status;
-  `).execute(db);
+  `)
+    .execute(db);
 }

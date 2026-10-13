@@ -1,6 +1,3 @@
-import { useEffect, useRef, useState, type ComponentType, type Key } from "react";
-import { Avatar, Button, Dropdown, Label, SearchField } from "@heroui/react";
-import { Link } from "@/lib/link";
 import {
   ArrowRightFromSquare,
   Boxes3,
@@ -15,14 +12,24 @@ import {
   ShoppingBag,
   Sliders,
 } from "@gravity-ui/icons";
-import { useNavigate, useLocation, useLoaderData, redirect, Outlet, useRouteLoaderData } from "react-router";
-import { useAuth } from "@/lib/auth-context";
-import { getSession, isStaff } from "@/lib/auth";
+import { Avatar, Button, Dropdown, Label, SearchField } from "@heroui/react";
+import { type ComponentType, type Key, useEffect, useRef, useState } from "react";
+import {
+  Outlet,
+  redirect,
+  useLoaderData,
+  useLocation,
+  useNavigate,
+  useRouteLoaderData,
+} from "react-router";
 import { getSetupStatus } from "@/lib/api";
+import { getSession, isStaff } from "@/lib/auth";
+import { useAuth } from "@/lib/auth-context";
+import type { Store } from "@/lib/catalog";
 import { LanguageSwitcher } from "@/lib/language-switcher";
+import { Link } from "@/lib/link";
 import { pgbase } from "@/lib/pgbase";
 import { m } from "@/paraglide/messages.js";
-import type { Store } from "@/lib/catalog";
 
 /**
  * Admin shell loader: staff gate (redirects before the shell renders) plus the
@@ -107,6 +114,7 @@ export function AdminLayout() {
   const mainRef = useRef<HTMLElement>(null);
 
   // The shell scrolls inside <main>; reset it when the route changes.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: urlPathname intentionally the only dep
   useEffect(() => {
     mainRef.current?.scrollTo({ top: 0 });
   }, [urlPathname]);
@@ -129,9 +137,7 @@ export function AdminLayout() {
 
   function handleSearch(value: string) {
     const term = value.trim();
-    void navigate(
-      term ? `/products?q=${encodeURIComponent(term)}` : "/products",
-    );
+    void navigate(term ? `/products?q=${encodeURIComponent(term)}` : "/products");
   }
 
   function handleUserAction(key: Key) {
@@ -172,10 +178,7 @@ export function AdminLayout() {
           <div className="ms-auto flex items-center gap-2">
             <LanguageSwitcher />
             <Dropdown>
-              <Button
-                className="h-auto gap-2 rounded-full py-1 pe-2 ps-1"
-                variant="secondary"
-              >
+              <Button className="h-auto gap-2 rounded-full py-1 pe-2 ps-1" variant="secondary">
                 <Avatar size="sm">
                   <Avatar.Fallback>{initials}</Avatar.Fallback>
                 </Avatar>
@@ -247,9 +250,7 @@ export function AdminLayout() {
                   href={href}
                   className={
                     "flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium whitespace-nowrap no-underline " +
-                    (isActive(href)
-                      ? "bg-accent text-accent-foreground"
-                      : "bg-surface text-muted")
+                    (isActive(href) ? "bg-accent text-accent-foreground" : "bg-surface text-muted")
                   }
                 >
                   <Icon className="size-4 shrink-0" />

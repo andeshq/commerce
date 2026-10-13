@@ -1,8 +1,13 @@
-import { SQL } from "bun";
-import { deflateSync } from "node:zlib";
 import { mkdir } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
-import { parseStorageUrl, publicUrlFor, storageKeyFor, createS3Client } from "../src/lib/storage.ts";
+import { deflateSync } from "node:zlib";
+import { SQL } from "bun";
+import {
+  createS3Client,
+  parseStorageUrl,
+  publicUrlFor,
+  storageKeyFor,
+} from "../src/lib/storage.ts";
 
 /**
  * Demo images for seeded products. Idempotent: skips once any media exists.
@@ -124,9 +129,7 @@ for (const seed of SEEDS) {
     const png = gradientPng(from, to);
 
     const url =
-      storage.driver === "s3"
-        ? publicUrlFor(storage, filename)!
-        : `/api/media/files/${filename}`;
+      storage.driver === "s3" ? publicUrlFor(storage, filename)! : `/api/media/files/${filename}`;
 
     if (storage.driver === "s3") {
       await s3!.write(storageKeyFor(storage, filename), new Uint8Array(png), {

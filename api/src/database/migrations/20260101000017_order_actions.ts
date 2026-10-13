@@ -1,4 +1,4 @@
-import { sql, type Kysely } from "kysely";
+import { type Kysely, sql } from "kysely";
 
 /**
  * Staff order lifecycle, exposed over pgbase RPC. Marking paid is the offline
@@ -7,7 +7,8 @@ import { sql, type Kysely } from "kysely";
  * with the actor.
  */
 export async function up(db: Kysely<any>): Promise<void> {
-  await sql.raw(`
+  await sql
+    .raw(`
     create or replace function commerce.order_mark_paid(order_uuid uuid)
       returns void
       language plpgsql security definer set search_path = ''
@@ -151,13 +152,16 @@ export async function up(db: Kysely<any>): Promise<void> {
     grant execute on function commerce.order_mark_paid(uuid) to web_staff, web_admin;
     grant execute on function commerce.order_fulfill(uuid) to web_staff, web_admin;
     grant execute on function commerce.order_cancel(uuid) to web_staff, web_admin;
-  `).execute(db);
+  `)
+    .execute(db);
 }
 
 export async function down(db: Kysely<any>): Promise<void> {
-  await sql.raw(`
+  await sql
+    .raw(`
     drop function if exists commerce.order_cancel(uuid);
     drop function if exists commerce.order_fulfill(uuid);
     drop function if exists commerce.order_mark_paid(uuid);
-  `).execute(db);
+  `)
+    .execute(db);
 }

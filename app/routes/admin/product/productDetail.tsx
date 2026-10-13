@@ -1,30 +1,14 @@
-import { useState } from "react";
-import { Button, ButtonGroup, Card, Dropdown, Label } from "@heroui/react";
 import { Copy, EllipsisVertical, Picture, TrashBin } from "@gravity-ui/icons";
+import { Button, ButtonGroup, Card, Dropdown, Label } from "@heroui/react";
+import { useState } from "react";
 import {
+  type ActionFunctionArgs,
+  type LoaderFunctionArgs,
   redirect,
   useFetcher,
   useLoaderData,
   useRevalidator,
-  type ActionFunctionArgs,
-  type LoaderFunctionArgs,
 } from "react-router";
-import { useAdminStore } from "@/routes/admin/adminLayout";
-import { pgbase, pgbaseErrorMessages } from "@/lib/pgbase";
-import { m } from "@/paraglide/messages.js";
-import { PageHeader } from "@/lib/page-header";
-import { PRODUCT_FORM_ID, ProductForm, useProductForm } from "@/lib/product-form";
-import { ProductImages } from "@/lib/product-images";
-import { ProductInfoSections } from "@/lib/product-info-sections";
-import { AdjustStockDialog } from "@/lib/inventory-dialogs";
-import { levelFor, type InventoryItemRow } from "@/lib/inventory";
-import {
-  buildUpdatePayload,
-  computeRemovals,
-  draftFromVariant,
-} from "@/lib/product-draft";
-import { duplicateProduct } from "@/lib/product-duplicate";
-import { NO_CATEGORY, productFormSchema, type ProductFormValues, type VariantDraft } from "@/lib/product-schema";
 import type {
   Category,
   InventoryLevel,
@@ -40,6 +24,23 @@ import type {
   VariantMediaLink,
   VariantWithLinks,
 } from "@/lib/catalog";
+import { type InventoryItemRow, levelFor } from "@/lib/inventory";
+import { AdjustStockDialog } from "@/lib/inventory-dialogs";
+import { PageHeader } from "@/lib/page-header";
+import { pgbase, pgbaseErrorMessages } from "@/lib/pgbase";
+import { buildUpdatePayload, computeRemovals, draftFromVariant } from "@/lib/product-draft";
+import { duplicateProduct } from "@/lib/product-duplicate";
+import { PRODUCT_FORM_ID, ProductForm, useProductForm } from "@/lib/product-form";
+import { ProductImages } from "@/lib/product-images";
+import { ProductInfoSections } from "@/lib/product-info-sections";
+import {
+  NO_CATEGORY,
+  type ProductFormValues,
+  productFormSchema,
+  type VariantDraft,
+} from "@/lib/product-schema";
+import { m } from "@/paraglide/messages.js";
+import { useAdminStore } from "@/routes/admin/adminLayout";
 
 export async function productDetailLoader({ params }: LoaderFunctionArgs) {
   const id = String(params.id);
@@ -103,7 +104,10 @@ export async function productDetailLoader({ params }: LoaderFunctionArgs) {
       .order("position", { ascending: true })
       .throwOnError(),
     pgbase.from("variant_media").select("variant_id,media_id").throwOnError(),
-    pgbase.from("inventory_levels").select("variant_id,location_id,available,updated_at").throwOnError(),
+    pgbase
+      .from("inventory_levels")
+      .select("variant_id,location_id,available,updated_at")
+      .throwOnError(),
     pgbase
       .from("inventory_locations")
       .select("id,name,code,address,active,is_default")
@@ -160,7 +164,11 @@ export async function productDetailAction({ request, params }: ActionFunctionArg
           .select("id,variant_option_values(option_value_id)")
           .eq("product_id", productId)
           .throwOnError(),
-        pgbase.from("product_options").select("option_id").eq("product_id", productId).throwOnError(),
+        pgbase
+          .from("product_options")
+          .select("option_id")
+          .eq("product_id", productId)
+          .throwOnError(),
         pgbase
           .from("product_modifier_groups")
           .select("group_id")
@@ -288,9 +296,7 @@ function ProductEditor({ data }: { data: ProductDetailData }) {
   const submitting = fetcher.state !== "idle";
   const errors = [...(fetcher.data?.errors ?? []), ...(actionError ? [actionError] : [])];
 
-  const variantMedia = new Map(
-    variantMediaLinks.map((link) => [link.variant_id, link.media_id]),
-  );
+  const variantMedia = new Map(variantMediaLinks.map((link) => [link.variant_id, link.media_id]));
   const activeLocations = locations.filter((location) => location.active);
   const stockItems: InventoryItemRow[] = variants.map((variant) => ({
     variantId: variant.id,
@@ -508,17 +514,13 @@ function ProductEditor({ data }: { data: ProductDetailData }) {
       <Card>
         <Card.Header>
           <Card.Title>{m.common_stock()}</Card.Title>
-          <Card.Description>
-            {m.product_stock_hint()}
-          </Card.Description>
+          <Card.Description>{m.product_stock_hint()}</Card.Description>
         </Card.Header>
         <Card.Content>
           {variants.length === 0 ? (
             <p className="text-sm text-muted">{m.product_no_variants()}</p>
           ) : activeLocations.length === 0 ? (
-            <p className="text-sm text-muted">
-              {m.product_no_active_locations()}
-            </p>
+            <p className="text-sm text-muted">{m.product_no_active_locations()}</p>
           ) : (
             <div className="flex flex-col">
               {variants.map((variant) => (
@@ -528,7 +530,9 @@ function ProductEditor({ data }: { data: ProductDetailData }) {
                 >
                   <div className="min-w-40 flex-1">
                     <p className="truncate text-sm font-medium">{variant.title}</p>
-                    <p className="truncate text-xs text-muted">{variant.sku ?? m.inventory_no_sku()}</p>
+                    <p className="truncate text-xs text-muted">
+                      {variant.sku ?? m.inventory_no_sku()}
+                    </p>
                   </div>
                   {activeLocations.map((location) => (
                     <div key={location.id} className="flex items-center gap-2">
@@ -574,4 +578,4 @@ function ProductEditor({ data }: { data: ProductDetailData }) {
 }
 
 /* React Router lazy-route contract. */
-export { ProductDetail as Component, productDetailLoader as loader, productDetailAction as action };
+export { ProductDetail as Component, productDetailAction as action, productDetailLoader as loader };

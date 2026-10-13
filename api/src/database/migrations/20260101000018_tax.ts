@@ -1,4 +1,4 @@
-import { sql, type Kysely } from "kysely";
+import { type Kysely, sql } from "kysely";
 
 /**
  * Tax.
@@ -16,7 +16,8 @@ import { sql, type Kysely } from "kysely";
  * `total_cents = subtotal + tax`. Shipping and discounts are 0 for now.
  */
 export async function up(db: Kysely<any>): Promise<void> {
-  await sql.raw(`
+  await sql
+    .raw(`
     alter table commerce.store_settings
       add column tax_rate_bps integer not null default 0,
       add column tax_label text not null default 'Tax',
@@ -30,9 +31,11 @@ export async function up(db: Kysely<any>): Promise<void> {
 
     alter table commerce.order_items
       add column tax_rate_bps integer not null default 0;
-  `).execute(db);
+  `)
+    .execute(db);
 
-  await sql.raw(`
+  await sql
+    .raw(`
     create or replace function commerce.effective_tax_rate_bps(variant uuid)
       returns integer
       language sql stable security definer set search_path = ''
@@ -50,9 +53,11 @@ export async function up(db: Kysely<any>): Promise<void> {
       ), 0)
     $$;
     revoke all on function commerce.effective_tax_rate_bps(uuid) from public;
-  `).execute(db);
+  `)
+    .execute(db);
 
-  await sql.raw(`
+  await sql
+    .raw(`
     drop view if exists commerce.catalog_variants;
     create view commerce.catalog_variants
     with (security_invoker = true)
@@ -79,9 +84,11 @@ export async function up(db: Kysely<any>): Promise<void> {
     join commerce.products p on p.id = v.product_id;
 
     grant select on commerce.catalog_variants to web_anon, web_customer, web_staff, web_admin;
-  `).execute(db);
+  `)
+    .execute(db);
 
-  await sql.raw(`
+  await sql
+    .raw(`
     create or replace function commerce.cart_payload(p_cart uuid) returns jsonb
       language sql stable security definer set search_path = ''
     as $$
@@ -159,9 +166,11 @@ export async function up(db: Kysely<any>): Promise<void> {
       from commerce.carts c
       where c.id = p_cart
     $$;
-  `).execute(db);
+  `)
+    .execute(db);
 
-  await sql.raw(`
+  await sql
+    .raw(`
     create or replace function commerce.checkout(
       p_cart_token text,
       p_email text default null,
@@ -336,12 +345,14 @@ export async function up(db: Kysely<any>): Promise<void> {
       return query select v_order_id, v_number, v_access, v_total;
     end;
     $$;
-  `).execute(db);
+  `)
+    .execute(db);
 }
 
 export async function down(db: Kysely<any>): Promise<void> {
   // Restore the pre-tax cart/checkout first so the columns become droppable.
-  await sql.raw(`
+  await sql
+    .raw(`
     create or replace function commerce.checkout(
       p_cart_token text,
       p_email text default null,
@@ -533,5 +544,6 @@ export async function down(db: Kysely<any>): Promise<void> {
     alter table commerce.store_settings
       drop column if exists tax_rate_bps,
       drop column if exists tax_label;
-  `).execute(db);
+  `)
+    .execute(db);
 }

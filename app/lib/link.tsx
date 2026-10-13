@@ -1,5 +1,5 @@
-import type { ComponentProps } from "react";
 import { Link as HeroLink } from "@heroui/react";
+import type { ComponentProps } from "react";
 import { useHref } from "react-router";
 
 type HeroLinkProps = ComponentProps<typeof HeroLink>;

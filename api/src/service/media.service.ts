@@ -1,10 +1,10 @@
-import { singleton } from "tsyringe";
-import { HTTPException } from "hono/http-exception";
-import { join } from "node:path";
 import { mkdir, unlink } from "node:fs/promises";
-import { S3Client } from "bun";
-import { Database } from "../database/database.ts";
+import { join } from "node:path";
+import type { S3Client } from "bun";
+import { HTTPException } from "hono/http-exception";
+import { singleton } from "tsyringe";
 import { Config } from "../config/config.ts";
+import { Database } from "../database/database.ts";
 import { MEDIA_DIR } from "../lib/paths.ts";
 import {
   createS3Client,
@@ -13,8 +13,8 @@ import {
   isStorageFilename,
   publicUrlFor,
   putS3Object,
-  storageKeyFor,
   type StorageConfig,
+  storageKeyFor,
 } from "../lib/storage.ts";
 
 const MAX_BYTES = 10 * 1024 * 1024;

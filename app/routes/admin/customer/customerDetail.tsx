@@ -1,21 +1,21 @@
-import { Alert, Button, Card, Chip, Dropdown, Label, Table } from "@heroui/react";
 import { ChevronDown } from "@gravity-ui/icons";
+import { Alert, Button, Card, Chip, Dropdown, Label, Table } from "@heroui/react";
 import {
+  type ActionFunctionArgs,
+  type LoaderFunctionArgs,
   redirect,
   useFetcher,
   useLoaderData,
-  type ActionFunctionArgs,
-  type LoaderFunctionArgs,
 } from "react-router";
-import { Link } from "@/lib/link";
 import { getSession } from "@/lib/auth";
+import { formatMoney, type Order, type PaymentStatus } from "@/lib/catalog";
+import { paymentStatusLabel } from "@/lib/i18n";
+import { Link } from "@/lib/link";
 import { PageHeader } from "@/lib/page-header";
-import { useAdminStore } from "@/routes/admin/adminLayout";
 import { pgbase } from "@/lib/pgbase";
 import { banUser, getUser, unbanUser, userErrorMessages } from "@/lib/users";
-import { paymentStatusLabel } from "@/lib/i18n";
 import { m } from "@/paraglide/messages.js";
-import { formatMoney, type Order, type PaymentStatus } from "@/lib/catalog";
+import { useAdminStore } from "@/routes/admin/adminLayout";
 
 const PAYMENT_COLOR: Record<PaymentStatus, "success" | "warning" | "danger" | "default"> = {
   paid: "success",
@@ -43,7 +43,7 @@ export async function customerDetailLoader({ params }: LoaderFunctionArgs) {
   ]);
 
   // Staff/admin ids are not customers; keep this page to storefront accounts.
-  if (!customer || customer.role !== "customer") throw redirect("/customers");
+  if (customer?.role !== "customer") throw redirect("/customers");
 
   return { customer, orders: (orders.data ?? []) as Order[] };
 }
@@ -67,8 +67,7 @@ export async function customerDetailAction({ request, params }: ActionFunctionAr
 }
 
 export function CustomerDetail() {
-  const { customer, orders } =
-    useLoaderData<Awaited<ReturnType<typeof customerDetailLoader>>>();
+  const { customer, orders } = useLoaderData<Awaited<ReturnType<typeof customerDetailLoader>>>();
   const store = useAdminStore();
   const fetcher = useFetcher<typeof customerDetailAction>();
 
@@ -196,7 +195,11 @@ export function CustomerDetail() {
                           </Link>
                         </Table.Cell>
                         <Table.Cell>
-                          <Chip color={PAYMENT_COLOR[order.payment_status]} size="sm" variant="soft">
+                          <Chip
+                            color={PAYMENT_COLOR[order.payment_status]}
+                            size="sm"
+                            variant="soft"
+                          >
                             {paymentStatusLabel(order.payment_status)}
                           </Chip>
                         </Table.Cell>
@@ -220,6 +223,6 @@ export function CustomerDetail() {
 /* React Router lazy-route contract. */
 export {
   CustomerDetail as Component,
-  customerDetailLoader as loader,
   customerDetailAction as action,
+  customerDetailLoader as loader,
 };

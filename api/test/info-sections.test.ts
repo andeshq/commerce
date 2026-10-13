@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
-import { createHarness, type Harness } from "./helpers/harness.ts";
 import type { App } from "../src/lib/app.ts";
+import { createHarness, type Harness } from "./helpers/harness.ts";
 
 /**
  * Additional info sections: product-scoped rich-text blocks. Staff write; anon
@@ -179,8 +179,16 @@ describe("product info sections", () => {
     expect(status).toBe(200);
     const product = payload(body);
     expect(product.info_sections).toEqual([
-      { id: expect.any(String), title: "Shipping & Returns", body: "<p>Envíos a todo el país.</p>" },
-      { id: expect.any(String), title: "Return & Refund Policy", body: "<p>30 días para devoluciones.</p>" },
+      {
+        id: expect.any(String),
+        title: "Shipping & Returns",
+        body: "<p>Envíos a todo el país.</p>",
+      },
+      {
+        id: expect.any(String),
+        title: "Return & Refund Policy",
+        body: "<p>30 días para devoluciones.</p>",
+      },
     ]);
   });
 

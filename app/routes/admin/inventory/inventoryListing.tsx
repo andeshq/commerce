@@ -1,18 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
-import { Button, Card, Chip, Dropdown, Label, SearchField, Separator, Table } from "@heroui/react";
-import { Link } from "@/lib/link";
-import type { SortDescriptor } from "@heroui/react";
 import { BarsDescendingAlignLeft, EllipsisVertical, Picture } from "@gravity-ui/icons";
+import type { SortDescriptor } from "@heroui/react";
+import { Button, Card, Chip, Dropdown, Label, SearchField, Separator, Table } from "@heroui/react";
+import { useEffect, useMemo, useState } from "react";
 import { useLoaderData, useRevalidator } from "react-router";
-import { PageHeader } from "@/lib/page-header";
-import { pgbase } from "@/lib/pgbase";
-import {
-  AdjustStockDialog,
-  ManageLocationsDialog,
-  StockHistoryDialog,
-} from "@/lib/inventory-dialogs";
-import type { InventoryItemRow } from "@/lib/inventory";
-import { m } from "@/paraglide/messages.js";
 import type {
   InventoryLevel,
   InventoryLocation,
@@ -21,6 +11,16 @@ import type {
   ProductMediaLink,
   Variant,
 } from "@/lib/catalog";
+import type { InventoryItemRow } from "@/lib/inventory";
+import {
+  AdjustStockDialog,
+  ManageLocationsDialog,
+  StockHistoryDialog,
+} from "@/lib/inventory-dialogs";
+import { Link } from "@/lib/link";
+import { PageHeader } from "@/lib/page-header";
+import { pgbase } from "@/lib/pgbase";
+import { m } from "@/paraglide/messages.js";
 
 export async function inventoryListingLoader() {
   const [products, variants, inventory, locations, media, productMedia] = await Promise.all([
@@ -34,7 +34,10 @@ export async function inventoryListingLoader() {
       .select("id,product_id,title,sku,barcode,position,price_cents,compare_at_price_cents")
       .order("position", { ascending: true })
       .throwOnError(),
-    pgbase.from("inventory_levels").select("variant_id,location_id,available,updated_at").throwOnError(),
+    pgbase
+      .from("inventory_levels")
+      .select("variant_id,location_id,available,updated_at")
+      .throwOnError(),
     pgbase
       .from("inventory_locations")
       .select("id,name,code,address,active,is_default")
@@ -264,11 +267,7 @@ export function InventoryListing() {
                     <Dropdown.ItemIndicator />
                   </Dropdown.Item>
                   {locations.map((location) => (
-                    <Dropdown.Item
-                      key={location.id}
-                      id={location.id}
-                      textValue={location.name}
-                    >
+                    <Dropdown.Item key={location.id} id={location.id} textValue={location.name}>
                       <Label>
                         {location.name}
                         {location.active ? "" : ` (${m.common_inactive()})`}
@@ -427,7 +426,11 @@ export function InventoryListing() {
                           </Button>
                         </Table.Cell>
                         <Table.Cell>
-                          <Chip color={row.onHand > 0 ? "success" : "warning"} size="sm" variant="soft">
+                          <Chip
+                            color={row.onHand > 0 ? "success" : "warning"}
+                            size="sm"
+                            variant="soft"
+                          >
                             {row.onHand > 0 ? m.common_in_stock() : m.common_out_of_stock()}
                           </Chip>
                         </Table.Cell>

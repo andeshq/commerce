@@ -1,4 +1,4 @@
-import { sql, type Kysely } from "kysely";
+import { type Kysely, sql } from "kysely";
 
 /**
  * Schemas, Postgres roles and the `updated_at` trigger helper.
@@ -7,15 +7,18 @@ import { sql, type Kysely } from "kysely";
  * DDL-only: store settings and the first admin are created at first-run setup.
  */
 export async function up(db: Kysely<any>): Promise<void> {
-  await sql.raw(`
+  await sql
+    .raw(`
     create schema if not exists commerce;
     create schema if not exists auth;
 
     create extension if not exists "pgcrypto";
     create extension if not exists "citext";
-  `).execute(db);
+  `)
+    .execute(db);
 
-  await sql.raw(`
+  await sql
+    .raw(`
     do $$
     begin
       if not exists (select 1 from pg_roles where rolname = 'web_anon') then
@@ -32,14 +35,18 @@ export async function up(db: Kysely<any>): Promise<void> {
       end if;
     end
     $$;
-  `).execute(db);
+  `)
+    .execute(db);
 
-  await sql.raw(`
+  await sql
+    .raw(`
     grant web_customer to web_staff;
     grant web_staff to web_admin;
-  `).execute(db);
+  `)
+    .execute(db);
 
-  await sql.raw(`
+  await sql
+    .raw(`
     create or replace function commerce.set_updated_at()
       returns trigger
       language plpgsql
@@ -49,7 +56,8 @@ export async function up(db: Kysely<any>): Promise<void> {
         return new;
       end;
     $$;
-  `).execute(db);
+  `)
+    .execute(db);
 }
 
 export async function down(db: Kysely<any>): Promise<void> {
@@ -58,9 +66,11 @@ export async function down(db: Kysely<any>): Promise<void> {
   // a per-database rollback could break other databases and leaves stale
   // pg_shdepend ACL entries behind. Remove roles deliberately at the cluster
   // level if you really need to.
-  await sql.raw(`
+  await sql
+    .raw(`
     drop function if exists commerce.set_updated_at();
     drop schema if exists commerce cascade;
     drop schema if exists auth cascade;
-  `).execute(db);
+  `)
+    .execute(db);
 }

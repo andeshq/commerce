@@ -1,10 +1,10 @@
-import { useRef, useState } from "react";
-import { Button, Input } from "@heroui/react";
-import { Grip, Picture, Xmark } from "@gravity-ui/icons";
 import { arrayMove } from "@dnd-kit/sortable";
-import { pgbase, pgbaseErrorMessages } from "./pgbase";
-import { SortableItem, SortableList, dragHandleClass } from "./sortable";
+import { Grip, Picture, Xmark } from "@gravity-ui/icons";
+import { Button, Input } from "@heroui/react";
+import { useRef, useState } from "react";
 import { m } from "@/paraglide/messages.js";
+import { pgbase, pgbaseErrorMessages } from "./pgbase";
+import { dragHandleClass, SortableItem, SortableList } from "./sortable";
 
 export interface ImageEntry {
   mediaId: string;
@@ -122,9 +122,7 @@ export function ProductImages({
     setError(null);
     try {
       await pgbase.from("media").update({ alt }).eq("id", entry.mediaId).throwOnError();
-      report(
-        entries.map((item) => (item.mediaId === entry.mediaId ? { ...item, alt } : item)),
-      );
+      report(entries.map((item) => (item.mediaId === entry.mediaId ? { ...item, alt } : item)));
     } catch (caught) {
       setError(pgbaseErrorMessages(caught)[0] ?? m.product_alt_failed());
     } finally {
@@ -176,11 +174,7 @@ export function ProductImages({
             {entries.map((entry, index) => (
               <SortableItem key={entry.mediaId} id={entry.mediaId}>
                 {({ itemRef, itemStyle, handleProps }) => (
-                  <div
-                    ref={itemRef}
-                    style={itemStyle}
-                    className="flex w-24 flex-col gap-1"
-                  >
+                  <div ref={itemRef} style={itemStyle} className="flex w-24 flex-col gap-1">
                     <div className="relative">
                       <button
                         type="button"
@@ -192,7 +186,11 @@ export function ProductImages({
                           (index === 0 ? "ring-2 ring-accent" : "hover:opacity-80")
                         }
                       >
-                        <img src={entry.url} alt={entry.alt ?? ""} className="size-24 object-cover" />
+                        <img
+                          src={entry.url}
+                          alt={entry.alt ?? ""}
+                          className="size-24 object-cover"
+                        />
                         {index === 0 && (
                           <span className="absolute start-1 bottom-1 rounded-full bg-accent px-2 py-0.5 text-[10px] font-medium text-accent-foreground">
                             {m.product_main()}

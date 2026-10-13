@@ -1,4 +1,4 @@
-import { sql, type Kysely } from "kysely";
+import { type Kysely, sql } from "kysely";
 
 /**
  * Better Auth tables, isolated in their own `auth` schema.
@@ -17,7 +17,8 @@ import { sql, type Kysely } from "kysely";
  *   3. diff and paste the new statements here.
  */
 export async function up(db: Kysely<any>): Promise<void> {
-  await sql.raw(`
+  await sql
+    .raw(`
     create schema if not exists "auth";
 
     create table "auth"."user" (
@@ -74,7 +75,8 @@ export async function up(db: Kysely<any>): Promise<void> {
     create index "session_userId_idx" on "auth"."session" ("userId");
     create index "account_userId_idx" on "auth"."account" ("userId");
     create index "verification_identifier_idx" on "auth"."verification" ("identifier");
-  `).execute(db);
+  `)
+    .execute(db);
 }
 
 export async function down(db: Kysely<any>): Promise<void> {

@@ -1,24 +1,15 @@
-import { Controller, useForm, type UseFormReturn } from "react-hook-form";
+import { Alert, Button, FieldError, Input, Label, ListBox, Select, TextField } from "@heroui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Alert,
-  Button,
-  FieldError,
-  Input,
-  Label,
-  ListBox,
-  Select,
-  TextField,
-} from "@heroui/react";
+import { Controller, type UseFormReturn, useForm } from "react-hook-form";
+import { m } from "@/paraglide/messages.js";
+import { roleLabel } from "./i18n";
 import {
   generatePassword,
-  userCreateSchema,
-  userUpdateSchema,
   type UserCreateValues,
   type UserUpdateValues,
+  userCreateSchema,
+  userUpdateSchema,
 } from "./user-schema";
-import { roleLabel } from "./i18n";
-import { m } from "@/paraglide/messages.js";
 import type { TeamRole } from "./users";
 
 /** The detail/new pages submit this form from the page header, outside <form>. */
@@ -43,19 +34,9 @@ function ErrorAlert({ errors }: { errors: string[] }) {
   );
 }
 
-function RoleSelect({
-  value,
-  onChange,
-}: {
-  value: TeamRole;
-  onChange(value: TeamRole): void;
-}) {
+function RoleSelect({ value, onChange }: { value: TeamRole; onChange(value: TeamRole): void }) {
   return (
-    <Select
-      fullWidth
-      value={value}
-      onChange={(key) => onChange(String(key) as TeamRole)}
-    >
+    <Select fullWidth value={value} onChange={(key) => onChange(String(key) as TeamRole)}>
       <Label>{m.common_role()}</Label>
       <Select.Trigger>
         <Select.Value />
@@ -85,7 +66,6 @@ export function useCreateTeamForm(): UseFormReturn<UserCreateValues> {
 
 export function TeamCreateForm({
   form,
-  submitting,
   errors,
   onSubmit,
 }: {
@@ -97,11 +77,7 @@ export function TeamCreateForm({
   const { control, setValue } = form;
 
   return (
-    <form
-      id={TEAM_FORM_ID}
-      className="flex flex-col gap-5"
-      onSubmit={form.handleSubmit(onSubmit)}
-    >
+    <form id={TEAM_FORM_ID} className="flex flex-col gap-5" onSubmit={form.handleSubmit(onSubmit)}>
       <ErrorAlert errors={errors} />
 
       <section className="flex flex-col gap-3">
@@ -179,16 +155,12 @@ export function TeamCreateForm({
           </Button>
         </div>
 
-        <p className="text-xs text-muted">
-          {m.team_password_hint()}
-        </p>
+        <p className="text-xs text-muted">{m.team_password_hint()}</p>
 
         <Controller
           control={control}
           name="role"
-          render={({ field }) => (
-            <RoleSelect value={field.value} onChange={field.onChange} />
-          )}
+          render={({ field }) => <RoleSelect value={field.value} onChange={field.onChange} />}
         />
       </section>
     </form>
@@ -209,7 +181,6 @@ export function useEditTeamForm(initial: {
 
 export function TeamEditForm({
   form,
-  submitting,
   errors,
   onSubmit,
 }: {
@@ -221,11 +192,7 @@ export function TeamEditForm({
   const { control, setValue } = form;
 
   return (
-    <form
-      id={TEAM_FORM_ID}
-      className="flex flex-col gap-5"
-      onSubmit={form.handleSubmit(onSubmit)}
-    >
+    <form id={TEAM_FORM_ID} className="flex flex-col gap-5" onSubmit={form.handleSubmit(onSubmit)}>
       <ErrorAlert errors={errors} />
 
       <section className="flex flex-col gap-3">
@@ -277,9 +244,7 @@ export function TeamEditForm({
         <Controller
           control={control}
           name="role"
-          render={({ field }) => (
-            <RoleSelect value={field.value} onChange={field.onChange} />
-          )}
+          render={({ field }) => <RoleSelect value={field.value} onChange={field.onChange} />}
         />
 
         <div className="flex items-end gap-3">

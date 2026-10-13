@@ -1,8 +1,8 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { sql } from "kysely";
-import { createHarness, type Harness } from "./helpers/harness.ts";
 import { createMigrationDatabase } from "../src/database/migrator.ts";
 import type { App } from "../src/lib/app.ts";
+import { createHarness, type Harness } from "./helpers/harness.ts";
 
 /**
  * RLS authorization matrix, exercised through the real HTTP surface
@@ -41,10 +41,7 @@ async function signIn(email: string, password: string): Promise<string> {
   return cookieFrom(res);
 }
 
-async function rest(
-  path: string,
-  init?: RequestInit,
-): Promise<{ status: number; body: unknown }> {
+async function rest(path: string, init?: RequestInit): Promise<{ status: number; body: unknown }> {
   const res = await app.fetch(new Request(`http://localhost/api/rest${path}`, init));
   const text = await res.text();
   let body: unknown = text;

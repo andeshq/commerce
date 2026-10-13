@@ -1,4 +1,4 @@
-import { sql, type Kysely } from "kysely";
+import { type Kysely, sql } from "kysely";
 
 /**
  * Schema usage, grants and RLS policies for the catalog.
@@ -11,12 +11,15 @@ import { sql, type Kysely } from "kysely";
  * `current_user` is the impersonated Postgres role (pgbase runs SET LOCAL ROLE).
  */
 export async function up(db: Kysely<any>): Promise<void> {
-  await sql.raw(`
+  await sql
+    .raw(`
     grant usage on schema commerce to web_anon, web_customer, web_staff, web_admin;
     grant usage on schema auth to web_admin;
-  `).execute(db);
+  `)
+    .execute(db);
 
-  await sql.raw(`
+  await sql
+    .raw(`
     create or replace function commerce.is_staff() returns boolean
       language sql stable as $$
         select current_user in ('web_staff', 'web_admin')
@@ -27,7 +30,8 @@ export async function up(db: Kysely<any>): Promise<void> {
       $$;
     grant execute on function commerce.is_staff() to web_anon, web_customer, web_staff, web_admin;
     grant execute on function commerce.is_admin() to web_anon, web_customer, web_staff, web_admin;
-  `).execute(db);
+  `)
+    .execute(db);
 
   const catalogTables = [
     "products",
@@ -47,12 +51,15 @@ export async function up(db: Kysely<any>): Promise<void> {
   ];
 
   for (const table of catalogTables) {
-    await sql.raw(`
+    await sql
+      .raw(`
       grant select, insert, update, delete on commerce.${table} to web_staff, web_admin;
-    `).execute(db);
+    `)
+      .execute(db);
   }
 
-  await sql.raw(`
+  await sql
+    .raw(`
     grant select on commerce.products, commerce.product_variants, commerce.product_options,
       commerce.product_option_values, commerce.collections, commerce.product_collections,
       commerce.categories, commerce.media, commerce.product_media, commerce.variant_media,
@@ -64,14 +71,16 @@ export async function up(db: Kysely<any>): Promise<void> {
 
     grant select on commerce.store_settings to web_anon, web_customer, web_staff, web_admin;
     grant insert, update on commerce.store_settings to web_admin;
-  `).execute(db);
+  `)
+    .execute(db);
 
   for (const table of catalogTables) {
     await sql.raw(`alter table commerce.${table} enable row level security;`).execute(db);
   }
   await sql.raw(`alter table commerce.store_settings enable row level security;`).execute(db);
 
-  await sql.raw(`
+  await sql
+    .raw(`
     create policy products_read on commerce.products
       for select using (status = 'active' or commerce.is_staff());
     create policy products_write on commerce.products
@@ -81,16 +90,14 @@ export async function up(db: Kysely<any>): Promise<void> {
       for select using (true);
     create policy store_settings_write on commerce.store_settings
       for all using (commerce.is_admin()) with check (commerce.is_admin());
-  `).execute(db);
+  `)
+    .execute(db);
 
-  const productChildren = [
-    "product_variants",
-    "product_options",
-    "product_media",
-  ];
+  const productChildren = ["product_variants", "product_options", "product_media"];
 
   for (const table of productChildren) {
-    await sql.raw(`
+    await sql
+      .raw(`
       create policy ${table}_read on commerce.${table}
         for select using (
           commerce.is_staff() or exists (
@@ -100,10 +107,12 @@ export async function up(db: Kysely<any>): Promise<void> {
         );
       create policy ${table}_write on commerce.${table}
         for all using (commerce.is_staff()) with check (commerce.is_staff());
-    `).execute(db);
+    `)
+      .execute(db);
   }
 
-  await sql.raw(`
+  await sql
+    .raw(`
     create policy product_option_values_read on commerce.product_option_values
       for select using (
         commerce.is_staff() or exists (
@@ -136,17 +145,21 @@ export async function up(db: Kysely<any>): Promise<void> {
       );
     create policy variant_option_values_write on commerce.variant_option_values
       for all using (commerce.is_staff()) with check (commerce.is_staff());
-  `).execute(db);
+  `)
+    .execute(db);
 
   for (const table of ["collections", "categories", "media"]) {
-    await sql.raw(`
+    await sql
+      .raw(`
       create policy ${table}_read on commerce.${table} for select using (true);
       create policy ${table}_write on commerce.${table}
         for all using (commerce.is_staff()) with check (commerce.is_staff());
-    `).execute(db);
+    `)
+      .execute(db);
   }
 
-  await sql.raw(`
+  await sql
+    .raw(`
     create policy product_collections_read on commerce.product_collections
       for select using (
         commerce.is_staff() or exists (
@@ -156,13 +169,16 @@ export async function up(db: Kysely<any>): Promise<void> {
       );
     create policy product_collections_write on commerce.product_collections
       for all using (commerce.is_staff()) with check (commerce.is_staff());
-  `).execute(db);
+  `)
+    .execute(db);
 
   for (const table of ["inventory_locations", "inventory_levels", "inventory_movements"]) {
-    await sql.raw(`
+    await sql
+      .raw(`
       create policy ${table}_staff on commerce.${table}
         for all using (commerce.is_staff()) with check (commerce.is_staff());
-    `).execute(db);
+    `)
+      .execute(db);
   }
 }
 
@@ -170,8 +186,10 @@ export async function down(db: Kysely<any>): Promise<void> {
   // Policies depend on the predicate functions, so they must go first.
   // (Tables are dropped later by the catalog migration's `down`, which would
   // also remove policies — but the functions would already fail to drop.)
-  await sql.raw(`
+  await sql
+    .raw(`
     drop function if exists commerce.is_admin() cascade;
     drop function if exists commerce.is_staff() cascade;
-  `).execute(db);
+  `)
+    .execute(db);
 }

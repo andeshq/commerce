@@ -1,6 +1,6 @@
+import { m } from "@/paraglide/messages.js";
 import type { InventoryLevel, InventoryMovement } from "./catalog";
 import { pgbase } from "./pgbase";
-import { m } from "@/paraglide/messages.js";
 
 /**
  * Square's stock actions: additions, deductions, and physical recounts that set
@@ -19,7 +19,12 @@ export const INVENTORY_ACTIONS = [
     direction: "recount",
     inputLabel: m.inventory_counted_quantity(),
   },
-  { id: "damage", label: m.inventory_damage(), direction: "out", inputLabel: m.inventory_removed() },
+  {
+    id: "damage",
+    label: m.inventory_damage(),
+    direction: "out",
+    inputLabel: m.inventory_removed(),
+  },
   { id: "theft", label: m.inventory_theft(), direction: "out", inputLabel: m.inventory_removed() },
   { id: "loss", label: m.inventory_loss(), direction: "out", inputLabel: m.inventory_removed() },
   {
@@ -80,11 +85,7 @@ export function totalStockByVariant(levels: InventoryLevel[]): Map<string, numbe
 }
 
 /** On hand for one variant at one location; missing rows read as zero. */
-export function levelFor(
-  levels: InventoryLevel[],
-  variantId: string,
-  locationId: string,
-): number {
+export function levelFor(levels: InventoryLevel[], variantId: string, locationId: string): number {
   return (
     levels.find((level) => level.variant_id === variantId && level.location_id === locationId)
       ?.available ?? 0

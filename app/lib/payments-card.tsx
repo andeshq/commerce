@@ -1,4 +1,3 @@
-import { useCallback, useEffect, useState } from "react";
 import {
   Button,
   Card,
@@ -11,6 +10,7 @@ import {
   Switch,
   TextField,
 } from "@heroui/react";
+import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { m } from "@/paraglide/messages.js";
 
@@ -33,7 +33,11 @@ const CREDENTIAL_FIELDS: Record<
   wompi: [
     { key: "publicKey", label: m.payments_public_key(), placeholder: "pub_test_…" },
     { key: "privateKey", label: m.payments_private_key(), placeholder: "prv_test_…" },
-    { key: "integritySecret", label: m.payments_integrity_secret(), placeholder: "test_integrity_…" },
+    {
+      key: "integritySecret",
+      label: m.payments_integrity_secret(),
+      placeholder: "test_integrity_…",
+    },
     { key: "eventsSecret", label: m.payments_events_secret(), placeholder: "test_events_…" },
   ],
 };
@@ -113,16 +117,14 @@ export function PaymentsCard() {
 
   if (user?.role !== "admin") return null;
 
-  const fields = editing ? CREDENTIAL_FIELDS[editing] ?? [] : [];
+  const fields = editing ? (CREDENTIAL_FIELDS[editing] ?? []) : [];
   const complete = fields.length > 0 && fields.every((field) => values[field.key]?.trim());
 
   return (
     <Card>
       <Card.Header>
         <Card.Title>{m.payments_title()}</Card.Title>
-        <Card.Description>
-          {m.payments_description()}
-        </Card.Description>
+        <Card.Description>{m.payments_description()}</Card.Description>
       </Card.Header>
       <Card.Content className="flex flex-col gap-4">
         {error && <p className="text-sm text-danger">{error}</p>}
@@ -222,15 +224,17 @@ export function PaymentsCard() {
                     <Input placeholder={field.placeholder} />
                   </TextField>
                 ))}
-                <p className="text-xs text-muted">
-                  {m.payments_secrets_hint()}
-                </p>
+                <p className="text-xs text-muted">{m.payments_secrets_hint()}</p>
               </Modal.Body>
               <Modal.Footer>
                 <Button variant="secondary" isDisabled={saving} onPress={() => setEditing(null)}>
                   {m.common_cancel()}
                 </Button>
-                <Button isDisabled={saving || !complete} isPending={saving} onPress={saveCredentials}>
+                <Button
+                  isDisabled={saving || !complete}
+                  isPending={saving}
+                  onPress={saveCredentials}
+                >
                   {m.payments_save_credentials()}
                 </Button>
               </Modal.Footer>

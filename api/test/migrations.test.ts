@@ -1,10 +1,7 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { sql } from "kysely";
+import { createMigrationDatabase, runMigrations } from "../src/database/migrator.ts";
 import { createHarness, type Harness } from "./helpers/harness.ts";
-import {
-  createMigrationDatabase,
-  runMigrations,
-} from "../src/database/migrator.ts";
 
 /**
  * Migration round-trip: `up` creates both schemas, `down` removes them, and

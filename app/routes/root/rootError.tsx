@@ -5,8 +5,7 @@ import { m } from "@/paraglide/messages.js";
 /** Root error boundary: route loaders/actions and render errors land here. */
 export function RootError() {
   const error = useRouteError();
-  const reason =
-    error instanceof Error && error.message ? error.message : m.error_load();
+  const reason = error instanceof Error && error.message ? error.message : m.error_load();
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-background p-6">

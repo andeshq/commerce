@@ -1,4 +1,4 @@
-import { sql, type Kysely } from "kysely";
+import { type Kysely, sql } from "kysely";
 
 /**
  * Store-scoped item options: `options` + `option_values` are reusable across
@@ -11,7 +11,8 @@ import { sql, type Kysely } from "kysely";
  * remaps the IDs referenced by `variant_option_values`.
  */
 export async function up(db: Kysely<any>): Promise<void> {
-  await sql.raw(`
+  await sql
+    .raw(`
     do $$
     begin
       if exists (select 1 from commerce.products) then
@@ -95,11 +96,13 @@ export async function up(db: Kysely<any>): Promise<void> {
       );
     create policy product_options_write on commerce.product_options
       for all using (commerce.is_staff()) with check (commerce.is_staff());
-  `).execute(db);
+  `)
+    .execute(db);
 }
 
 export async function down(db: Kysely<any>): Promise<void> {
-  await sql.raw(`
+  await sql
+    .raw(`
     alter table commerce.variant_option_values
       drop constraint variant_option_values_option_value_id_fkey;
 
@@ -143,5 +146,6 @@ export async function down(db: Kysely<any>): Promise<void> {
     alter table commerce.variant_option_values
       add constraint variant_option_values_option_value_id_fkey
         foreign key (option_value_id) references commerce.product_option_values (id) on delete cascade;
-  `).execute(db);
+  `)
+    .execute(db);
 }

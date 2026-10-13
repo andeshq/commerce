@@ -1,4 +1,4 @@
-import { sql, type Kysely } from "kysely";
+import { type Kysely, sql } from "kysely";
 
 /**
  * Orders and payments.
@@ -12,7 +12,8 @@ import { sql, type Kysely } from "kysely";
  * `web_*` role, so credentials and raw webhook payloads never travel over REST.
  */
 export async function up(db: Kysely<any>): Promise<void> {
-  await sql.raw(`
+  await sql
+    .raw(`
     -- Re-declared as text (user ids are text); replaces the uuid version.
     drop function if exists commerce.current_user_id();
     create or replace function commerce.current_user_id() returns text
@@ -209,11 +210,13 @@ export async function up(db: Kysely<any>): Promise<void> {
       );
     create policy payments_write on commerce.payments
       for all using (commerce.is_staff()) with check (commerce.is_staff());
-  `).execute(db);
+  `)
+    .execute(db);
 }
 
 export async function down(db: Kysely<any>): Promise<void> {
-  await sql.raw(`
+  await sql
+    .raw(`
     drop table if exists commerce.payment_events;
     drop table if exists commerce.payment_providers;
     drop table if exists commerce.payments;
@@ -225,5 +228,6 @@ export async function down(db: Kysely<any>): Promise<void> {
     drop type if exists commerce.fulfillment_status;
     drop type if exists commerce.payment_status;
     drop type if exists commerce.order_status;
-  `).execute(db);
+  `)
+    .execute(db);
 }

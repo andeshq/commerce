@@ -1,4 +1,4 @@
-import { sql, type Kysely } from "kysely";
+import { type Kysely, sql } from "kysely";
 
 /**
  * Multiple payment providers.
@@ -10,7 +10,8 @@ import { sql, type Kysely } from "kysely";
  * payment at `POST /api/checkout/:token/pay`.
  */
 export async function up(db: Kysely<any>): Promise<void> {
-  await sql.raw(`
+  await sql
+    .raw(`
     drop index if exists commerce.payment_providers_single_enabled;
 
     alter table commerce.payment_providers
@@ -24,9 +25,11 @@ export async function up(db: Kysely<any>): Promise<void> {
       set is_default = true
       where provider = 'fake'
         and not exists (select 1 from commerce.payment_providers where is_default);
-  `).execute(db);
+  `)
+    .execute(db);
 
-  await sql.raw(`
+  await sql
+    .raw(`
     create or replace function commerce.set_default_provider(p_slug text)
       returns void
       language plpgsql security definer set search_path = ''
@@ -51,10 +54,12 @@ export async function up(db: Kysely<any>): Promise<void> {
 
     revoke all on function commerce.set_default_provider(text) from public;
     grant execute on function commerce.set_default_provider(text) to web_staff, web_admin;
-  `).execute(db);
+  `)
+    .execute(db);
 
   // checkout no longer selects a provider or inserts a payment.
-  await sql.raw(`
+  await sql
+    .raw(`
     create or replace function commerce.checkout(
       p_cart_token text,
       p_email text default null,
@@ -221,11 +226,13 @@ export async function up(db: Kysely<any>): Promise<void> {
       return query select v_order_id, v_number, v_access, v_total;
     end;
     $$;
-  `).execute(db);
+  `)
+    .execute(db);
 }
 
 export async function down(db: Kysely<any>): Promise<void> {
-  await sql.raw(`
+  await sql
+    .raw(`
     drop function if exists commerce.set_default_provider(text);
     drop index if exists commerce.payment_providers_default_key;
     alter table commerce.payment_providers
@@ -233,5 +240,6 @@ export async function down(db: Kysely<any>): Promise<void> {
       drop column if exists position;
     create unique index payment_providers_single_enabled
       on commerce.payment_providers (enabled) where enabled;
-  `).execute(db);
+  `)
+    .execute(db);
 }

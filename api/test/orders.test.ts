@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
-import { createHarness, type Harness } from "./helpers/harness.ts";
 import { createMigrationDatabase } from "../src/database/migrator.ts";
 import type { App } from "../src/lib/app.ts";
+import { createHarness, type Harness } from "./helpers/harness.ts";
 
 /**
  * Checkout: cart -> order in one transaction, stock moved through the shared
@@ -49,10 +49,7 @@ async function rpc(
   return { status: res.status, body: parsed };
 }
 
-async function rest(
-  path: string,
-  init?: RequestInit,
-): Promise<{ status: number; body: any }> {
+async function rest(path: string, init?: RequestInit): Promise<{ status: number; body: any }> {
   const res = await app.fetch(new Request(`http://localhost/api/rest${path}`, init));
   const text = await res.text();
   try {
@@ -86,7 +83,9 @@ async function signUp(email: string): Promise<string> {
   return signIn(email);
 }
 
-async function placeOrder(cookie?: string): Promise<{ token: string; orderId: string; cart: string }> {
+async function placeOrder(
+  cookie?: string,
+): Promise<{ token: string; orderId: string; cart: string }> {
   const created = await rpc("cart_create", {}, cookie);
   const cart = payload(created.body).token as string;
   const addRes = await rpc(
@@ -95,11 +94,7 @@ async function placeOrder(cookie?: string): Promise<{ token: string; orderId: st
     cookie,
   );
   if (addRes.status >= 300) throw new Error(`seed add failed: ${addRes.status}`);
-  const order = await rpc(
-    "checkout",
-    { p_cart_token: cart, p_email: "buyer@andeshq.dev" },
-    cookie,
-  );
+  const order = await rpc("checkout", { p_cart_token: cart, p_email: "buyer@andeshq.dev" }, cookie);
   const row = payload(order.body);
   return { token: row.access_token as string, orderId: row.order_id as string, cart };
 }

@@ -1,9 +1,9 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { randomUUID } from "node:crypto";
 import { sql } from "kysely";
-import { createHarness, type Harness } from "./helpers/harness.ts";
 import { createMigrationDatabase } from "../src/database/migrator.ts";
 import type { App } from "../src/lib/app.ts";
+import { createHarness, type Harness } from "./helpers/harness.ts";
 
 /**
  * Inventory adjustments run through the `commerce.adjust_inventory` RPC:
@@ -322,10 +322,7 @@ describe("inventory adjustments via rpc", () => {
 
   test("staff cannot write inventory tables directly", async () => {
     const insertLevel = await rest("/inventory_levels", {
-      ...json(
-        { variant_id: variantId, location_id: locationId, available: 999 },
-        adminCookie,
-      ),
+      ...json({ variant_id: variantId, location_id: locationId, available: 999 }, adminCookie),
     });
     expect(insertLevel.status).toBe(403);
 
@@ -335,10 +332,10 @@ describe("inventory adjustments via rpc", () => {
     );
     expect(updateLevel.status).toBe(403);
 
-    const deleteMovements = await rest(
-      `/inventory_movements?variant_id=eq.${variantId}`,
-      { ...json({}, adminCookie), method: "DELETE" },
-    );
+    const deleteMovements = await rest(`/inventory_movements?variant_id=eq.${variantId}`, {
+      ...json({}, adminCookie),
+      method: "DELETE",
+    });
     expect(deleteMovements.status).toBe(403);
 
     expect(await levelFor(variantId, locationId)).toBe(5);

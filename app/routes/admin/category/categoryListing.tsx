@@ -1,12 +1,12 @@
-import { useMemo, useState } from "react";
-import { Button, Card, Dropdown, Label, SearchField, Table } from "@heroui/react";
-import { Link } from "@/lib/link";
-import type { SortDescriptor } from "@heroui/react";
 import { BarsDescendingAlignLeft, ChevronRight, Plus } from "@gravity-ui/icons";
+import type { SortDescriptor } from "@heroui/react";
+import { Button, Card, Dropdown, Label, SearchField, Table } from "@heroui/react";
+import { useMemo, useState } from "react";
 import { useLoaderData, useNavigate } from "react-router";
+import { type Category, categoryTree, type Product } from "@/lib/catalog";
+import { Link } from "@/lib/link";
 import { PageHeader } from "@/lib/page-header";
 import { pgbase } from "@/lib/pgbase";
-import { categoryTree, type Category, type Product } from "@/lib/catalog";
 import { m } from "@/paraglide/messages.js";
 
 export async function categoryListingLoader() {
@@ -96,8 +96,7 @@ export function CategoryListing() {
     const term = filter.trim().toLowerCase();
     if (term) {
       return tree.filter(
-        (row) =>
-          row.name.toLowerCase().includes(term) || row.slug.toLowerCase().includes(term),
+        (row) => row.name.toLowerCase().includes(term) || row.slug.toLowerCase().includes(term),
       );
     }
 
@@ -185,9 +184,7 @@ export function CategoryListing() {
         <Card.Content>
           {rows.length === 0 ? (
             <p className="mx-auto max-w-md py-12 text-center text-sm text-muted">
-              {categories.length === 0
-                ? m.categories_empty()
-                : m.categories_no_match()}
+              {categories.length === 0 ? m.categories_empty() : m.categories_no_match()}
             </p>
           ) : (
             <Table>
@@ -235,9 +232,7 @@ export function CategoryListing() {
                               {row.childCount > 0 ? (
                                 <Button
                                   aria-label={
-                                    isCollapsed
-                                      ? `Expand ${row.name}`
-                                      : `Collapse ${row.name}`
+                                    isCollapsed ? `Expand ${row.name}` : `Collapse ${row.name}`
                                   }
                                   aria-expanded={!isCollapsed}
                                   isIconOnly

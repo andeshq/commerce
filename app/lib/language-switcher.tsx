@@ -1,7 +1,7 @@
-import { Button, Dropdown, Label } from "@heroui/react";
 import { Globe } from "@gravity-ui/icons";
-import { getLocale, setLocale, locales, type Locale } from "@/paraglide/runtime.js";
+import { Button, Dropdown, Label } from "@heroui/react";
 import { m } from "@/paraglide/messages.js";
+import { getLocale, type Locale, locales, setLocale } from "@/paraglide/runtime.js";
 
 /** Endonyms: each language is always shown in its own language. */
 const LOCALE_LABELS: Record<string, string> = { en: "English", es: "Español" };

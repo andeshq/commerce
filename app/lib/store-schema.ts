@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { CURRENCIES, LOCALES } from "./ref-data";
 import { m } from "@/paraglide/messages.js";
+import { CURRENCIES, LOCALES } from "./ref-data";
 
 /** Percent with up to two decimals, 0–100. Stored as basis points (×100). */
 const taxRate = z
@@ -10,10 +10,16 @@ const taxRate = z
   .refine((value) => Number(value) <= 100, { error: () => m.validation_tax_rate_max() });
 
 export const storeSchema = z.object({
-  name: z.string().trim().min(1, { error: () => m.validation_store_name() }),
+  name: z
+    .string()
+    .trim()
+    .min(1, { error: () => m.validation_store_name() }),
   currencyCode: z.enum(CURRENCIES),
   locale: z.enum(LOCALES),
-  taxLabel: z.string().trim().min(1, { error: () => m.validation_tax_label() }),
+  taxLabel: z
+    .string()
+    .trim()
+    .min(1, { error: () => m.validation_tax_label() }),
   taxRate,
   pricesIncludeTax: z.boolean(),
 });

@@ -1,18 +1,18 @@
-import { Button, ButtonGroup, Card, Dropdown, Label } from "@heroui/react";
 import { EllipsisVertical, TrashBin } from "@gravity-ui/icons";
+import { Button, ButtonGroup, Card, Dropdown, Label } from "@heroui/react";
 import {
+  type ActionFunctionArgs,
+  type LoaderFunctionArgs,
   redirect,
   useFetcher,
   useLoaderData,
-  type ActionFunctionArgs,
-  type LoaderFunctionArgs,
 } from "react-router";
-import { pgbase, pgbaseErrorMessages } from "@/lib/pgbase";
-import { PageHeader } from "@/lib/page-header";
-import { OPTION_FORM_ID, OptionForm, optionToFormValues, useOptionForm } from "@/lib/option-form";
-import { optionSchema, type OptionFormValues } from "@/lib/option-schema";
-import { m } from "@/paraglide/messages.js";
 import type { OptionWithValues } from "@/lib/catalog";
+import { OPTION_FORM_ID, OptionForm, optionToFormValues, useOptionForm } from "@/lib/option-form";
+import { type OptionFormValues, optionSchema } from "@/lib/option-schema";
+import { PageHeader } from "@/lib/page-header";
+import { pgbase, pgbaseErrorMessages } from "@/lib/pgbase";
+import { m } from "@/paraglide/messages.js";
 
 export async function optionDetailLoader({ params }: LoaderFunctionArgs) {
   const id = String(params.id);
@@ -81,7 +81,10 @@ export async function optionDetailAction({ request, params }: ActionFunctionArgs
         await pgbase
           .from("option_values")
           .delete()
-          .in("id", removed.map((row) => row.id))
+          .in(
+            "id",
+            removed.map((row) => row.id),
+          )
           .throwOnError();
       }
 
@@ -93,11 +96,7 @@ export async function optionDetailAction({ request, params }: ActionFunctionArgs
         if (existing.value !== row.value) changes.value = row.value;
         if (existing.position !== position) changes.position = position;
         if (Object.keys(changes).length > 0) {
-          await pgbase
-            .from("option_values")
-            .update(changes)
-            .eq("id", existing.id)
-            .throwOnError();
+          await pgbase.from("option_values").update(changes).eq("id", existing.id).throwOnError();
         }
       }
 
@@ -209,4 +208,4 @@ export function OptionDetail() {
 }
 
 /* React Router lazy-route contract. */
-export { OptionDetail as Component, optionDetailLoader as loader, optionDetailAction as action };
+export { OptionDetail as Component, optionDetailAction as action, optionDetailLoader as loader };

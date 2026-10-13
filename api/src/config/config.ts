@@ -1,6 +1,6 @@
 import { existsSync } from "node:fs";
-import { z } from "zod";
 import { singleton } from "tsyringe";
+import { z } from "zod";
 import { STATIC_DIR } from "../lib/paths.ts";
 import { parseStorageUrl, type StorageConfig } from "../lib/storage.ts";
 

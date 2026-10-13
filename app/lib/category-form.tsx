@@ -1,6 +1,3 @@
-import { useRef } from "react";
-import { Controller, useForm, type UseFormReturn } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Alert,
   FieldError,
@@ -11,9 +8,12 @@ import {
   TextArea,
   TextField,
 } from "@heroui/react";
-import { slugify } from "./catalog";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useRef } from "react";
+import { Controller, type UseFormReturn, useForm } from "react-hook-form";
 import { m } from "@/paraglide/messages.js";
-import { categorySchema, NO_PARENT, type CategoryFormValues } from "./category-schema";
+import { slugify } from "./catalog";
+import { type CategoryFormValues, categorySchema, NO_PARENT } from "./category-schema";
 
 /** The detail pages submit this form from the page header, outside the <form>. */
 export const CATEGORY_FORM_ID = "category-form";
@@ -38,7 +38,6 @@ export function useCategoryForm({
 export function CategoryForm({
   form,
   parentOptions,
-  submitting,
   errors,
   onSubmit,
 }: {

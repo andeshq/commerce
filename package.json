@@ -10,10 +10,15 @@
     "dev": "bun run -F '*' dev",
     "build": "bun run -F commerce-app build",
     "typecheck": "bun run -F '*' typecheck",
+    "lint": "biome check .",
+    "format": "biome check --write .",
     "test": "bun run -F commerce-api test",
     "test:watch": "bun run -F commerce-api test:watch",
     "migrate": "bun run -F commerce-api migrate",
     "migrate:down": "bun run -F commerce-api migrate:down",
     "migrate:list": "bun run -F commerce-api migrate:list"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.5.15"
   }
 }

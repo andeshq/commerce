@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { PRODUCT_STATUSES } from "./catalog";
 import { m } from "@/paraglide/messages.js";
+import { PRODUCT_STATUSES } from "./catalog";
 
 const optionalMoney = z
   .string()
@@ -47,8 +47,14 @@ export const variantDraftSchema = z.object({
 export const NO_CATEGORY = "none";
 
 export const productFormSchema = z.object({
-  title: z.string().trim().min(1, { error: () => m.validation_product_title() }),
-  slug: z.string().trim().min(1, { error: () => m.validation_product_slug() }),
+  title: z
+    .string()
+    .trim()
+    .min(1, { error: () => m.validation_product_title() }),
+  slug: z
+    .string()
+    .trim()
+    .min(1, { error: () => m.validation_product_slug() }),
   status: z.enum(PRODUCT_STATUSES),
   vendor: z.string(),
   productType: z.string(),
@@ -56,7 +62,9 @@ export const productFormSchema = z.object({
   description: z.string(),
   optionIds: z.array(z.string()),
   modifierGroupIds: z.array(z.string()),
-  variants: z.array(variantDraftSchema).min(1, { error: () => m.validation_product_variants_min() }),
+  variants: z
+    .array(variantDraftSchema)
+    .min(1, { error: () => m.validation_product_variants_min() }),
 });
 
 export type VariantDraft = z.infer<typeof variantDraftSchema>;

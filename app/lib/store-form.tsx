@@ -1,35 +1,22 @@
-import { Controller, useForm, type UseFormReturn } from "react-hook-form";
+import { Alert, FieldError, Input, Label, ListBox, Select, Switch, TextField } from "@heroui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Alert,
-  FieldError,
-  Input,
-  Label,
-  ListBox,
-  Select,
-  Switch,
-  TextField,
-} from "@heroui/react";
-import { storeSchema, type StoreFormValues } from "./store-schema";
+import { Controller, type UseFormReturn, useForm } from "react-hook-form";
 import { m } from "@/paraglide/messages.js";
+import type { Store } from "./catalog";
 import {
   CURRENCIES,
   CURRENCY_LABELS,
   isCurrencyCode,
   isLocaleCode,
-  LOCALES,
   LOCALE_LABELS,
+  LOCALES,
 } from "./ref-data";
-import type { Store } from "./catalog";
+import { type StoreFormValues, storeSchema } from "./store-schema";
 
 /** The page header submits this form from outside the <form>. */
 export const STORE_FORM_ID = "store-form";
 
-export function useStoreForm({
-  initial,
-}: {
-  initial?: Store;
-}): UseFormReturn<StoreFormValues> {
+export function useStoreForm({ initial }: { initial?: Store }): UseFormReturn<StoreFormValues> {
   return useForm<StoreFormValues>({
     resolver: zodResolver(storeSchema),
     mode: "onChange",
@@ -60,11 +47,7 @@ export function StoreForm({
   const { control } = form;
 
   return (
-    <form
-      id={STORE_FORM_ID}
-      className="flex flex-col gap-5"
-      onSubmit={form.handleSubmit(onSubmit)}
-    >
+    <form id={STORE_FORM_ID} className="flex flex-col gap-5" onSubmit={form.handleSubmit(onSubmit)}>
       {errors.length > 0 && (
         <Alert status="danger">
           <Alert.Indicator />
@@ -234,9 +217,7 @@ export function StoreForm({
           />
         </div>
 
-        <p className="text-xs text-muted">
-          {m.store_hint()}
-        </p>
+        <p className="text-xs text-muted">{m.store_hint()}</p>
       </section>
     </form>
   );

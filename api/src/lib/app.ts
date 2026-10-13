@@ -1,17 +1,17 @@
-import { singleton } from "tsyringe";
+import { join, normalize, sep } from "node:path";
+import type { Context } from "hono";
 import { Hono } from "hono";
+import { HTTPException } from "hono/http-exception";
 import { logger } from "hono/logger";
 import { secureHeaders } from "hono/secure-headers";
-import { HTTPException } from "hono/http-exception";
-import type { Context } from "hono";
-import { join, normalize, sep } from "node:path";
+import { singleton } from "tsyringe";
 import { ZodError } from "zod";
 import { Config } from "../config/config.ts";
-import { Auth } from "./auth.ts";
-import { Pgbase } from "./pgbase.ts";
-import { SetupService, setupSchema } from "../service/setup.service.ts";
 import { MediaService } from "../service/media.service.ts";
 import { PaymentService, type ProviderUpdate } from "../service/payment/payment.service.ts";
+import { SetupService, setupSchema } from "../service/setup.service.ts";
+import { Auth } from "./auth.ts";
+import { Pgbase } from "./pgbase.ts";
 
 @singleton()
 export class App {
@@ -47,9 +47,7 @@ export class App {
     app.get("/api/health", (c) => c.json({ status: "ok" }));
 
     // Bootstrap. Open until the first admin exists, then 409 forever.
-    app.get("/api/setup/status", async (c) =>
-      c.json({ needsSetup: await setup.needsSetup() }),
-    );
+    app.get("/api/setup/status", async (c) => c.json({ needsSetup: await setup.needsSetup() }));
     app.post("/api/setup", async (c) => {
       const input = setupSchema.parse(await c.req.json());
       const result = await setup.run(input);
@@ -129,8 +127,7 @@ export class App {
     this.hono = app;
   }
 
-  readonly fetch = (request: Request): Response | Promise<Response> =>
-    this.hono.fetch(request);
+  readonly fetch = (request: Request): Response | Promise<Response> => this.hono.fetch(request);
 }
 
 /**

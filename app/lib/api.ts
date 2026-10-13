@@ -78,9 +78,11 @@ export function setupErrorMessages(error: unknown): string[] {
     return [m.setup_error_already()];
   }
 
-  const body = error.body as
-    | { error?: string; issues?: ValidationIssue[]; message?: string }
-    | null;
+  const body = error.body as {
+    error?: string;
+    issues?: ValidationIssue[];
+    message?: string;
+  } | null;
 
   if (body?.error === "validation_error" && body.issues?.length) {
     return body.issues.map((issue) =>

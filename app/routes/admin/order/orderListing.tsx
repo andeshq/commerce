@@ -1,15 +1,15 @@
-import { useMemo, useState } from "react";
-import { Button, Card, Chip, Dropdown, Label, SearchField, Table } from "@heroui/react";
-import { Link } from "@/lib/link";
-import type { SortDescriptor } from "@heroui/react";
 import { BarsDescendingAlignLeft } from "@gravity-ui/icons";
+import type { SortDescriptor } from "@heroui/react";
+import { Button, Card, Chip, Dropdown, Label, SearchField, Table } from "@heroui/react";
+import { useMemo, useState } from "react";
 import { useLoaderData } from "react-router";
+import { type FulfillmentStatus, formatMoney, type Order, type PaymentStatus } from "@/lib/catalog";
+import { fulfillmentStatusLabel, itemCountLabel, paymentStatusLabel } from "@/lib/i18n";
+import { Link } from "@/lib/link";
 import { PageHeader } from "@/lib/page-header";
 import { pgbase } from "@/lib/pgbase";
-import { fulfillmentStatusLabel, itemCountLabel, paymentStatusLabel } from "@/lib/i18n";
-import { useAdminStore } from "@/routes/admin/adminLayout";
 import { m } from "@/paraglide/messages.js";
-import { formatMoney, type Order, type PaymentStatus, type FulfillmentStatus } from "@/lib/catalog";
+import { useAdminStore } from "@/routes/admin/adminLayout";
 
 const PAYMENT_FILTERS = [
   { id: "all", label: m.orders_all_payments() },
@@ -108,10 +108,7 @@ export function OrderListing() {
 
   return (
     <div className="flex flex-col gap-4">
-      <PageHeader
-        title={m.orders_title()}
-        description={m.orders_description()}
-      />
+      <PageHeader title={m.orders_title()} description={m.orders_description()} />
 
       <Card>
         <Card.Header className="flex-row flex-wrap items-center justify-between gap-3">
@@ -216,7 +213,7 @@ export function OrderListing() {
             <Table>
               <Table.ScrollContainer>
                 <Table.Content
-                    aria-label={m.orders_title()}
+                  aria-label={m.orders_title()}
                   className="min-w-[820px]"
                   sortDescriptor={sortDescriptor}
                   onSortChange={setSortDescriptor}
@@ -251,10 +248,7 @@ export function OrderListing() {
                     {rows.map((order) => (
                       <Table.Row key={order.id} id={order.id}>
                         <Table.Cell>
-                          <Link
-                            className="font-medium no-underline"
-                            href={`/orders/${order.id}`}
-                          >
+                          <Link className="font-medium no-underline" href={`/orders/${order.id}`}>
                             #{order.number}
                           </Link>
                           <span className="ms-2 text-xs text-muted">
@@ -263,7 +257,11 @@ export function OrderListing() {
                         </Table.Cell>
                         <Table.Cell>{order.email}</Table.Cell>
                         <Table.Cell>
-                          <Chip color={PAYMENT_COLOR[order.payment_status]} size="sm" variant="soft">
+                          <Chip
+                            color={PAYMENT_COLOR[order.payment_status]}
+                            size="sm"
+                            variant="soft"
+                          >
                             {paymentStatusLabel(order.payment_status)}
                           </Chip>
                         </Table.Cell>

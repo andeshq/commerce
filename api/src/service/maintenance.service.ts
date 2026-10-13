@@ -1,7 +1,7 @@
-import { singleton } from "tsyringe";
 import { sql } from "kysely";
-import { Database } from "../database/database.ts";
+import { singleton } from "tsyringe";
 import { MAINTENANCE_INTERVAL_MS, ORDER_EXPIRY_MINUTES } from "../config/config.ts";
+import { Database } from "../database/database.ts";
 
 /**
  * Periodic housekeeping. Today it cancels unpaid orders past the expiry window

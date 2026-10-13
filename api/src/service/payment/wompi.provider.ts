@@ -67,9 +67,7 @@ function credentials(ctx: ProviderContext): WompiCredentials {
 }
 
 function apiBase(mode: ProviderContext["mode"]): string {
-  return mode === "live"
-    ? "https://production.wompi.co/v1"
-    : "https://sandbox.wompi.co/v1";
+  return mode === "live" ? "https://production.wompi.co/v1" : "https://sandbox.wompi.co/v1";
 }
 
 /** Resolve `transaction.id`-style paths inside the event `data` object. */
@@ -93,7 +91,10 @@ export const wompiProvider: PaymentProvider = {
   methods: ["CARD", "PSE", "NEQUI", "BANCOLOMBIA_TRANSFER"],
   currencies: ["COP"],
 
-  async createIntent(input: PaymentIntentInput, ctx: ProviderContext): Promise<PaymentIntentResult> {
+  async createIntent(
+    input: PaymentIntentInput,
+    ctx: ProviderContext,
+  ): Promise<PaymentIntentResult> {
     const { publicKey, integritySecret } = credentials(ctx);
     if (!publicKey || !integritySecret) {
       throw new HTTPException(409, {
@@ -198,7 +199,11 @@ export const wompiProvider: PaymentProvider = {
     };
   },
 
-  async refund(providerRef: string, amountCents: number, ctx: ProviderContext): Promise<RefundResult> {
+  async refund(
+    providerRef: string,
+    amountCents: number,
+    ctx: ProviderContext,
+  ): Promise<RefundResult> {
     const { privateKey } = credentials(ctx);
     if (!privateKey) {
       throw new HTTPException(409, { message: "Wompi is missing its private key." });

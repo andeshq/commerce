@@ -1,8 +1,8 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { randomUUID } from "node:crypto";
 import { sql } from "kysely";
-import { createHarness, type Harness } from "./helpers/harness.ts";
 import { createMigrationDatabase } from "../src/database/migrator.ts";
+import { createHarness, type Harness } from "./helpers/harness.ts";
 
 let h: Harness | undefined;
 let databaseUrl: string;

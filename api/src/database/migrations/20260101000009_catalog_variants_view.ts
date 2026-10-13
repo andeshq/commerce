@@ -1,4 +1,4 @@
-import { sql, type Kysely } from "kysely";
+import { type Kysely, sql } from "kysely";
 
 /**
  * The money-cast read model: variants with their product identity where money
@@ -8,7 +8,8 @@ import { sql, type Kysely } from "kysely";
  * sees active products, staff sees everything.
  */
 export async function up(db: Kysely<any>): Promise<void> {
-  await sql.raw(`
+  await sql
+    .raw(`
     create view commerce.catalog_variants
     with (security_invoker = true)
     as
@@ -33,7 +34,8 @@ export async function up(db: Kysely<any>): Promise<void> {
     join commerce.products p on p.id = v.product_id;
 
     grant select on commerce.catalog_variants to web_anon, web_customer, web_staff, web_admin;
-  `).execute(db);
+  `)
+    .execute(db);
 }
 
 export async function down(db: Kysely<any>): Promise<void> {

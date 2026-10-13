@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { Bold, Italic, ListOl, ListUl, Underline } from "@gravity-ui/icons";
+import { Separator, ToggleButton, Toolbar } from "@heroui/react";
 import { $generateHtmlFromNodes, $generateNodesFromDOM } from "@lexical/html";
 import {
   $isListNode,
@@ -15,8 +16,6 @@ import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
 import { ListPlugin } from "@lexical/react/LexicalListPlugin";
 import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
-import { Separator, ToggleButton, Toolbar } from "@heroui/react";
-import { Bold, Italic, ListOl, ListUl, Underline } from "@gravity-ui/icons";
 import {
   $createParagraphNode,
   $getRoot,
@@ -25,11 +24,12 @@ import {
   $isElementNode,
   $isRangeSelection,
   $isTextNode,
-  FORMAT_TEXT_COMMAND,
   type EditorThemeClasses,
+  FORMAT_TEXT_COMMAND,
   type LexicalEditor,
   type LexicalNode,
 } from "lexical";
+import { useEffect, useRef, useState } from "react";
 
 /**
  * Minimal Lexical editor: bold/italic/underline and lists. Value is HTML —
@@ -61,7 +61,9 @@ interface ToolbarFormats {
 const NO_FORMATS: ToolbarFormats = { bold: false, italic: false, underline: false, list: null };
 
 function sameFormats(a: ToolbarFormats, b: ToolbarFormats): boolean {
-  return a.bold === b.bold && a.italic === b.italic && a.underline === b.underline && a.list === b.list;
+  return (
+    a.bold === b.bold && a.italic === b.italic && a.underline === b.underline && a.list === b.list
+  );
 }
 
 /** Loads the initial HTML once; later `value` changes never clobber edits. */
@@ -102,11 +104,7 @@ function EditablePlugin({ isDisabled }: { isDisabled?: boolean }) {
   return null;
 }
 
-function ToolbarStatePlugin({
-  onChange,
-}: {
-  onChange(formats: ToolbarFormats): void;
-}) {
+function ToolbarStatePlugin({ onChange }: { onChange(formats: ToolbarFormats): void }) {
   const [editor] = useLexicalComposerContext();
 
   useEffect(() => {
@@ -217,13 +215,7 @@ export function RichTextEditor({
   );
 }
 
-function EditorToolbar({
-  formats,
-  isDisabled,
-}: {
-  formats: ToolbarFormats;
-  isDisabled?: boolean;
-}) {
+function EditorToolbar({ formats, isDisabled }: { formats: ToolbarFormats; isDisabled?: boolean }) {
   const [editor] = useLexicalComposerContext();
 
   return (

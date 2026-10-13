@@ -1,16 +1,13 @@
 import "reflect-metadata";
 
 import { randomUUID } from "node:crypto";
+import { sql } from "kysely";
 import { GenericContainer, Wait } from "testcontainers";
 import { container } from "tsyringe";
-import { sql } from "kysely";
 import { Config } from "../../src/config/config.ts";
-import {
-  createMigrationDatabase,
-  runMigrations,
-} from "../../src/database/migrator.ts";
-import { App } from "../../src/lib/app.ts";
 import { Database } from "../../src/database/database.ts";
+import { createMigrationDatabase, runMigrations } from "../../src/database/migrator.ts";
+import { App } from "../../src/lib/app.ts";
 
 /** One harness owns one container and all databases/pools created from it. */
 export interface Harness {
@@ -26,9 +23,7 @@ export async function createHarness(): Promise<Harness> {
   const pg = await new GenericContainer("postgres:18-alpine")
     .withEnvironment({ POSTGRES_PASSWORD: "postgres", POSTGRES_DB: "postgres" })
     .withExposedPorts(5432)
-    .withWaitStrategy(
-      Wait.forLogMessage("database system is ready to accept connections", 2),
-    )
+    .withWaitStrategy(Wait.forLogMessage("database system is ready to accept connections", 2))
     .start();
 
   const baseUrl = new URL(
@@ -108,9 +103,7 @@ export async function createHarness(): Promise<Harness> {
       try {
         for (const dbName of databases) {
           try {
-            await sql
-              .raw(`drop database if exists "${dbName}" with (force)`)
-              .execute(ddl);
+            await sql.raw(`drop database if exists "${dbName}" with (force)`).execute(ddl);
           } catch (error) {
             errors.push(error);
           }

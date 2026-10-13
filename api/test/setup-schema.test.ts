@@ -1,9 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import {
-  defaultLocationName,
-  defaultTax,
-  setupSchema,
-} from "../src/service/setup.service.ts";
+import { defaultLocationName, defaultTax, setupSchema } from "../src/service/setup.service.ts";
 
 describe("setup schema", () => {
   test("applies LATAM defaults", () => {

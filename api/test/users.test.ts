@@ -1,8 +1,8 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { sql } from "kysely";
-import { createHarness, type Harness } from "./helpers/harness.ts";
 import { createMigrationDatabase } from "../src/database/migrator.ts";
 import type { App } from "../src/lib/app.ts";
+import { createHarness, type Harness } from "./helpers/harness.ts";
 
 /**
  * Team management over Better Auth's admin plugin: admin-only access, create,
@@ -53,10 +53,7 @@ function makeClient(app: App) {
     },
     signIn: async (email: string) => {
       const res = await app.fetch(
-        new Request(
-          "http://localhost/api/auth/sign-in/email",
-          json({ email, password: PASSWORD }),
-        ),
+        new Request("http://localhost/api/auth/sign-in/email", json({ email, password: PASSWORD })),
       );
       return { status: res.status, cookie: cookieFrom(res) };
     },
@@ -253,9 +250,9 @@ describe("last-admin lockout guard", () => {
       sql`update auth."user" set role = 'staff' where id = ${adminId}`.execute(db),
     ).rejects.toThrow(/last admin/);
 
-    await expect(
-      sql`delete from auth."user" where id = ${adminId}`.execute(db),
-    ).rejects.toThrow(/last admin/);
+    await expect(sql`delete from auth."user" where id = ${adminId}`.execute(db)).rejects.toThrow(
+      /last admin/,
+    );
   });
 
   test("demotion is allowed once a second admin exists", async () => {

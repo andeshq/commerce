@@ -1,7 +1,7 @@
-import { cents } from "./catalog";
-import { pgbase } from "./pgbase";
 import { m } from "@/paraglide/messages.js";
 import type { Product, VariantWithLinks } from "./catalog";
+import { cents } from "./catalog";
+import { pgbase } from "./pgbase";
 
 /**
  * Copies a product graph — variants, option values, costs, images, links and
@@ -18,13 +18,21 @@ export async function duplicateProduct(productId: string): Promise<string> {
         .eq("product_id", productId)
         .order("position", { ascending: true })
         .throwOnError(),
-      pgbase.from("product_options").select("option_id,position").eq("product_id", productId).throwOnError(),
+      pgbase
+        .from("product_options")
+        .select("option_id,position")
+        .eq("product_id", productId)
+        .throwOnError(),
       pgbase
         .from("product_modifier_groups")
         .select("group_id,position")
         .eq("product_id", productId)
         .throwOnError(),
-      pgbase.from("product_media").select("media_id,position").eq("product_id", productId).throwOnError(),
+      pgbase
+        .from("product_media")
+        .select("media_id,position")
+        .eq("product_id", productId)
+        .throwOnError(),
       pgbase.from("variant_media").select("variant_id,media_id").throwOnError(),
       pgbase
         .from("product_info_sections")
@@ -70,9 +78,7 @@ export async function duplicateProduct(productId: string): Promise<string> {
   for (let n = 2; takenSlugs.has(slug) && n < 100; n++) slug = `${slugBase}-${n}`;
 
   // SKUs are unique per store, so copies get -2, -3, … suffixes.
-  const takenSkus = new Set(
-    ((skuRows.data ?? []) as Array<{ sku: string }>).map((row) => row.sku),
-  );
+  const takenSkus = new Set(((skuRows.data ?? []) as Array<{ sku: string }>).map((row) => row.sku));
   const uniqueSku = (base: string): string => {
     if (!takenSkus.has(base)) {
       takenSkus.add(base);
@@ -122,9 +128,7 @@ export async function duplicateProduct(productId: string): Promise<string> {
       barcode: variant.barcode,
       price_cents: cents(variant.price_cents),
       compare_at_price_cents:
-        variant.compare_at_price_cents === null
-          ? null
-          : cents(variant.compare_at_price_cents),
+        variant.compare_at_price_cents === null ? null : cents(variant.compare_at_price_cents),
       weight_grams: variant.weight_grams,
       requires_shipping: variant.requires_shipping,
       taxable: variant.taxable,

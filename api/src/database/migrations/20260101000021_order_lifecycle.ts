@@ -1,4 +1,4 @@
-import { sql, type Kysely } from "kysely";
+import { type Kysely, sql } from "kysely";
 
 /**
  * Order-lifecycle hardening.
@@ -11,14 +11,17 @@ import { sql, type Kysely } from "kysely";
  *    enabled, making checkout's provider selection unambiguous.
  */
 export async function up(db: Kysely<any>): Promise<void> {
-  await sql.raw(`
+  await sql
+    .raw(`
     alter type commerce.inventory_reason add value if not exists 'order_expired';
 
     create unique index payment_providers_single_enabled
       on commerce.payment_providers (enabled) where enabled;
-  `).execute(db);
+  `)
+    .execute(db);
 
-  await sql.raw(`
+  await sql
+    .raw(`
     create or replace function commerce.expire_stale_orders(p_before timestamptz)
       returns integer
       language plpgsql security definer set search_path = ''
@@ -77,12 +80,15 @@ export async function up(db: Kysely<any>): Promise<void> {
 
     revoke all on function commerce.expire_stale_orders(timestamptz) from public;
     grant execute on function commerce.expire_stale_orders(timestamptz) to web_staff, web_admin;
-  `).execute(db);
+  `)
+    .execute(db);
 }
 
 export async function down(db: Kysely<any>): Promise<void> {
-  await sql.raw(`
+  await sql
+    .raw(`
     drop function if exists commerce.expire_stale_orders(timestamptz);
     drop index if exists commerce.payment_providers_single_enabled;
-  `).execute(db);
+  `)
+    .execute(db);
 }

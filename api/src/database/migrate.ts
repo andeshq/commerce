@@ -1,8 +1,4 @@
-import {
-  createMigrationDatabase,
-  createMigrator,
-  runMigrations,
-} from "./migrator.ts";
+import { createMigrationDatabase, createMigrator, runMigrations } from "./migrator.ts";
 
 /**
  * Standalone migration CLI.
@@ -35,9 +31,7 @@ export async function runMigrateCli(direction: MigrateDirection = "up"): Promise
       const migrations = await createMigrator(db).getMigrations();
       for (const migration of migrations) {
         const mark = migration.executedAt ? "✔" : "·";
-        const when = migration.executedAt
-          ? migration.executedAt.toISOString()
-          : "pending";
+        const when = migration.executedAt ? migration.executedAt.toISOString() : "pending";
         console.log(`${mark} ${migration.name}  (${when})`);
       }
       return;

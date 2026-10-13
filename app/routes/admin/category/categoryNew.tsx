@@ -1,10 +1,10 @@
 import { Button, Card } from "@heroui/react";
-import { redirect, useFetcher, useLoaderData, type ActionFunctionArgs } from "react-router";
-import { pgbase, pgbaseErrorMessages } from "@/lib/pgbase";
-import { PageHeader } from "@/lib/page-header";
+import { type ActionFunctionArgs, redirect, useFetcher, useLoaderData } from "react-router";
+import { type Category, categoryPath, categoryTree } from "@/lib/catalog";
 import { CATEGORY_FORM_ID, CategoryForm, useCategoryForm } from "@/lib/category-form";
-import { categorySchema, NO_PARENT, type CategoryFormValues } from "@/lib/category-schema";
-import { categoryPath, categoryTree, type Category } from "@/lib/catalog";
+import { type CategoryFormValues, categorySchema, NO_PARENT } from "@/lib/category-schema";
+import { PageHeader } from "@/lib/page-header";
+import { pgbase, pgbaseErrorMessages } from "@/lib/pgbase";
 import { m } from "@/paraglide/messages.js";
 
 export async function categoryNewLoader() {
@@ -108,4 +108,4 @@ export function CategoryNew() {
 }
 
 /* React Router lazy-route contract. */
-export { CategoryNew as Component, categoryNewLoader as loader, categoryNewAction as action };
+export { CategoryNew as Component, categoryNewAction as action, categoryNewLoader as loader };

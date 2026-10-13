@@ -1,12 +1,12 @@
-import { useMemo, useState } from "react";
-import { Button, Card, Chip, SearchField, Table } from "@heroui/react";
-import { Link } from "@/lib/link";
 import { Plus } from "@gravity-ui/icons";
+import { Button, Card, Chip, SearchField, Table } from "@heroui/react";
+import { useMemo, useState } from "react";
 import { redirect, useLoaderData, useNavigate } from "react-router";
-import { PageHeader } from "@/lib/page-header";
 import { getSession } from "@/lib/auth";
-import { listTeamUsers } from "@/lib/users";
 import { roleLabel } from "@/lib/i18n";
+import { Link } from "@/lib/link";
+import { PageHeader } from "@/lib/page-header";
+import { listTeamUsers } from "@/lib/users";
 import { m } from "@/paraglide/messages.js";
 
 export async function teamListingLoader() {
@@ -25,8 +25,7 @@ export function TeamListing() {
     if (!term) return members;
     return members.filter(
       (member) =>
-        member.name.toLowerCase().includes(term) ||
-        member.email.toLowerCase().includes(term),
+        member.name.toLowerCase().includes(term) || member.email.toLowerCase().includes(term),
     );
   }, [members, filter]);
 

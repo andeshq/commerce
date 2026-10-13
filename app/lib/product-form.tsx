@@ -1,6 +1,5 @@
-import { useRef, useState, type ReactNode } from "react";
-import { Controller, useFieldArray, useForm, type UseFormReturn } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { arrayMove } from "@dnd-kit/sortable";
+import { Grip, Plus, Xmark } from "@gravity-ui/icons";
 import {
   Alert,
   Button,
@@ -15,32 +14,33 @@ import {
   Separator,
   TextField,
 } from "@heroui/react";
-import { Grip, Plus, Xmark } from "@gravity-ui/icons";
-import { arrayMove } from "@dnd-kit/sortable";
-import { RichTextEditor } from "./rich-text-editor";
-import { SortableItem, SortableList, dragHandleClass } from "./sortable";
-import { productStatusLabel } from "./i18n";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { type ReactNode, useRef, useState } from "react";
+import { Controller, type UseFormReturn, useFieldArray, useForm } from "react-hook-form";
 import { m } from "@/paraglide/messages.js";
 import {
+  type Category,
   categoryPath,
   categoryTree,
   cents,
   currencySymbol,
   formatMoney,
-  PRODUCT_STATUSES,
-  slugify,
-  type Category,
   type ModifierGroupWithValues,
   type OptionWithValues,
+  PRODUCT_STATUSES,
+  slugify,
 } from "./catalog";
-import { emptyVariant, MAX_VARIANTS, combinationCount, syncVariants } from "./product-draft";
+import { productStatusLabel } from "./i18n";
+import { combinationCount, emptyVariant, MAX_VARIANTS, syncVariants } from "./product-draft";
 import type { VariantDraft } from "./product-schema";
 import {
   NO_CATEGORY,
-  productFormSchema,
   type ProductFields,
   type ProductFormValues,
+  productFormSchema,
 } from "./product-schema";
+import { RichTextEditor } from "./rich-text-editor";
+import { dragHandleClass, SortableItem, SortableList } from "./sortable";
 
 /** The detail pages submit this form from the page header, outside the <form>. */
 export const PRODUCT_FORM_ID = "product-form";
@@ -141,7 +141,11 @@ export function ProductForm({
   }
 
   return (
-    <form id={PRODUCT_FORM_ID} className="flex flex-col gap-5" onSubmit={form.handleSubmit(onSubmit)}>
+    <form
+      id={PRODUCT_FORM_ID}
+      className="flex flex-col gap-5"
+      onSubmit={form.handleSubmit(onSubmit)}
+    >
       {errors.length > 0 && (
         <Alert status="danger">
           <Alert.Indicator />
@@ -332,9 +336,7 @@ export function ProductForm({
           <section className="flex flex-col gap-3">
             <div className="flex flex-col">
               <h3 className="text-sm font-semibold">{m.product_images()}</h3>
-              <p className="text-xs text-muted">
-                {m.product_images_hint()}
-              </p>
+              <p className="text-xs text-muted">{m.product_images_hint()}</p>
             </div>
             {images}
           </section>
@@ -346,15 +348,11 @@ export function ProductForm({
       <section className="flex flex-col gap-3">
         <div className="flex flex-col">
           <h3 className="text-sm font-semibold">{m.options_title()}</h3>
-          <p className="text-xs text-muted">
-            {m.product_options_hint()}
-          </p>
+          <p className="text-xs text-muted">{m.product_options_hint()}</p>
         </div>
 
         {options.length === 0 ? (
-          <p className="text-sm text-muted">
-            {m.product_no_options()}
-          </p>
+          <p className="text-sm text-muted">{m.product_no_options()}</p>
         ) : (
           <div className="flex flex-wrap items-center gap-3">
             {selectedOptions.length > 0 && (
@@ -430,15 +428,11 @@ export function ProductForm({
       <section className="flex flex-col gap-3">
         <div className="flex flex-col">
           <h3 className="text-sm font-semibold">{m.modifiers_title()}</h3>
-          <p className="text-xs text-muted">
-            {m.product_modifiers_hint()}
-          </p>
+          <p className="text-xs text-muted">{m.product_modifiers_hint()}</p>
         </div>
 
         {modifiers.length === 0 ? (
-          <p className="text-sm text-muted">
-            {m.product_no_modifiers()}
-          </p>
+          <p className="text-sm text-muted">{m.product_no_modifiers()}</p>
         ) : (
           <div className="flex flex-wrap items-center gap-3">
             {selectedModifiers.length > 0 && (
@@ -544,177 +538,181 @@ export function ProductForm({
           ids={variantArray.fields.map((field) => field.key)}
           onReorder={(from, to) => variantArray.move(from, to)}
         >
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[720px] border-separate border-spacing-y-1 text-sm">
-            {/* Compare-at, barcode and weight are hidden for now; they will come
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[720px] border-separate border-spacing-y-1 text-sm">
+              {/* Compare-at, barcode and weight are hidden for now; they will come
                 back in a per-variant expandable row. */}
-            <thead>
-              <tr className="text-left text-xs text-muted">
-                <th className="w-8 pb-1" />
-                <th className="pe-3 pb-1 font-medium">{m.common_variant()}</th>
-                {variantImage && <th className="pe-3 pb-1 font-medium">{m.common_image()}</th>}
-                <th className="pe-3 pb-1 font-medium">{m.common_price()}</th>
-                <th className="pe-3 pb-1 font-medium">{m.common_sku()}</th>
-                <th className="pe-3 pb-1 font-medium">{m.common_cost()}</th>
-                <th className="pe-3 pb-1 font-medium">{m.common_ships()}</th>
-                <th className="pe-3 pb-1 font-medium">{m.common_tax()}</th>
-                <th />
-              </tr>
-            </thead>
-            <tbody>
-              {variantArray.fields.map((variant, index) => (
-                <SortableItem key={variant.key} id={variant.key}>
-                  {({ itemRef, itemStyle, handleProps }) => (
-                <tr ref={itemRef} style={itemStyle}>
-                  <td className="w-8 pe-1 align-middle">
-                    <button
-                      type="button"
-                      aria-label={m.common_reorder({ name: variant.title })}
-                      className={`${dragHandleClass} size-7`}
-                      {...handleProps}
-                    >
-                      <Grip className="size-4" />
-                    </button>
-                  </td>
-                  <td className="pe-3 align-middle font-medium">{variant.title}</td>
-                  {variantImage && (
-                    <td className="pe-3 align-middle">{variantImage(variant, index)}</td>
-                  )}
-                  <td className="pe-3">
-                    <Controller
-                      control={control}
-                      name={`variants.${index}.price`}
-                      render={({ field, fieldState }) => (
-                        <>
-                          <InputGroup className="w-28">
-                            <InputGroup.Prefix>{symbol}</InputGroup.Prefix>
-                            <InputGroup.Input
-                              aria-label={`${variant.title} ${m.common_price()}`}
-                              aria-invalid={fieldState.invalid}
-                              value={field.value}
-                              onBlur={field.onBlur}
-                              onChange={(event) => field.onChange(event.target.value)}
-                            />
-                          </InputGroup>
-                          {fieldState.error && (
-                            <p className="mt-1 text-xs text-danger">{fieldState.error.message}</p>
-                          )}
-                        </>
-                      )}
-                    />
-                  </td>
-                  <td className="pe-3">
-                    <Controller
-                      control={control}
-                      name={`variants.${index}.sku`}
-                      render={({ field }) => (
-                        <Input
-                          aria-label={`${variant.title} ${m.common_sku()}`}
-                          className="w-32"
-                          value={field.value}
-                          onBlur={field.onBlur}
-                          onChange={(event) => field.onChange(event.target.value)}
-                        />
-                      )}
-                    />
-                  </td>
-                  <td className="pe-3">
-                    <Controller
-                      control={control}
-                      name={`variants.${index}.cost`}
-                      render={({ field, fieldState }) => (
-                        <>
-                          <InputGroup className="w-28">
-                            <InputGroup.Prefix>{symbol}</InputGroup.Prefix>
-                            <InputGroup.Input
-                              aria-label={`${variant.title} ${m.common_cost()}`}
-                              aria-invalid={fieldState.invalid}
-                              value={field.value}
-                              onBlur={field.onBlur}
-                              onChange={(event) => field.onChange(event.target.value)}
-                            />
-                          </InputGroup>
-                          {fieldState.error && (
-                            <p className="mt-1 text-xs text-danger">{fieldState.error.message}</p>
-                          )}
-                        </>
-                      )}
-                    />
-                  </td>
-                  <td className="pe-3">
-                    <Controller
-                      control={control}
-                      name={`variants.${index}.requiresShipping`}
-                      render={({ field }) => (
-                        <Checkbox
-                          aria-label={`${variant.title} ${m.common_ships()}`}
-                          isSelected={field.value}
-                          onChange={field.onChange}
-                        >
-                          <Checkbox.Content>
-                            <Checkbox.Control>
-                              <Checkbox.Indicator />
-                            </Checkbox.Control>
-                          </Checkbox.Content>
-                        </Checkbox>
-                      )}
-                    />
-                  </td>
-                  <td className="pe-3">
-                    <div className="flex items-center gap-2">
-                      <Controller
-                        control={control}
-                        name={`variants.${index}.taxable`}
-                        render={({ field }) => (
-                          <Checkbox
-                            aria-label={`${variant.title} ${m.common_tax()}`}
-                            isSelected={field.value}
-                            onChange={field.onChange}
-                          >
-                            <Checkbox.Content>
-                              <Checkbox.Control>
-                                <Checkbox.Indicator />
-                              </Checkbox.Control>
-                            </Checkbox.Content>
-                          </Checkbox>
-                        )}
-                      />
-                      <Controller
-                        control={control}
-                        name={`variants.${index}.taxRate`}
-                        render={({ field, fieldState }) => (
-                          <Input
-                            aria-label={`${variant.title} ${m.common_tax()}`}
-                            className="w-14"
-                            placeholder="auto"
-                            aria-invalid={fieldState.invalid}
-                            value={field.value}
-                            onBlur={field.onBlur}
-                            onChange={(event) => field.onChange(event.target.value)}
-                          />
-                        )}
-                      />
-                    </div>
-                  </td>
-                  <td>
-                    <Button
-                      aria-label={m.common_remove_named({ name: variant.title })}
-                      isIconOnly
-                      size="sm"
-                      variant="tertiary"
-                      isDisabled={variantArray.fields.length === 1}
-                      onPress={() => variantArray.remove(index)}
-                    >
-                      <Xmark className="size-4" />
-                    </Button>
-                  </td>
+              <thead>
+                <tr className="text-left text-xs text-muted">
+                  <th className="w-8 pb-1" />
+                  <th className="pe-3 pb-1 font-medium">{m.common_variant()}</th>
+                  {variantImage && <th className="pe-3 pb-1 font-medium">{m.common_image()}</th>}
+                  <th className="pe-3 pb-1 font-medium">{m.common_price()}</th>
+                  <th className="pe-3 pb-1 font-medium">{m.common_sku()}</th>
+                  <th className="pe-3 pb-1 font-medium">{m.common_cost()}</th>
+                  <th className="pe-3 pb-1 font-medium">{m.common_ships()}</th>
+                  <th className="pe-3 pb-1 font-medium">{m.common_tax()}</th>
+                  <th />
                 </tr>
-                  )}
-                </SortableItem>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {variantArray.fields.map((variant, index) => (
+                  <SortableItem key={variant.key} id={variant.key}>
+                    {({ itemRef, itemStyle, handleProps }) => (
+                      <tr ref={itemRef} style={itemStyle}>
+                        <td className="w-8 pe-1 align-middle">
+                          <button
+                            type="button"
+                            aria-label={m.common_reorder({ name: variant.title })}
+                            className={`${dragHandleClass} size-7`}
+                            {...handleProps}
+                          >
+                            <Grip className="size-4" />
+                          </button>
+                        </td>
+                        <td className="pe-3 align-middle font-medium">{variant.title}</td>
+                        {variantImage && (
+                          <td className="pe-3 align-middle">{variantImage(variant, index)}</td>
+                        )}
+                        <td className="pe-3">
+                          <Controller
+                            control={control}
+                            name={`variants.${index}.price`}
+                            render={({ field, fieldState }) => (
+                              <>
+                                <InputGroup className="w-28">
+                                  <InputGroup.Prefix>{symbol}</InputGroup.Prefix>
+                                  <InputGroup.Input
+                                    aria-label={`${variant.title} ${m.common_price()}`}
+                                    aria-invalid={fieldState.invalid}
+                                    value={field.value}
+                                    onBlur={field.onBlur}
+                                    onChange={(event) => field.onChange(event.target.value)}
+                                  />
+                                </InputGroup>
+                                {fieldState.error && (
+                                  <p className="mt-1 text-xs text-danger">
+                                    {fieldState.error.message}
+                                  </p>
+                                )}
+                              </>
+                            )}
+                          />
+                        </td>
+                        <td className="pe-3">
+                          <Controller
+                            control={control}
+                            name={`variants.${index}.sku`}
+                            render={({ field }) => (
+                              <Input
+                                aria-label={`${variant.title} ${m.common_sku()}`}
+                                className="w-32"
+                                value={field.value}
+                                onBlur={field.onBlur}
+                                onChange={(event) => field.onChange(event.target.value)}
+                              />
+                            )}
+                          />
+                        </td>
+                        <td className="pe-3">
+                          <Controller
+                            control={control}
+                            name={`variants.${index}.cost`}
+                            render={({ field, fieldState }) => (
+                              <>
+                                <InputGroup className="w-28">
+                                  <InputGroup.Prefix>{symbol}</InputGroup.Prefix>
+                                  <InputGroup.Input
+                                    aria-label={`${variant.title} ${m.common_cost()}`}
+                                    aria-invalid={fieldState.invalid}
+                                    value={field.value}
+                                    onBlur={field.onBlur}
+                                    onChange={(event) => field.onChange(event.target.value)}
+                                  />
+                                </InputGroup>
+                                {fieldState.error && (
+                                  <p className="mt-1 text-xs text-danger">
+                                    {fieldState.error.message}
+                                  </p>
+                                )}
+                              </>
+                            )}
+                          />
+                        </td>
+                        <td className="pe-3">
+                          <Controller
+                            control={control}
+                            name={`variants.${index}.requiresShipping`}
+                            render={({ field }) => (
+                              <Checkbox
+                                aria-label={`${variant.title} ${m.common_ships()}`}
+                                isSelected={field.value}
+                                onChange={field.onChange}
+                              >
+                                <Checkbox.Content>
+                                  <Checkbox.Control>
+                                    <Checkbox.Indicator />
+                                  </Checkbox.Control>
+                                </Checkbox.Content>
+                              </Checkbox>
+                            )}
+                          />
+                        </td>
+                        <td className="pe-3">
+                          <div className="flex items-center gap-2">
+                            <Controller
+                              control={control}
+                              name={`variants.${index}.taxable`}
+                              render={({ field }) => (
+                                <Checkbox
+                                  aria-label={`${variant.title} ${m.common_tax()}`}
+                                  isSelected={field.value}
+                                  onChange={field.onChange}
+                                >
+                                  <Checkbox.Content>
+                                    <Checkbox.Control>
+                                      <Checkbox.Indicator />
+                                    </Checkbox.Control>
+                                  </Checkbox.Content>
+                                </Checkbox>
+                              )}
+                            />
+                            <Controller
+                              control={control}
+                              name={`variants.${index}.taxRate`}
+                              render={({ field, fieldState }) => (
+                                <Input
+                                  aria-label={`${variant.title} ${m.common_tax()}`}
+                                  className="w-14"
+                                  placeholder="auto"
+                                  aria-invalid={fieldState.invalid}
+                                  value={field.value}
+                                  onBlur={field.onBlur}
+                                  onChange={(event) => field.onChange(event.target.value)}
+                                />
+                              )}
+                            />
+                          </div>
+                        </td>
+                        <td>
+                          <Button
+                            aria-label={m.common_remove_named({ name: variant.title })}
+                            isIconOnly
+                            size="sm"
+                            variant="tertiary"
+                            isDisabled={variantArray.fields.length === 1}
+                            onPress={() => variantArray.remove(index)}
+                          >
+                            <Xmark className="size-4" />
+                          </Button>
+                        </td>
+                      </tr>
+                    )}
+                  </SortableItem>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </SortableList>
       </section>
     </form>

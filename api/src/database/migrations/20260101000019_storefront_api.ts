@@ -1,4 +1,4 @@
-import { sql, type Kysely } from "kysely";
+import { type Kysely, sql } from "kysely";
 
 /**
  * Curated storefront read model.
@@ -13,7 +13,8 @@ import { sql, type Kysely } from "kysely";
  * page goes through `commerce.storefront_product` instead.
  */
 export async function up(db: Kysely<any>): Promise<void> {
-  await sql.raw(`
+  await sql
+    .raw(`
     create or replace function commerce.variant_in_stock(variant uuid)
       returns boolean
       language sql stable security definer set search_path = ''
@@ -29,9 +30,11 @@ export async function up(db: Kysely<any>): Promise<void> {
     revoke all on function commerce.variant_in_stock(uuid) from public;
     grant execute on function commerce.variant_in_stock(uuid)
       to web_anon, web_customer, web_staff, web_admin;
-  `).execute(db);
+  `)
+    .execute(db);
 
-  await sql.raw(`
+  await sql
+    .raw(`
     create view commerce.storefront_products
     with (security_invoker = true)
     as
@@ -101,11 +104,13 @@ export async function up(db: Kysely<any>): Promise<void> {
           coalesce(title, '') || ' ' || coalesce(vendor, '') || ' ' || coalesce(description, '')
         )
       );
-  `).execute(db);
+  `)
+    .execute(db);
 
   // The product page in one call. SECURITY INVOKER (the default): RLS hides
   // drafts, so a non-visible slug simply returns null.
-  await sql.raw(`
+  await sql
+    .raw(`
     create or replace function commerce.storefront_product(p_slug text) returns jsonb
       language sql stable set search_path = ''
     as $$
@@ -198,15 +203,18 @@ export async function up(db: Kysely<any>): Promise<void> {
     revoke all on function commerce.storefront_product(text) from public;
     grant execute on function commerce.storefront_product(text)
       to web_anon, web_customer, web_staff, web_admin;
-  `).execute(db);
+  `)
+    .execute(db);
 }
 
 export async function down(db: Kysely<any>): Promise<void> {
-  await sql.raw(`
+  await sql
+    .raw(`
     drop function if exists commerce.storefront_product(text);
     drop index if exists commerce.products_search_idx;
     drop view if exists commerce.storefront_categories;
     drop view if exists commerce.storefront_products;
     drop function if exists commerce.variant_in_stock(uuid);
-  `).execute(db);
+  `)
+    .execute(db);
 }

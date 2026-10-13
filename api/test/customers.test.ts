@@ -1,8 +1,8 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { sql } from "kysely";
-import { createHarness, type Harness } from "./helpers/harness.ts";
 import { createMigrationDatabase } from "../src/database/migrator.ts";
 import type { App } from "../src/lib/app.ts";
+import { createHarness, type Harness } from "./helpers/harness.ts";
 
 /**
  * Customer management over Better Auth's admin plugin: admin-only access, the
@@ -60,10 +60,7 @@ describe("customer management", () => {
 
   async function signIn(email: string, password = PASSWORD) {
     const res = await app.fetch(
-      new Request(
-        "http://localhost/api/auth/sign-in/email",
-        json({ email, password }),
-      ),
+      new Request("http://localhost/api/auth/sign-in/email", json({ email, password })),
     );
     return { status: res.status, cookie: cookieFrom(res) };
   }

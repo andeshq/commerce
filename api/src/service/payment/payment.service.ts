@@ -1,14 +1,14 @@
-import { singleton } from "tsyringe";
 import { HTTPException } from "hono/http-exception";
+import { singleton } from "tsyringe";
 import { Database } from "../../database/database.ts";
 import { fakeProvider } from "./fake.provider.ts";
-import { wompiProvider } from "./wompi.provider.ts";
 import type {
   PaymentIntentResult,
   PaymentProvider,
   PaymentStatus,
   ProviderContext,
 } from "./provider.ts";
+import { wompiProvider } from "./wompi.provider.ts";
 
 const PROVIDERS: Record<string, PaymentProvider> = {
   [fakeProvider.slug]: fakeProvider,
@@ -66,7 +66,7 @@ export class PaymentService {
       .select(["enabled", "mode", "credentials"])
       .where("provider", "=", slug)
       .executeTakeFirst();
-    if (!row || !row.enabled) {
+    if (!row?.enabled) {
       throw new HTTPException(409, { message: `Payment provider "${slug}" is not enabled.` });
     }
     return {
@@ -167,7 +167,9 @@ export class PaymentService {
         .where("enabled", "=", true)
         .executeTakeFirst();
       if (!row) {
-        throw new HTTPException(409, { message: `Payment provider "${requested}" is not available.` });
+        throw new HTTPException(409, {
+          message: `Payment provider "${requested}" is not available.`,
+        });
       }
       return row.provider;
     }

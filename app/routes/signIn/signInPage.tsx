@@ -1,13 +1,13 @@
-import { useState } from "react";
-import { Alert, Button, Card, FieldError, Input, Label, TextField } from "@heroui/react";
 import { ShoppingBag } from "@gravity-ui/icons";
-import { redirect, useNavigate } from "react-router";
-import { Controller, useForm } from "react-hook-form";
+import { Alert, Button, Card, FieldError, Input, Label, TextField } from "@heroui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { redirect, useNavigate } from "react-router";
 import { z } from "zod";
-import { useAuth } from "@/lib/auth-context";
-import { authErrorMessages, getSession, isStaff } from "@/lib/auth";
 import { getSetupStatus } from "@/lib/api";
+import { authErrorMessages, getSession, isStaff } from "@/lib/auth";
+import { useAuth } from "@/lib/auth-context";
 import { LanguageSwitcher } from "@/lib/language-switcher";
 import { m } from "@/paraglide/messages.js";
 

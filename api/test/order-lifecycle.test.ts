@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
-import { createHarness, type Harness } from "./helpers/harness.ts";
 import { createMigrationDatabase } from "../src/database/migrator.ts";
 import type { App } from "../src/lib/app.ts";
+import { createHarness, type Harness } from "./helpers/harness.ts";
 
 /**
  * Order-lifecycle hardening: unpaid orders expire and restock, payment state is
@@ -49,11 +49,19 @@ async function webhook(body: Record<string, unknown>): Promise<number> {
   return res.status;
 }
 
-async function createOrder(quantity = 1): Promise<{ orderId: string; accessToken: string; total: number }> {
+async function createOrder(
+  quantity = 1,
+): Promise<{ orderId: string; accessToken: string; total: number }> {
   const created = await rest("/rpc/cart_create", json({}));
   const token = payload(created.body).token as string;
-  await rest("/rpc/cart_add_item", json({ p_token: token, p_variant: variantId, p_quantity: quantity }));
-  const order = await rest("/rpc/checkout", json({ p_cart_token: token, p_email: "buyer@example.com" }));
+  await rest(
+    "/rpc/cart_add_item",
+    json({ p_token: token, p_variant: variantId, p_quantity: quantity }),
+  );
+  const order = await rest(
+    "/rpc/checkout",
+    json({ p_cart_token: token, p_email: "buyer@example.com" }),
+  );
   const row = payload(order.body);
   return { orderId: row.order_id, accessToken: row.access_token, total: Number(row.total_cents) };
 }
@@ -94,7 +102,12 @@ beforeAll(async () => {
   await app.fetch(
     new Request(
       "http://localhost/api/setup",
-      json({ email: "admin@andeshq.dev", password: "supersecret123", name: "Admin", storeName: "Lifecycle Store" }),
+      json({
+        email: "admin@andeshq.dev",
+        password: "supersecret123",
+        name: "Admin",
+        storeName: "Lifecycle Store",
+      }),
     ),
   );
   const signIn = await app.fetch(
@@ -128,7 +141,10 @@ beforeAll(async () => {
   variantId = variant.id;
 
   await rest("/rpc/adjust_inventory", {
-    ...json({ variant: variantId, location: locationId, reason: "stock_received", quantity: 50 }, adminCookie),
+    ...json(
+      { variant: variantId, location: locationId, reason: "stock_received", quantity: 50 },
+      adminCookie,
+    ),
   });
 }, 120_000);
 
@@ -267,10 +283,12 @@ describe("multiple providers", () => {
       .selectFrom("payment_providers")
       .select(["provider", "enabled"])
       .execute();
-    expect(providers.filter((p) => p.enabled).map((p) => p.provider).sort()).toEqual([
-      "fake",
-      "wompi",
-    ]);
+    expect(
+      providers
+        .filter((p) => p.enabled)
+        .map((p) => p.provider)
+        .sort(),
+    ).toEqual(["fake", "wompi"]);
 
     const methods = await app.fetch(new Request("http://localhost/api/payments/methods"));
     expect(methods.status).toBe(200);

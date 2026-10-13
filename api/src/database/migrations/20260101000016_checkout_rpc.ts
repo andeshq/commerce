@@ -1,4 +1,4 @@
-import { sql, type Kysely } from "kysely";
+import { type Kysely, sql } from "kysely";
 
 /**
  * `commerce.checkout` turns an open cart into an order in one transaction:
@@ -9,7 +9,8 @@ import { sql, type Kysely } from "kysely";
  * `order_get` lets the token holder read the order (guests have no session).
  */
 export async function up(db: Kysely<any>): Promise<void> {
-  await sql.raw(`
+  await sql
+    .raw(`
     create or replace function commerce.checkout(
       p_cart_token text,
       p_email text default null,
@@ -201,12 +202,15 @@ export async function up(db: Kysely<any>): Promise<void> {
       to web_anon, web_customer, web_staff, web_admin;
     grant execute on function commerce.order_get(text)
       to web_anon, web_customer, web_staff, web_admin;
-  `).execute(db);
+  `)
+    .execute(db);
 }
 
 export async function down(db: Kysely<any>): Promise<void> {
-  await sql.raw(`
+  await sql
+    .raw(`
     drop function if exists commerce.order_get(text);
     drop function if exists commerce.checkout(text, text, jsonb, jsonb, text, text);
-  `).execute(db);
+  `)
+    .execute(db);
 }

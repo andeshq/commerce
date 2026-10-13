@@ -1,4 +1,4 @@
-import { sql, type Kysely } from "kysely";
+import { type Kysely, sql } from "kysely";
 
 /**
  * Inventory locations hardening:
@@ -11,7 +11,8 @@ import { sql, type Kysely } from "kysely";
  *    permission error is more honest than an empty result.
  */
 export async function up(db: Kysely<any>): Promise<void> {
-  await sql.raw(`
+  await sql
+    .raw(`
     revoke select on commerce.inventory_locations from web_anon, web_customer;
 
     alter table commerce.inventory_locations
@@ -19,16 +20,19 @@ export async function up(db: Kysely<any>): Promise<void> {
 
     create unique index inventory_locations_code_ci_key
       on commerce.inventory_locations (lower(code));
-  `).execute(db);
+  `)
+    .execute(db);
 }
 
 export async function down(db: Kysely<any>): Promise<void> {
-  await sql.raw(`
+  await sql
+    .raw(`
     drop index if exists commerce.inventory_locations_code_ci_key;
 
     alter table commerce.inventory_locations
       add constraint inventory_locations_code_key unique (code);
 
     grant select on commerce.inventory_locations to web_anon, web_customer;
-  `).execute(db);
+  `)
+    .execute(db);
 }

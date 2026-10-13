@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { Pencil, Plus, Star, TrashBin } from "@gravity-ui/icons";
 import {
   Alert,
   Autocomplete,
@@ -16,9 +16,7 @@ import {
   TextField,
   useFilter,
 } from "@heroui/react";
-import { Pencil, Plus, Star, TrashBin } from "@gravity-ui/icons";
-import { pgbase, pgbaseErrorMessages } from "@/lib/pgbase";
-import { m } from "@/paraglide/messages.js";
+import { useEffect, useState } from "react";
 import type {
   InventoryLevel,
   InventoryLocation,
@@ -28,13 +26,15 @@ import type {
 import {
   adjustStock,
   INVENTORY_ACTIONS,
+  type InventoryItemRow,
+  type InventoryReason,
   inventoryAction,
   levelFor,
   movementNote,
   reasonLabel,
-  type InventoryItemRow,
-  type InventoryReason,
 } from "@/lib/inventory";
+import { pgbase, pgbaseErrorMessages } from "@/lib/pgbase";
+import { m } from "@/paraglide/messages.js";
 
 /**
  * Square-style stock popover, as a dialog: pick a stock action, enter units in
@@ -69,6 +69,7 @@ export function AdjustStockDialog({
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: reset per open only
   useEffect(() => {
     if (!open) return;
     setPicker(!initial?.variantId);
@@ -79,7 +80,6 @@ export function AdjustStockDialog({
     setNote("");
     setError(null);
     setSubmitting(false);
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- reset per open only
   }, [open]);
 
   const item = items.find((candidate) => candidate.variantId === variantId) ?? null;
@@ -239,11 +239,7 @@ export function AdjustStockDialog({
                 <Select.Popover>
                   <ListBox>
                     {locations.map((candidate) => (
-                      <ListBox.Item
-                        key={candidate.id}
-                        id={candidate.id}
-                        textValue={candidate.name}
-                      >
+                      <ListBox.Item key={candidate.id} id={candidate.id} textValue={candidate.name}>
                         {candidate.name}
                         <ListBox.ItemIndicator />
                       </ListBox.Item>
@@ -361,14 +357,15 @@ export function StockHistoryDialog({
   const [movements, setMovements] = useState<InventoryMovement[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: reset per open only
   useEffect(() => {
     if (!open) return;
     setLocationId(initialLocationId ?? locations[0]?.id ?? "");
     setMovements(null);
     setError(null);
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- reset per open only
   }, [open]);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: narrowed to variantId so derived item identity doesn't refetch
   useEffect(() => {
     if (!open || !item || !locationId) return;
     let cancelled = false;
@@ -463,9 +460,7 @@ export function StockHistoryDialog({
                   <Spinner />
                 </div>
               ) : rows.length === 0 ? (
-                <p className="py-8 text-center text-sm text-muted">
-                  {m.inventory_no_movements()}
-                </p>
+                <p className="py-8 text-center text-sm text-muted">{m.inventory_no_movements()}</p>
               ) : (
                 <div className="-my-1 flex max-h-80 flex-col overflow-y-auto">
                   {rows.map(({ movement, after }) => {
@@ -480,7 +475,9 @@ export function StockHistoryDialog({
                           <p className="text-sm font-medium">{reasonLabel(movement.reason)}</p>
                           <p className="text-xs text-muted">
                             {new Date(movement.created_at).toLocaleString()}
-                            {movement.created_by_name ? ` · ${m.inventory_by({ name: movement.created_by_name })}` : ""}
+                            {movement.created_by_name
+                              ? ` · ${m.inventory_by({ name: movement.created_by_name })}`
+                              : ""}
                           </p>
                           {note && <p className="mt-0.5 text-xs">{note}</p>}
                         </div>
@@ -632,10 +629,7 @@ export function ManageLocationsDialog({
           .eq("id", editing.id)
           .throwOnError();
       } else {
-        await pgbase
-          .from("inventory_locations")
-          .insert({ name, code, address })
-          .throwOnError();
+        await pgbase.from("inventory_locations").insert({ name, code, address }).throwOnError();
       }
       await refresh();
       setEditing(null);
@@ -783,14 +777,10 @@ export function ManageLocationsDialog({
                       </Switch.Content>
                     </Switch>
                   )}
-                  <p className="text-xs text-muted">
-                    {m.inventory_location_hint()}
-                  </p>
+                  <p className="text-xs text-muted">{m.inventory_location_hint()}</p>
                 </div>
               ) : locations.length === 0 ? (
-                <p className="py-6 text-center text-sm text-muted">
-                  {m.inventory_no_locations()}
-                </p>
+                <p className="py-6 text-center text-sm text-muted">{m.inventory_no_locations()}</p>
               ) : (
                 <div className="flex flex-col">
                   {locations.map((location) => (
@@ -871,9 +861,7 @@ export function ManageLocationsDialog({
                   <Button variant="secondary" onPress={() => onOpenChange(false)}>
                     {m.common_close()}
                   </Button>
-                  <Button
-                    onPress={() => setEditing({ ...EMPTY_LOCATION })}
-                  >
+                  <Button onPress={() => setEditing({ ...EMPTY_LOCATION })}>
                     <Plus className="size-4" />
                     {m.inventory_new_location()}
                   </Button>

@@ -1,5 +1,5 @@
-import { singleton } from "tsyringe";
 import { createPgbase, PgbaseError, type Pgbase as PgbaseInstance } from "pgbase";
+import { singleton } from "tsyringe";
 import { Config } from "../config/config.ts";
 import { Database } from "../database/database.ts";
 import type { DatabaseSchema } from "../database/types.ts";
@@ -18,10 +18,7 @@ const APP_TO_PG: Record<string, PgRole> = {
  * impersonates. Unknown, absent or malicious values fall back to the anon role
  * — never to the connection role, which would be a privilege escalation.
  */
-export function mapAppRoleToPgRole(
-  appRole: string | null | undefined,
-  anonRole: string,
-): string {
+export function mapAppRoleToPgRole(appRole: string | null | undefined, anonRole: string): string {
   return (appRole && APP_TO_PG[appRole]) || anonRole;
 }
 

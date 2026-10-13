@@ -1,11 +1,11 @@
 import { Button, Card } from "@heroui/react";
-import { redirect, useFetcher, useLoaderData, type ActionFunctionArgs } from "react-router";
-import { pgbase, pgbaseErrorMessages } from "@/lib/pgbase";
-import { PageHeader } from "@/lib/page-header";
-import { OPTION_FORM_ID, OptionForm, useOptionForm } from "@/lib/option-form";
-import { optionSchema, type OptionFormValues } from "@/lib/option-schema";
-import { m } from "@/paraglide/messages.js";
+import { type ActionFunctionArgs, redirect, useFetcher, useLoaderData } from "react-router";
 import type { OptionWithValues } from "@/lib/catalog";
+import { OPTION_FORM_ID, OptionForm, useOptionForm } from "@/lib/option-form";
+import { type OptionFormValues, optionSchema } from "@/lib/option-schema";
+import { PageHeader } from "@/lib/page-header";
+import { pgbase, pgbaseErrorMessages } from "@/lib/pgbase";
+import { m } from "@/paraglide/messages.js";
 
 export async function optionNewLoader() {
   const options = await pgbase
@@ -87,12 +87,7 @@ export function OptionNew() {
 
       <Card>
         <Card.Content>
-          <OptionForm
-            form={form}
-            submitting={submitting}
-            errors={errors}
-            onSubmit={submit}
-          />
+          <OptionForm form={form} submitting={submitting} errors={errors} onSubmit={submit} />
         </Card.Content>
       </Card>
     </div>
@@ -100,4 +95,4 @@ export function OptionNew() {
 }
 
 /* React Router lazy-route contract. */
-export { OptionNew as Component, optionNewLoader as loader, optionNewAction as action };
+export { OptionNew as Component, optionNewAction as action, optionNewLoader as loader };

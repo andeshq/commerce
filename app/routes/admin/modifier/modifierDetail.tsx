@@ -1,25 +1,25 @@
-import { Button, ButtonGroup, Card, Dropdown, Label } from "@heroui/react";
 import { EllipsisVertical, TrashBin } from "@gravity-ui/icons";
+import { Button, ButtonGroup, Card, Dropdown, Label } from "@heroui/react";
 import {
+  type ActionFunctionArgs,
+  type LoaderFunctionArgs,
   redirect,
   useFetcher,
   useLoaderData,
-  type ActionFunctionArgs,
-  type LoaderFunctionArgs,
 } from "react-router";
-import { useAdminStore } from "@/routes/admin/adminLayout";
-import { pgbase, pgbaseErrorMessages } from "@/lib/pgbase";
-import { PageHeader } from "@/lib/page-header";
+import type { ModifierGroupWithValues } from "@/lib/catalog";
+import { cents, currencySymbol, toCents } from "@/lib/catalog";
 import {
   MODIFIER_FORM_ID,
   ModifierForm,
   modifierToFormValues,
   useModifierForm,
 } from "@/lib/modifier-form";
-import { modifierSchema, type ModifierFormValues } from "@/lib/modifier-schema";
-import { cents, currencySymbol, toCents } from "@/lib/catalog";
+import { type ModifierFormValues, modifierSchema } from "@/lib/modifier-schema";
+import { PageHeader } from "@/lib/page-header";
+import { pgbase, pgbaseErrorMessages } from "@/lib/pgbase";
 import { m } from "@/paraglide/messages.js";
-import type { ModifierGroupWithValues } from "@/lib/catalog";
+import { useAdminStore } from "@/routes/admin/adminLayout";
 
 export async function modifierDetailLoader({ params }: LoaderFunctionArgs) {
   const id = String(params.id);
@@ -105,7 +105,10 @@ export async function modifierDetailAction({ request, params }: ActionFunctionAr
         await pgbase
           .from("modifier_values")
           .delete()
-          .in("id", removed.map((row) => row.id))
+          .in(
+            "id",
+            removed.map((row) => row.id),
+          )
           .throwOnError();
       }
 
@@ -243,4 +246,8 @@ export function ModifierDetail() {
 }
 
 /* React Router lazy-route contract. */
-export { ModifierDetail as Component, modifierDetailLoader as loader, modifierDetailAction as action };
+export {
+  ModifierDetail as Component,
+  modifierDetailAction as action,
+  modifierDetailLoader as loader,
+};

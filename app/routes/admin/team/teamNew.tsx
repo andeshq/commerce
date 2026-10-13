@@ -1,9 +1,9 @@
 import { Button, Card } from "@heroui/react";
-import { redirect, useFetcher, type ActionFunctionArgs } from "react-router";
+import { type ActionFunctionArgs, redirect, useFetcher } from "react-router";
 import { getSession } from "@/lib/auth";
 import { PageHeader } from "@/lib/page-header";
 import { TEAM_FORM_ID, TeamCreateForm, useCreateTeamForm } from "@/lib/team-form";
-import { userCreateSchema, type UserCreateValues } from "@/lib/user-schema";
+import { type UserCreateValues, userCreateSchema } from "@/lib/user-schema";
 import { createTeamUser, userErrorMessages } from "@/lib/users";
 import { m } from "@/paraglide/messages.js";
 
@@ -73,12 +73,7 @@ export function TeamNew() {
 
       <Card>
         <Card.Content>
-          <TeamCreateForm
-            form={form}
-            submitting={submitting}
-            errors={errors}
-            onSubmit={submit}
-          />
+          <TeamCreateForm form={form} submitting={submitting} errors={errors} onSubmit={submit} />
         </Card.Content>
       </Card>
     </div>
@@ -86,4 +81,4 @@ export function TeamNew() {
 }
 
 /* React Router lazy-route contract. */
-export { TeamNew as Component, teamNewLoader as loader, teamNewAction as action };
+export { TeamNew as Component, teamNewAction as action, teamNewLoader as loader };

@@ -1,4 +1,4 @@
-import { sql, type Kysely } from "kysely";
+import { type Kysely, sql } from "kysely";
 
 /**
  * Lockout guard: the instance must always keep at least one active admin.
@@ -9,7 +9,8 @@ import { sql, type Kysely } from "kysely";
  * which transport (or tool) mutates `auth."user"`.
  */
 export async function up(db: Kysely<any>): Promise<void> {
-  await sql.raw(`
+  await sql
+    .raw(`
     create or replace function auth.keep_one_admin() returns trigger
       language plpgsql as $$
       begin
@@ -42,12 +43,15 @@ export async function up(db: Kysely<any>): Promise<void> {
     create trigger keep_one_admin
       before update or delete on auth."user"
       for each row execute function auth.keep_one_admin();
-  `).execute(db);
+  `)
+    .execute(db);
 }
 
 export async function down(db: Kysely<any>): Promise<void> {
-  await sql.raw(`
+  await sql
+    .raw(`
     drop trigger if exists keep_one_admin on auth."user";
     drop function if exists auth.keep_one_admin();
-  `).execute(db);
+  `)
+    .execute(db);
 }

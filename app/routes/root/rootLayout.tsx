@@ -1,5 +1,5 @@
-import { Outlet, useNavigate } from "react-router";
 import { RouterProvider as AriaRouterProvider } from "react-aria-components";
+import { Outlet, useNavigate } from "react-router";
 import { AuthProvider } from "@/lib/auth-context";
 
 /** Router basename (`/_`), matching Vite's `base`. */

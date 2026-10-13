@@ -1,21 +1,24 @@
-import { useMemo, useState } from "react";
-import { Button, Card, Chip, Dropdown, Label, ProgressBar, SearchField, Table } from "@heroui/react";
-import { Link } from "@/lib/link";
+import { Archive, BarsDescendingAlignLeft, Boxes3, CircleCheck, Pencil } from "@gravity-ui/icons";
 import type { SortDescriptor } from "@heroui/react";
 import {
-  Archive,
-  BarsDescendingAlignLeft,
-  Boxes3,
-  CircleCheck,
-  Pencil,
-} from "@gravity-ui/icons";
+  Button,
+  Card,
+  Chip,
+  Dropdown,
+  Label,
+  ProgressBar,
+  SearchField,
+  Table,
+} from "@heroui/react";
+import { useMemo, useState } from "react";
 import { useLoaderData } from "react-router";
+import { formatMoney, type Order, type Product, type ProductStatus } from "@/lib/catalog";
+import { productStatusLabel } from "@/lib/i18n";
+import { Link } from "@/lib/link";
 import { PageHeader } from "@/lib/page-header";
 import { pgbase } from "@/lib/pgbase";
-import { productStatusLabel } from "@/lib/i18n";
-import { useAdminStore } from "@/routes/admin/adminLayout";
 import { m } from "@/paraglide/messages.js";
-import { formatMoney, type Order, type Product, type ProductStatus } from "@/lib/catalog";
+import { useAdminStore } from "@/routes/admin/adminLayout";
 
 const STATUS_COLOR: Record<ProductStatus, "success" | "warning" | "default"> = {
   active: "success",
@@ -200,7 +203,10 @@ export function DashboardPage() {
               >
                 <SearchField.Group>
                   <SearchField.SearchIcon />
-                  <SearchField.Input className="w-40" placeholder={m.dashboard_filter_placeholder()} />
+                  <SearchField.Input
+                    className="w-40"
+                    placeholder={m.dashboard_filter_placeholder()}
+                  />
                   <SearchField.ClearButton />
                 </SearchField.Group>
               </SearchField>

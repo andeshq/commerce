@@ -197,13 +197,7 @@ export interface DatabaseSchema {
     phone: string | null;
     status: Generated<"open" | "completed" | "cancelled">;
     payment_status: Generated<
-      | "pending"
-      | "authorized"
-      | "paid"
-      | "failed"
-      | "refunded"
-      | "partially_refunded"
-      | "voided"
+      "pending" | "authorized" | "paid" | "failed" | "refunded" | "partially_refunded" | "voided"
     >;
     fulfillment_status: Generated<"unfulfilled" | "partially_fulfilled" | "fulfilled">;
     currency_code: string;
@@ -254,13 +248,7 @@ export interface DatabaseSchema {
     provider: string;
     method: string | null;
     status: Generated<
-      | "pending"
-      | "authorized"
-      | "paid"
-      | "failed"
-      | "refunded"
-      | "partially_refunded"
-      | "voided"
+      "pending" | "authorized" | "paid" | "failed" | "refunded" | "partially_refunded" | "voided"
     >;
     amount_cents: number | bigint;
     currency_code: string;

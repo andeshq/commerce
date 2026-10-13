@@ -1,13 +1,13 @@
 import { Button, Card } from "@heroui/react";
-import { useFetcher, type ActionFunctionArgs } from "react-router";
-import { useAdminStore } from "@/routes/admin/adminLayout";
+import { type ActionFunctionArgs, useFetcher } from "react-router";
 import { useAuth } from "@/lib/auth-context";
-import { pgbase, pgbaseErrorMessages } from "@/lib/pgbase";
 import { PageHeader } from "@/lib/page-header";
-import { STORE_FORM_ID, StoreForm, useStoreForm } from "@/lib/store-form";
-import { storeSchema, type StoreFormValues } from "@/lib/store-schema";
 import { PaymentsCard } from "@/lib/payments-card";
+import { pgbase, pgbaseErrorMessages } from "@/lib/pgbase";
+import { STORE_FORM_ID, StoreForm, useStoreForm } from "@/lib/store-form";
+import { type StoreFormValues, storeSchema } from "@/lib/store-schema";
 import { m } from "@/paraglide/messages.js";
+import { useAdminStore } from "@/routes/admin/adminLayout";
 
 /** RLS only lets admins write here; staff see the form disabled. */
 export async function settingsAction({ request }: ActionFunctionArgs) {
@@ -72,9 +72,7 @@ function SettingsForm() {
     <div className="flex flex-col gap-4">
       <PageHeader
         title={m.settings_title()}
-        description={
-          isAdmin ? m.settings_description_admin() : m.settings_description_staff()
-        }
+        description={isAdmin ? m.settings_description_admin() : m.settings_description_staff()}
         actions={
           <>
             <Button variant="secondary" isDisabled={submitting} onPress={() => history.back()}>

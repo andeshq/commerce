@@ -4,14 +4,20 @@ import { m } from "@/paraglide/messages.js";
 /** Name + value rows, shared by the option create and update pages. */
 export const optionSchema = z
   .object({
-    name: z.string().trim().min(1, { error: () => m.validation_option_name() }),
+    name: z
+      .string()
+      .trim()
+      .min(1, { error: () => m.validation_option_name() }),
     values: z
       .array(
         z.object({
           id: z.string().optional(),
           /** How many variants use this value; present for saved rows. */
           usage: z.number().optional(),
-          value: z.string().trim().min(1, { error: () => m.validation_option_value() }),
+          value: z
+            .string()
+            .trim()
+            .min(1, { error: () => m.validation_option_value() }),
         }),
       )
       .min(1, { error: () => m.validation_option_min_values() }),

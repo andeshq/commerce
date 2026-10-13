@@ -1,7 +1,3 @@
-import { Fragment, useEffect, useMemo, useState } from "react";
-import { Button, Card, Checkbox, Chip, Dropdown, Label, SearchField, Table } from "@heroui/react";
-import { Link } from "@/lib/link";
-import type { SortDescriptor } from "@heroui/react";
 import {
   ArrowDownToLine,
   BarsDescendingAlignLeft,
@@ -10,41 +6,45 @@ import {
   Picture,
   Plus,
 } from "@gravity-ui/icons";
+import type { SortDescriptor } from "@heroui/react";
+import { Button, Card, Checkbox, Chip, Dropdown, Label, SearchField, Table } from "@heroui/react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import {
+  type ActionFunctionArgs,
   useFetcher,
   useLoaderData,
   useNavigate,
   useSearchParams,
-  type ActionFunctionArgs,
 } from "react-router";
-import { useAdminStore } from "@/routes/admin/adminLayout";
-import { PageHeader } from "@/lib/page-header";
 import {
+  type Category,
   categoryDescendantIds,
   categoryPath,
   categoryTree,
   cents,
   formatMoney,
-  priceRange,
-  PRODUCT_STATUSES,
-  type Category,
   type InventoryLevel,
   type Media,
+  PRODUCT_STATUSES,
+  type Product,
   type ProductMediaLink,
   type ProductStatus,
   type ProductVariantCost,
-  type Product,
+  priceRange,
   type Variant,
 } from "@/lib/catalog";
-import { pgbase, pgbaseErrorMessages } from "@/lib/pgbase";
-import { totalStockByVariant } from "@/lib/inventory";
 import { productStatusLabel } from "@/lib/i18n";
+import { totalStockByVariant } from "@/lib/inventory";
+import { Link } from "@/lib/link";
+import { PageHeader } from "@/lib/page-header";
+import { pgbase, pgbaseErrorMessages } from "@/lib/pgbase";
 import { m } from "@/paraglide/messages.js";
+import { useAdminStore } from "@/routes/admin/adminLayout";
 
 /** Everything the listing renders: catalog, stock, and media thumbnails. */
 export async function productListingLoader() {
-  const [products, variants, inventory, categories, media, productMedia, costs] =
-    await Promise.all([
+  const [products, variants, inventory, categories, media, productMedia, costs] = await Promise.all(
+    [
       pgbase
         .from("products")
         .select("id,title,slug,status,vendor,product_type,category_id,created_at,updated_at")
@@ -55,7 +55,10 @@ export async function productListingLoader() {
         .select("id,product_id,title,sku,barcode,position,price_cents,compare_at_price_cents")
         .order("position", { ascending: true })
         .throwOnError(),
-      pgbase.from("inventory_levels").select("variant_id,location_id,available,updated_at").throwOnError(),
+      pgbase
+        .from("inventory_levels")
+        .select("variant_id,location_id,available,updated_at")
+        .throwOnError(),
       pgbase
         .from("categories")
         .select("id,parent_id,name,slug,description,position,created_at,updated_at")
@@ -68,7 +71,8 @@ export async function productListingLoader() {
         .order("position", { ascending: true })
         .throwOnError(),
       pgbase.from("product_variant_costs").select("variant_id,cost_cents::text").throwOnError(),
-    ]);
+    ],
+  );
 
   return {
     products: products.data as Product[],
@@ -208,9 +212,7 @@ export function ProductListing() {
         priceLabel: formatMoney(variant.price_cents, currency, locale),
         price: cents(variant.price_cents),
         compareAt:
-          variant.compare_at_price_cents === null
-            ? null
-            : cents(variant.compare_at_price_cents),
+          variant.compare_at_price_cents === null ? null : cents(variant.compare_at_price_cents),
         cost: costByVariant.get(variant.id) ?? null,
         stock: stockByVariant.get(variant.id),
       });
@@ -243,7 +245,9 @@ export function ProductListing() {
         priceLabel: "—",
         variantCount: 0,
         stock: null,
-        category: product.category_id ? (categoryById.get(product.category_id)?.name ?? null) : null,
+        category: product.category_id
+          ? (categoryById.get(product.category_id)?.name ?? null)
+          : null,
       });
     }
 
@@ -271,9 +275,11 @@ export function ProductListing() {
         if (!product.category_id || !allowedCategories.has(product.category_id)) return false;
       }
       if (!term) return true;
-      if ([product.title, product.slug, product.vendor ?? ""].some((value) =>
-        value.toLowerCase().includes(term),
-      )) {
+      if (
+        [product.title, product.slug, product.vendor ?? ""].some((value) =>
+          value.toLowerCase().includes(term),
+        )
+      ) {
         return true;
       }
       return (variantRows.get(product.id) ?? []).some((variant) =>
@@ -286,7 +292,19 @@ export function ProductListing() {
     const column = String(sortDescriptor.column);
     const direction = sortDescriptor.direction === "descending" ? -1 : 1;
     return matches.sort((a, b) => compare(a, b, column) * direction);
-  }, [products, variants, variantRows, inventory, categories, filter, status, category, sortDescriptor, currency, locale]);
+  }, [
+    products,
+    variants,
+    variantRows,
+    inventory,
+    categories,
+    filter,
+    status,
+    category,
+    sortDescriptor,
+    currency,
+    locale,
+  ]);
 
   function toggleExpanded(productId: string) {
     setExpanded((current) =>
@@ -417,7 +435,8 @@ export function ProductListing() {
 
             <Dropdown>
               <Button size="sm" variant="secondary">
-                {m.common_status()}: {status === "all" ? m.inventory_all() : productStatusLabel(status)}
+                {m.common_status()}:{" "}
+                {status === "all" ? m.inventory_all() : productStatusLabel(status)}
               </Button>
               <Dropdown.Popover>
                 <Dropdown.Menu
@@ -440,7 +459,8 @@ export function ProductListing() {
 
             <Dropdown>
               <Button size="sm" variant="secondary">
-                {m.common_category()}: {category === "all" ? m.inventory_all() : categoryPath(categories, category)}
+                {m.common_category()}:{" "}
+                {category === "all" ? m.inventory_all() : categoryPath(categories, category)}
               </Button>
               <Dropdown.Popover>
                 <Dropdown.Menu
@@ -481,7 +501,11 @@ export function ProductListing() {
                   <Dropdown.Popover>
                     <Dropdown.Menu onAction={(key) => void setSelectedStatus(key as ProductStatus)}>
                       {PRODUCT_STATUSES.map((status) => (
-                        <Dropdown.Item key={status} id={status} textValue={productStatusLabel(status)}>
+                        <Dropdown.Item
+                          key={status}
+                          id={status}
+                          textValue={productStatusLabel(status)}
+                        >
                           <Label>{productStatusLabel(status)}</Label>
                         </Dropdown.Item>
                       ))}
@@ -527,9 +551,7 @@ export function ProductListing() {
           {bulkError && <p className="mb-3 text-sm text-danger">{bulkError}</p>}
           {rows.length === 0 ? (
             <p className="mx-auto max-w-md py-12 text-center text-sm text-muted">
-              {products.length === 0
-                ? m.products_empty()
-                : m.products_no_match()}
+              {products.length === 0 ? m.products_empty() : m.products_no_match()}
             </p>
           ) : (
             <Table>
@@ -707,14 +729,19 @@ export function ProductListing() {
                                     <span>{m.common_stock()}</span>
                                   </div>
                                   {(variantRows.get(product.id) ?? []).map((variant) => (
-                                    <div key={variant.id} className="flex items-center gap-4 text-xs">
+                                    <div
+                                      key={variant.id}
+                                      className="flex items-center gap-4 text-xs"
+                                    >
                                       <span className="w-48 truncate font-medium">
                                         {variant.title}
                                       </span>
                                       <span className="w-32 truncate text-muted">
                                         {variant.sku ?? "—"}
                                       </span>
-                                      <span className="w-28 tabular-nums">{variant.priceLabel}</span>
+                                      <span className="w-28 tabular-nums">
+                                        {variant.priceLabel}
+                                      </span>
                                       <span className="text-muted">
                                         {variant.stock === undefined
                                           ? "—"
@@ -741,4 +768,8 @@ export function ProductListing() {
 }
 
 /* React Router lazy-route contract. */
-export { ProductListing as Component, productListingLoader as loader, productListingAction as action };
+export {
+  ProductListing as Component,
+  productListingAction as action,
+  productListingLoader as loader,
+};

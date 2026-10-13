@@ -1,13 +1,13 @@
-import { useMemo, useState } from "react";
-import { Button, Card, Chip, Dropdown, Label, SearchField, Table } from "@heroui/react";
-import { Link } from "@/lib/link";
-import type { SortDescriptor } from "@heroui/react";
 import { BarsDescendingAlignLeft, Plus } from "@gravity-ui/icons";
+import type { SortDescriptor } from "@heroui/react";
+import { Button, Card, Chip, Dropdown, Label, SearchField, Table } from "@heroui/react";
+import { useMemo, useState } from "react";
 import { useLoaderData, useNavigate } from "react-router";
+import type { OptionWithValues, ProductOptionLink } from "@/lib/catalog";
+import { Link } from "@/lib/link";
 import { PageHeader } from "@/lib/page-header";
 import { pgbase } from "@/lib/pgbase";
 import { m } from "@/paraglide/messages.js";
-import type { OptionWithValues, ProductOptionLink } from "@/lib/catalog";
 
 export async function optionListingLoader() {
   const [options, links] = await Promise.all([
@@ -151,9 +151,7 @@ export function OptionListing() {
         <Card.Content>
           {rows.length === 0 ? (
             <p className="mx-auto max-w-md py-12 text-center text-sm text-muted">
-              {options.length === 0
-                ? m.options_empty()
-                : m.options_no_match()}
+              {options.length === 0 ? m.options_empty() : m.options_no_match()}
             </p>
           ) : (
             <Table>
@@ -199,10 +197,7 @@ export function OptionListing() {
                     {rows.map((option) => (
                       <Table.Row key={option.id} id={option.id}>
                         <Table.Cell>
-                          <Link
-                            className="font-medium no-underline"
-                            href={`/options/${option.id}`}
-                          >
+                          <Link className="font-medium no-underline" href={`/options/${option.id}`}>
                             {option.name}
                           </Link>
                         </Table.Cell>

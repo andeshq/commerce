@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   Alert,
   Button,
@@ -12,21 +11,22 @@ import {
   Switch,
   TextField,
 } from "@heroui/react";
-import { redirect, useNavigate } from "react-router";
-import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { redirect, useNavigate } from "react-router";
 import { z } from "zod";
 import { getSetupStatus, runSetup, setupErrorMessages } from "@/lib/api";
 import { LanguageSwitcher } from "@/lib/language-switcher";
-import { m } from "@/paraglide/messages.js";
 import {
   CURRENCIES,
   CURRENCY_LABELS,
-  LOCALES,
-  LOCALE_LABELS,
   type CurrencyCode,
+  LOCALE_LABELS,
+  LOCALES,
   type LocaleCode,
 } from "@/lib/ref-data";
+import { m } from "@/paraglide/messages.js";
 
 const STEPS = ["store", "admin", "review"] as const;
 
@@ -54,11 +54,17 @@ const adminStepSchema = z
 
 const setupSchema = z
   .object({
-    storeName: z.string().trim().min(1, { error: () => m.validation_store_name() }),
+    storeName: z
+      .string()
+      .trim()
+      .min(1, { error: () => m.validation_store_name() }),
     currencyCode: z.enum(CURRENCIES),
     locale: z.enum(LOCALES),
     pricesIncludeTax: z.boolean(),
-    name: z.string().trim().min(1, { error: () => m.validation_your_name() }),
+    name: z
+      .string()
+      .trim()
+      .min(1, { error: () => m.validation_your_name() }),
     email: z.email({ error: () => m.validation_email() }),
     password: z.string().min(8, { error: () => m.validation_password_min() }),
     confirmPassword: z.string().min(1, { error: () => m.validation_confirm_password() }),
@@ -384,9 +390,7 @@ export function SetupPage() {
                 <dt className="text-muted">{m.setup_summary_locale()}</dt>
                 <dd>{LOCALE_LABELS[values.locale as LocaleCode]}</dd>
                 <dt className="text-muted">{m.setup_summary_prices()}</dt>
-                <dd>
-                  {values.pricesIncludeTax ? m.setup_tax_included() : m.setup_tax_added()}
-                </dd>
+                <dd>{values.pricesIncludeTax ? m.setup_tax_included() : m.setup_tax_added()}</dd>
                 <dt className="text-muted">{m.setup_summary_admin()}</dt>
                 <dd>{values.name.trim() || "—"}</dd>
                 <dt className="text-muted">{m.setup_summary_email()}</dt>

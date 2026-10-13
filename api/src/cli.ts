@@ -1,4 +1,4 @@
-import { runMigrateCli, type MigrateDirection } from "./database/migrate.ts";
+import { type MigrateDirection, runMigrateCli } from "./database/migrate.ts";
 import { startServer } from "./main.ts";
 
 /**
@@ -31,7 +31,6 @@ switch (command) {
   case "start":
     await startServer();
     break;
-  case "serve":
   default:
     await runMigrateCli("up");
     await startServer();

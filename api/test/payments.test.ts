@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
-import { createHarness, type Harness } from "./helpers/harness.ts";
 import { createMigrationDatabase } from "../src/database/migrator.ts";
 import type { App } from "../src/lib/app.ts";
+import { createHarness, type Harness } from "./helpers/harness.ts";
 
 /**
  * Payments through the fake provider: create an intent for an order token,
@@ -35,7 +35,9 @@ async function rpc(
   body: Record<string, unknown>,
   cookie?: string,
 ): Promise<{ status: number; body: any }> {
-  const res = await app.fetch(new Request(`http://localhost/api/rest/rpc/${name}`, json(body, cookie)));
+  const res = await app.fetch(
+    new Request(`http://localhost/api/rest/rpc/${name}`, json(body, cookie)),
+  );
   const text = await res.text();
   try {
     return { status: res.status, body: JSON.parse(text) };
@@ -138,7 +140,9 @@ afterAll(async () => {
 describe("payments: fake provider", () => {
   test("starting a payment returns an intent", async () => {
     const { accessToken } = await createOrder();
-    const res = await app.fetch(new Request(`http://localhost/api/checkout/${accessToken}/pay`, { method: "POST" }));
+    const res = await app.fetch(
+      new Request(`http://localhost/api/checkout/${accessToken}/pay`, { method: "POST" }),
+    );
     expect(res.status).toBe(200);
     const body = (await res.json()) as any;
     expect(body.provider).toBe("fake");
@@ -150,7 +154,9 @@ describe("payments: fake provider", () => {
   test("a webhook marks the order paid", async () => {
     const { accessToken, orderId } = await createOrder();
     const intent = (await (
-      await app.fetch(new Request(`http://localhost/api/checkout/${accessToken}/pay`, { method: "POST" }))
+      await app.fetch(
+        new Request(`http://localhost/api/checkout/${accessToken}/pay`, { method: "POST" }),
+      )
     ).json()) as any;
 
     const webhook = await app.fetch(
@@ -178,7 +184,9 @@ describe("payments: fake provider", () => {
   test("replaying a webhook is idempotent", async () => {
     const { accessToken, orderId } = await createOrder();
     const intent = (await (
-      await app.fetch(new Request(`http://localhost/api/checkout/${accessToken}/pay`, { method: "POST" }))
+      await app.fetch(
+        new Request(`http://localhost/api/checkout/${accessToken}/pay`, { method: "POST" }),
+      )
     ).json()) as any;
 
     await app.fetch(
@@ -208,20 +216,26 @@ describe("payments: fake provider", () => {
 
   test("paying an already-paid order is rejected", async () => {
     const { accessToken } = await createOrder();
-    const first = await app.fetch(new Request(`http://localhost/api/checkout/${accessToken}/pay`, { method: "POST" }));
+    const first = await app.fetch(
+      new Request(`http://localhost/api/checkout/${accessToken}/pay`, { method: "POST" }),
+    );
     const intent = (await first.json()) as any;
     await app.fetch(
       new Request("http://localhost/api/payments/fake/webhook", json(intent.confirm.body)),
     );
 
-    const again = await app.fetch(new Request(`http://localhost/api/checkout/${accessToken}/pay`, { method: "POST" }));
+    const again = await app.fetch(
+      new Request(`http://localhost/api/checkout/${accessToken}/pay`, { method: "POST" }),
+    );
     expect(again.status).toBe(409);
   });
 
   test("refund flips the payment and order", async () => {
     const { accessToken, orderId } = await createOrder();
     const intent = (await (
-      await app.fetch(new Request(`http://localhost/api/checkout/${accessToken}/pay`, { method: "POST" }))
+      await app.fetch(
+        new Request(`http://localhost/api/checkout/${accessToken}/pay`, { method: "POST" }),
+      )
     ).json()) as any;
     await app.fetch(
       new Request("http://localhost/api/payments/fake/webhook", json(intent.confirm.body)),
@@ -248,7 +262,9 @@ describe("payments: provider settings", () => {
     const anon = await app.fetch(new Request("http://localhost/api/payments/providers"));
     expect(anon.status).toBe(401);
     const customer = await app.fetch(
-      new Request("http://localhost/api/payments/providers", { headers: { cookie: customerCookie } }),
+      new Request("http://localhost/api/payments/providers", {
+        headers: { cookie: customerCookie },
+      }),
     );
     expect(customer.status).toBe(403);
   });

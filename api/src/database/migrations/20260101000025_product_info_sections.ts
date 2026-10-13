@@ -1,4 +1,4 @@
-import { sql, type Kysely } from "kysely";
+import { type Kysely, sql } from "kysely";
 
 /**
  * Additional info sections: free-form rich-text blocks attached to a product
@@ -8,7 +8,8 @@ import { sql, type Kysely } from "kysely";
  * sections so a storefront needs no extra round trip.
  */
 export async function up(db: Kysely<any>): Promise<void> {
-  await sql.raw(`
+  await sql
+    .raw(`
     create table commerce.product_info_sections (
       id uuid primary key default gen_random_uuid(),
       product_id uuid not null references commerce.products (id) on delete cascade,
@@ -42,10 +43,12 @@ export async function up(db: Kysely<any>): Promise<void> {
       );
     create policy product_info_sections_write on commerce.product_info_sections
       for all using (commerce.is_staff()) with check (commerce.is_staff());
-  `).execute(db);
+  `)
+    .execute(db);
 
   // Re-declare the product page with the new `info_sections` key.
-  await sql.raw(`
+  await sql
+    .raw(`
     create or replace function commerce.storefront_product(p_slug text) returns jsonb
       language sql stable set search_path = ''
     as $$
@@ -145,17 +148,21 @@ export async function up(db: Kysely<any>): Promise<void> {
     revoke all on function commerce.storefront_product(text) from public;
     grant execute on function commerce.storefront_product(text)
       to web_anon, web_customer, web_staff, web_admin;
-  `).execute(db);
+  `)
+    .execute(db);
 }
 
 export async function down(db: Kysely<any>): Promise<void> {
-  await sql.raw(`
+  await sql
+    .raw(`
     drop table if exists commerce.product_info_sections;
-  `).execute(db);
+  `)
+    .execute(db);
 
   // Restore the pre-migration product page (without `info_sections`) so a
   // single-step rollback leaves a callable function behind.
-  await sql.raw(`
+  await sql
+    .raw(`
     create or replace function commerce.storefront_product(p_slug text) returns jsonb
       language sql stable set search_path = ''
     as $$
@@ -244,5 +251,6 @@ export async function down(db: Kysely<any>): Promise<void> {
       from commerce.products p
       where p.slug = p_slug
     $$;
-  `).execute(db);
+  `)
+    .execute(db);
 }

@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
-import { createHarness, type Harness } from "./helpers/harness.ts";
 import { createMigrationDatabase } from "../src/database/migrator.ts";
 import type { App } from "../src/lib/app.ts";
+import { createHarness, type Harness } from "./helpers/harness.ts";
 
 /**
  * Tax: store rate + per-variant override, inclusive vs exclusive pricing,
@@ -31,7 +31,9 @@ async function rpc(
   body: Record<string, unknown>,
   cookie?: string,
 ): Promise<{ status: number; body: any }> {
-  const res = await app.fetch(new Request(`http://localhost/api/rest/rpc/${name}`, json(body, cookie)));
+  const res = await app.fetch(
+    new Request(`http://localhost/api/rest/rpc/${name}`, json(body, cookie)),
+  );
   const text = await res.text();
   try {
     return { status: res.status, body: JSON.parse(text) };
@@ -94,7 +96,14 @@ async function makeVariant(input: {
 async function purchase(
   variantId: string,
   quantity = 1,
-): Promise<{ orderId: string; subtotal: string; tax: string; total: string; cartTax: string; cartTotal: string }> {
+): Promise<{
+  orderId: string;
+  subtotal: string;
+  tax: string;
+  total: string;
+  cartTax: string;
+  cartTotal: string;
+}> {
   const created = await rpc("cart_create", {});
   const token = payload(created.body).token as string;
   const added = await rpc("cart_add_item", {

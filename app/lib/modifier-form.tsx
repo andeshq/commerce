@@ -1,6 +1,4 @@
-import { useState } from "react";
-import { Controller, useFieldArray, useForm, type UseFormReturn } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { Xmark } from "@gravity-ui/icons";
 import {
   Alert,
   Button,
@@ -14,10 +12,12 @@ import {
   Switch,
   TextField,
 } from "@heroui/react";
-import { Xmark } from "@gravity-ui/icons";
-import { cents, type ModifierGroupWithValues } from "./catalog";
-import { modifierSchema, type ModifierFormValues } from "./modifier-schema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
+import { Controller, type UseFormReturn, useFieldArray, useForm } from "react-hook-form";
 import { m } from "@/paraglide/messages.js";
+import { cents, type ModifierGroupWithValues } from "./catalog";
+import { type ModifierFormValues, modifierSchema } from "./modifier-schema";
 
 /** The detail pages submit this form from the page header, outside the <form>. */
 export const MODIFIER_FORM_ID = "modifier-form";
@@ -33,7 +33,8 @@ export function modifierToFormValues(group: ModifierGroupWithValues): ModifierFo
       .map((value) => ({
         id: value.id,
         name: value.name,
-        price: cents(value.price_delta_cents) === 0 ? "" : String(cents(value.price_delta_cents) / 100),
+        price:
+          cents(value.price_delta_cents) === 0 ? "" : String(cents(value.price_delta_cents) / 100),
       })),
   };
 }
@@ -83,7 +84,11 @@ export function ModifierForm({
   }
 
   return (
-    <form id={MODIFIER_FORM_ID} className="flex flex-col gap-5" onSubmit={form.handleSubmit(onSubmit)}>
+    <form
+      id={MODIFIER_FORM_ID}
+      className="flex flex-col gap-5"
+      onSubmit={form.handleSubmit(onSubmit)}
+    >
       {errors.length > 0 && (
         <Alert status="danger">
           <Alert.Indicator />
@@ -178,9 +183,7 @@ export function ModifierForm({
       <section className="flex flex-col gap-3">
         <div className="flex flex-col">
           <h3 className="text-sm font-semibold">{m.common_values()}</h3>
-          <p className="text-xs text-muted">
-            {m.modifiers_values_hint()}
-          </p>
+          <p className="text-xs text-muted">{m.modifiers_values_hint()}</p>
         </div>
 
         {values.fields.map((fieldRow, index) => (
@@ -229,7 +232,10 @@ export function ModifierForm({
             />
 
             <Button
-              aria-label={m.values_remove({ label: m.common_value_placeholder(), index: String(index + 1) })}
+              aria-label={m.values_remove({
+                label: m.common_value_placeholder(),
+                index: String(index + 1),
+              })}
               isIconOnly
               size="sm"
               variant="tertiary"

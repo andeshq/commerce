@@ -1,7 +1,7 @@
-import { singleton } from "tsyringe";
 import { SQL } from "bun";
 import { Kysely } from "kysely";
 import { PostgresJSDialect } from "kysely-postgres-js";
+import { singleton } from "tsyringe";
 import { Config } from "../config/config.ts";
 import type { DatabaseSchema } from "./types.ts";
 

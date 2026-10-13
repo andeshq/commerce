@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
-import { createHarness, type Harness } from "./helpers/harness.ts";
 import { createMigrationDatabase } from "../src/database/migrator.ts";
 import type { App } from "../src/lib/app.ts";
+import { createHarness, type Harness } from "./helpers/harness.ts";
 
 /**
  * The curated storefront surface: `storefront_products` / `storefront_categories`
@@ -41,11 +41,15 @@ async function rest(path: string, init?: RequestInit): Promise<{ status: number;
 
 async function adminPost(path: string, body: unknown): Promise<any> {
   const { status, body: out } = await rest(path, json(body, adminCookie));
-  if (status >= 300) throw new Error(`Seed failed: POST ${path} -> ${status} ${JSON.stringify(out)}`);
+  if (status >= 300)
+    throw new Error(`Seed failed: POST ${path} -> ${status} ${JSON.stringify(out)}`);
   return out;
 }
 
-async function rpc(name: string, body: Record<string, unknown>): Promise<{ status: number; body: any }> {
+async function rpc(
+  name: string,
+  body: Record<string, unknown>,
+): Promise<{ status: number; body: any }> {
   return rest(`/rpc/${name}`, json(body));
 }
 
@@ -124,7 +128,9 @@ beforeAll(async () => {
     title: "Medium",
     price_cents: 99000,
   });
-  const variants = await rest("/product_variants?select=id,sku", { headers: { cookie: adminCookie } });
+  const variants = await rest("/product_variants?select=id,sku", {
+    headers: { cookie: adminCookie },
+  });
   activeVariantId = variants.body.find((v: any) => v.sku === "AND-M").id;
 
   await adminPost("/media", { url: "/media/andina.jpg", alt: "Camiseta Andina" });
@@ -222,9 +228,7 @@ describe("storefront_products view", () => {
     });
     expect(adjust.status).toBe(200);
 
-    const { body } = await rest(
-      "/storefront_products?select=in_stock&slug=eq.camiseta-andina",
-    );
+    const { body } = await rest("/storefront_products?select=in_stock&slug=eq.camiseta-andina");
     expect(body).toEqual([{ in_stock: false }]);
 
     // Restock for the remaining tests.

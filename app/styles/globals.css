@@ -27,11 +27,9 @@
   --field-background: #f6f6f6;
   --field-foreground: #1e1c16;
 
-  --surface-shadow:
-    0 1px 2px 0 rgb(0 0 0 / 0.05), 0 8px 24px -8px rgb(0 0 0 / 0.14);
+  --surface-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05), 0 8px 24px -8px rgb(0 0 0 / 0.14);
   --field-shadow: 0 0 0 0 transparent;
-  --overlay-shadow:
-    0 4px 16px 0 rgb(24 24 27 / 0.08), 0 8px 24px 0 rgb(24 24 27 / 0.09);
+  --overlay-shadow: 0 4px 16px 0 rgb(24 24 27 / 0.08), 0 8px 24px 0 rgb(24 24 27 / 0.09);
 }
 
 /*

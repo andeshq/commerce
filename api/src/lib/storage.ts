@@ -29,7 +29,7 @@ export function parseStorageUrl(
   raw: string | undefined,
   publicBaseUrlOverride?: string,
 ): StorageConfig {
-  if (!raw || !raw.trim()) return { driver: "local" };
+  if (!raw?.trim()) return { driver: "local" };
 
   let url: URL;
   try {
@@ -98,9 +98,7 @@ export function filenameFromUrl(url: string): string | null {
   return last && FILENAME.test(last) ? last : null;
 }
 
-export function createS3Client(
-  config: Extract<StorageConfig, { driver: "s3" }>,
-): S3Client {
+export function createS3Client(config: Extract<StorageConfig, { driver: "s3" }>): S3Client {
   return new S3Client({
     bucket: config.bucket,
     endpoint: config.endpoint,

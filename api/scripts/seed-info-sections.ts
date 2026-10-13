@@ -52,8 +52,7 @@ const SECTIONS: Record<string, Array<{ title: string; body: string }>> = {
     },
     {
       title: "Cuidados",
-      body:
-        "<p>Felpado interior. Lavar del revés en frío y evitar la secadora para conservar el tejido.</p>",
+      body: "<p>Felpado interior. Lavar del revés en frío y evitar la secadora para conservar el tejido.</p>",
     },
   ],
   "gorra-sierra": [

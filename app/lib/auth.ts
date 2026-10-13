@@ -1,5 +1,5 @@
-import { authClient } from "./auth-client";
 import { m } from "@/paraglide/messages.js";
+import { authClient } from "./auth-client";
 
 export interface AuthUser {
   id: string;

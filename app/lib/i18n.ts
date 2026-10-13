@@ -77,7 +77,5 @@ export function orderStatusLabel(status: string): string {
 
 /** Simple count label; the message format here has no ICU plural support. */
 export function itemCountLabel(count: number): string {
-  return count === 1
-    ? m.common_item_count_one({ count })
-    : m.common_item_count_other({ count });
+  return count === 1 ? m.common_item_count_one({ count }) : m.common_item_count_other({ count });
 }

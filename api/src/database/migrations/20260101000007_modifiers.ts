@@ -1,4 +1,4 @@
-import { sql, type Kysely } from "kysely";
+import { type Kysely, sql } from "kysely";
 
 /**
  * Modifiers: store-scoped groups of priced add-ons ("Sin cebolla", "Bordado
@@ -6,7 +6,8 @@ import { sql, type Kysely } from "kysely";
  * from options/variants: options define the sellable SKU, modifiers adjust it.
  */
 export async function up(db: Kysely<any>): Promise<void> {
-  await sql.raw(`
+  await sql
+    .raw(`
     create type commerce.modifier_selection as enum ('single', 'multiple');
 
     create table commerce.modifier_groups (
@@ -78,14 +79,17 @@ export async function up(db: Kysely<any>): Promise<void> {
       );
     create policy product_modifier_groups_write on commerce.product_modifier_groups
       for all using (commerce.is_staff()) with check (commerce.is_staff());
-  `).execute(db);
+  `)
+    .execute(db);
 }
 
 export async function down(db: Kysely<any>): Promise<void> {
-  await sql.raw(`
+  await sql
+    .raw(`
     drop table if exists commerce.product_modifier_groups;
     drop table if exists commerce.modifier_values;
     drop table if exists commerce.modifier_groups;
     drop type if exists commerce.modifier_selection;
-  `).execute(db);
+  `)
+    .execute(db);
 }

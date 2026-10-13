@@ -1,10 +1,10 @@
-import { Controller, useForm, type UseFormReturn } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { Alert, FieldError, Input, Label, Separator, TextField } from "@heroui/react";
-import { optionSchema, type OptionFormValues } from "./option-schema";
-import { ValuesRows } from "./values-rows";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Controller, type UseFormReturn, useForm } from "react-hook-form";
 import { m } from "@/paraglide/messages.js";
 import type { OptionWithValues } from "./catalog";
+import { type OptionFormValues, optionSchema } from "./option-schema";
+import { ValuesRows } from "./values-rows";
 
 /** The detail pages submit this form from the page header, outside the <form>. */
 export const OPTION_FORM_ID = "option-form";

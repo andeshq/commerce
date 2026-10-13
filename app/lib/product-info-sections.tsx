@@ -1,12 +1,12 @@
-import { useState } from "react";
-import { Alert, Button, Card, Dropdown, Input, Label, Modal, TextField } from "@heroui/react";
-import { EllipsisVertical, Grip, Pencil, Plus, TrashBin } from "@gravity-ui/icons";
 import { arrayMove } from "@dnd-kit/sortable";
-import { pgbase, pgbaseErrorMessages } from "./pgbase";
-import { SortableItem, SortableList, dragHandleClass } from "./sortable";
-import { RichTextEditor } from "./rich-text-editor";
+import { EllipsisVertical, Grip, Pencil, Plus, TrashBin } from "@gravity-ui/icons";
+import { Alert, Button, Card, Dropdown, Input, Label, Modal, TextField } from "@heroui/react";
+import { useState } from "react";
 import { m } from "@/paraglide/messages.js";
 import type { ProductInfoSection } from "./catalog";
+import { pgbase, pgbaseErrorMessages } from "./pgbase";
+import { RichTextEditor } from "./rich-text-editor";
+import { dragHandleClass, SortableItem, SortableList } from "./sortable";
 
 /** Cap on how many info blocks a product may carry (Square-style 20). */
 const MAX_SECTIONS = 20;

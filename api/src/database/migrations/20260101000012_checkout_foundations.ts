@@ -1,4 +1,4 @@
-import { sql, type Kysely } from "kysely";
+import { type Kysely, sql } from "kysely";
 
 /**
  * Checkout foundations.
@@ -15,13 +15,16 @@ import { sql, type Kysely } from "kysely";
  *  - New ledgers reasons for order lifecycle.
  */
 export async function up(db: Kysely<any>): Promise<void> {
-  await sql.raw(`
+  await sql
+    .raw(`
     alter type commerce.inventory_reason add value if not exists 'order_placed';
     alter type commerce.inventory_reason add value if not exists 'order_cancelled';
     alter type commerce.inventory_reason add value if not exists 'order_refunded';
-  `).execute(db);
+  `)
+    .execute(db);
 
-  await sql.raw(`
+  await sql
+    .raw(`
     alter table commerce.inventory_locations
       add column is_default boolean not null default false;
 
@@ -65,11 +68,13 @@ export async function up(db: Kysely<any>): Promise<void> {
     $$;
     revoke all on function commerce.set_default_location(uuid) from public;
     grant execute on function commerce.set_default_location(uuid) to web_staff, web_admin;
-  `).execute(db);
+  `)
+    .execute(db);
 
   // Shared stock writer: level upsert + movement, guarded against negative
   // stock. `change` is the signed delta; the returned `delta` mirrors it.
-  await sql.raw(`
+  await sql
+    .raw(`
     create or replace function commerce.apply_inventory_movement(
       variant uuid,
       location uuid,
@@ -131,10 +136,12 @@ export async function up(db: Kysely<any>): Promise<void> {
     revoke all on function commerce.apply_inventory_movement(
       uuid, uuid, integer, commerce.inventory_reason, text, jsonb, text, text
     ) from public;
-  `).execute(db);
+  `)
+    .execute(db);
 
   // adjust_inventory keeps its role/active checks and delegates the write.
-  await sql.raw(`
+  await sql
+    .raw(`
     create or replace function commerce.adjust_inventory(
       variant uuid,
       location uuid,
@@ -216,12 +223,14 @@ export async function up(db: Kysely<any>): Promise<void> {
         ) h;
     end;
     $$;
-  `).execute(db);
+  `)
+    .execute(db);
 }
 
 export async function down(db: Kysely<any>): Promise<void> {
   // Enum values cannot be removed in Postgres; the three order reasons stay.
-  await sql.raw(`
+  await sql
+    .raw(`
     create or replace function commerce.adjust_inventory(
       variant uuid,
       location uuid,
@@ -325,5 +334,6 @@ export async function down(db: Kysely<any>): Promise<void> {
 
     drop index if exists commerce.inventory_locations_default_key;
     alter table commerce.inventory_locations drop column if exists is_default;
-  `).execute(db);
+  `)
+    .execute(db);
 }

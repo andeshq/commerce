@@ -55,7 +55,11 @@ export const fakeProvider: PaymentProvider = {
     const eventId = body.event_id;
     const providerRef = body.provider_ref;
     const status = body.status;
-    if (typeof eventId !== "string" || typeof providerRef !== "string" || typeof status !== "string") {
+    if (
+      typeof eventId !== "string" ||
+      typeof providerRef !== "string" ||
+      typeof status !== "string"
+    ) {
       throw new HTTPException(400, {
         message: "Webhook needs event_id, provider_ref and status.",
       });
@@ -67,7 +71,8 @@ export const fakeProvider: PaymentProvider = {
       status: status as WebhookEvent["status"],
       amountCents: Number(body.amount_cents ?? 0),
       method: typeof body.method === "string" ? body.method : null,
-      occurredAt: typeof body.occurred_at === "string" ? body.occurred_at : new Date().toISOString(),
+      occurredAt:
+        typeof body.occurred_at === "string" ? body.occurred_at : new Date().toISOString(),
       raw: body,
     };
   },

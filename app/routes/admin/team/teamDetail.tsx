@@ -1,19 +1,18 @@
-import { Button, ButtonGroup, Card, Chip, Dropdown, Label } from "@heroui/react";
 import { EllipsisVertical, TrashBin } from "@gravity-ui/icons";
+import { Button, ButtonGroup, Card, Chip, Dropdown, Label } from "@heroui/react";
 import {
+  type ActionFunctionArgs,
+  type LoaderFunctionArgs,
   redirect,
   useFetcher,
   useLoaderData,
-  type ActionFunctionArgs,
-  type LoaderFunctionArgs,
 } from "react-router";
 import { getSession } from "@/lib/auth";
 import { useAuth } from "@/lib/auth-context";
+import { roleLabel } from "@/lib/i18n";
 import { PageHeader } from "@/lib/page-header";
 import { TEAM_FORM_ID, TeamEditForm, useEditTeamForm } from "@/lib/team-form";
-import { userUpdateSchema, type UserUpdateValues } from "@/lib/user-schema";
-import { roleLabel } from "@/lib/i18n";
-import { m } from "@/paraglide/messages.js";
+import { type UserUpdateValues, userUpdateSchema } from "@/lib/user-schema";
 import {
   banUser,
   getUser,
@@ -24,6 +23,7 @@ import {
   updateTeamProfile,
   userErrorMessages,
 } from "@/lib/users";
+import { m } from "@/paraglide/messages.js";
 
 export async function teamDetailLoader({ params }: LoaderFunctionArgs) {
   const user = await getSession();
@@ -167,7 +167,9 @@ export function TeamDetail() {
                         id="toggle-ban"
                         textValue={member.banned ? m.customers_reactivate() : m.customers_suspend()}
                       >
-                        <Label>{member.banned ? m.customers_reactivate() : m.customers_suspend()}</Label>
+                        <Label>
+                          {member.banned ? m.customers_reactivate() : m.customers_suspend()}
+                        </Label>
                       </Dropdown.Item>
                       <Dropdown.Item id="remove" textValue={m.team_remove()} variant="danger">
                         <TrashBin className="size-4 shrink-0 text-danger" />
@@ -184,12 +186,7 @@ export function TeamDetail() {
 
       <Card>
         <Card.Content>
-          <TeamEditForm
-            form={form}
-            submitting={submitting}
-            errors={errors}
-            onSubmit={submit}
-          />
+          <TeamEditForm form={form} submitting={submitting} errors={errors} onSubmit={submit} />
         </Card.Content>
       </Card>
     </div>
@@ -197,4 +194,4 @@ export function TeamDetail() {
 }
 
 /* React Router lazy-route contract. */
-export { TeamDetail as Component, teamDetailLoader as loader, teamDetailAction as action };
+export { TeamDetail as Component, teamDetailAction as action, teamDetailLoader as loader };

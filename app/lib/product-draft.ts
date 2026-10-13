@@ -1,6 +1,6 @@
-import { cents, toCents, type OptionWithValues, type VariantWithLinks } from "./catalog";
-import { NO_CATEGORY, type ProductFields, type VariantDraft } from "./product-schema";
 import { m } from "@/paraglide/messages.js";
+import { cents, type OptionWithValues, toCents, type VariantWithLinks } from "./catalog";
+import { NO_CATEGORY, type ProductFields, type VariantDraft } from "./product-schema";
 
 export type { ProductFields, VariantDraft };
 
@@ -18,10 +18,7 @@ export const MAX_VARIANTS = 250;
 
 /** How many variant rows the selected options expand to. */
 export function combinationCount(options: OptionWithValues[]): number {
-  return options.reduce(
-    (total, option) => total * Math.max(option.option_values.length, 1),
-    1,
-  );
+  return options.reduce((total, option) => total * Math.max(option.option_values.length, 1), 1);
 }
 
 export function emptyVariant(title: string): VariantDraft {
@@ -94,10 +91,7 @@ export function variantMatrix(
  * Regenerate rows for the selected options, keeping the edits of variants whose
  * option-value set still exists (matched by set, not by order).
  */
-export function syncVariants(
-  drafts: VariantDraft[],
-  options: OptionWithValues[],
-): VariantDraft[] {
+export function syncVariants(drafts: VariantDraft[], options: OptionWithValues[]): VariantDraft[] {
   const key = (ids: string[]) => [...ids].sort().join("|");
   const existing = new Map(drafts.map((draft) => [key(draft.optionValueIds), draft]));
 

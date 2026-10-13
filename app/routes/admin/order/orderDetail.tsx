@@ -1,25 +1,21 @@
-import { useState, type Key } from "react";
-import { Button, Card, Chip, Dropdown, Label } from "@heroui/react";
 import { ChevronDown } from "@gravity-ui/icons";
+import { Button, Card, Chip, Dropdown, Label } from "@heroui/react";
+import { type Key, useState } from "react";
 import { redirect, useLoaderData, useRevalidator } from "react-router";
-import { PageHeader } from "@/lib/page-header";
-import { pgbase, pgbaseErrorMessages } from "@/lib/pgbase";
 import {
-  fulfillmentStatusLabel,
-  orderStatusLabel,
-  paymentStatusLabel,
-} from "@/lib/i18n";
-import { m } from "@/paraglide/messages.js";
-import { useAdminStore } from "@/routes/admin/adminLayout";
-import {
-  formatMoney,
   type FulfillmentStatus,
+  formatMoney,
   type Order,
   type OrderEvent,
   type OrderItem,
   type Payment,
   type PaymentStatus,
 } from "@/lib/catalog";
+import { fulfillmentStatusLabel, orderStatusLabel, paymentStatusLabel } from "@/lib/i18n";
+import { PageHeader } from "@/lib/page-header";
+import { pgbase, pgbaseErrorMessages } from "@/lib/pgbase";
+import { m } from "@/paraglide/messages.js";
+import { useAdminStore } from "@/routes/admin/adminLayout";
 
 const PAYMENT_COLOR: Record<PaymentStatus, "success" | "warning" | "danger" | "default"> = {
   paid: "success",
@@ -84,9 +80,8 @@ function addressLines(address: Record<string, unknown> | null): string[] {
 }
 
 export function OrderDetail() {
-  const { order, items, payments, events } = useLoaderData<
-    Awaited<ReturnType<typeof orderDetailLoader>>
-  >();
+  const { order, items, payments, events } =
+    useLoaderData<Awaited<ReturnType<typeof orderDetailLoader>>>();
   const store = useAdminStore();
   const revalidator = useRevalidator();
   const [busy, setBusy] = useState(false);
@@ -103,7 +98,10 @@ export function OrderDetail() {
     ) {
       return;
     }
-    if (key === "refund" && !window.confirm(m.orders_refund_confirm({ number: String(order.number) }))) {
+    if (
+      key === "refund" &&
+      !window.confirm(m.orders_refund_confirm({ number: String(order.number) }))
+    ) {
       return;
     }
 
@@ -122,17 +120,15 @@ export function OrderDetail() {
         }
       } else {
         const fn =
-          key === "paid"
-            ? "order_mark_paid"
-            : key === "fulfill"
-              ? "order_fulfill"
-              : "order_cancel";
+          key === "paid" ? "order_mark_paid" : key === "fulfill" ? "order_fulfill" : "order_cancel";
         await pgbase.rpc(fn, { order_uuid: order.id }).throwOnError();
       }
       revalidator.revalidate();
     } catch (caught) {
       const messages = pgbaseErrorMessages(caught);
-      setError(messages[0] ?? (caught instanceof Error ? caught.message : m.common_something_wrong()));
+      setError(
+        messages[0] ?? (caught instanceof Error ? caught.message : m.common_something_wrong()),
+      );
     } finally {
       setBusy(false);
     }

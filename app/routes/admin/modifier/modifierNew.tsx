@@ -1,12 +1,12 @@
 import { Button, Card } from "@heroui/react";
-import { redirect, useFetcher, useLoaderData, type ActionFunctionArgs } from "react-router";
-import { useAdminStore } from "@/routes/admin/adminLayout";
-import { pgbase, pgbaseErrorMessages } from "@/lib/pgbase";
-import { PageHeader } from "@/lib/page-header";
-import { MODIFIER_FORM_ID, ModifierForm, useModifierForm } from "@/lib/modifier-form";
-import { modifierSchema, type ModifierFormValues } from "@/lib/modifier-schema";
+import { type ActionFunctionArgs, redirect, useFetcher, useLoaderData } from "react-router";
 import { currencySymbol, toCents } from "@/lib/catalog";
+import { MODIFIER_FORM_ID, ModifierForm, useModifierForm } from "@/lib/modifier-form";
+import { type ModifierFormValues, modifierSchema } from "@/lib/modifier-schema";
+import { PageHeader } from "@/lib/page-header";
+import { pgbase, pgbaseErrorMessages } from "@/lib/pgbase";
 import { m } from "@/paraglide/messages.js";
+import { useAdminStore } from "@/routes/admin/adminLayout";
 
 export async function modifierNewLoader() {
   const modifiers = await pgbase.from("modifier_groups").select("id").throwOnError();
@@ -102,4 +102,4 @@ export function ModifierNew() {
 }
 
 /* React Router lazy-route contract. */
-export { ModifierNew as Component, modifierNewLoader as loader, modifierNewAction as action };
+export { ModifierNew as Component, modifierNewAction as action, modifierNewLoader as loader };

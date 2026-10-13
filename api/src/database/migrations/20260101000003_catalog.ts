@@ -1,4 +1,4 @@
-import { sql, type Kysely } from "kysely";
+import { type Kysely, sql } from "kysely";
 
 /**
  * Catalog primitives and store settings, in schema `commerce`.
@@ -7,7 +7,8 @@ import { sql, type Kysely } from "kysely";
  * rows and the first admin are created at first-run setup.
  */
 export async function up(db: Kysely<any>): Promise<void> {
-  await sql.raw(`
+  await sql
+    .raw(`
     create table commerce.store_settings (
       id boolean primary key default true,
       name text not null,
@@ -237,11 +238,13 @@ export async function up(db: Kysely<any>): Promise<void> {
       on commerce.inventory_movements (variant_id);
     create index inventory_movements_location_id_idx
       on commerce.inventory_movements (location_id);
-  `).execute(db);
+  `)
+    .execute(db);
 }
 
 export async function down(db: Kysely<any>): Promise<void> {
-  await sql.raw(`
+  await sql
+    .raw(`
     drop table if exists commerce.inventory_movements;
     drop table if exists commerce.inventory_levels;
     drop table if exists commerce.inventory_locations;
@@ -259,5 +262,6 @@ export async function down(db: Kysely<any>): Promise<void> {
     drop table if exists commerce.categories;
     drop table if exists commerce.media;
     drop table if exists commerce.store_settings;
-  `).execute(db);
+  `)
+    .execute(db);
 }

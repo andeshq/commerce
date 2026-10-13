@@ -1,13 +1,13 @@
-import { useState } from "react";
-import { Button, FieldError, Input, TextField } from "@heroui/react";
 import { Xmark } from "@gravity-ui/icons";
+import { Button, FieldError, Input, TextField } from "@heroui/react";
+import { useState } from "react";
 import {
-  Controller,
-  useFieldArray,
   type Control,
+  Controller,
   type FieldArrayPath,
   type FieldPath,
   type FieldValues,
+  useFieldArray,
 } from "react-hook-form";
 import { m } from "@/paraglide/messages.js";
 

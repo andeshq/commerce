@@ -1,7 +1,7 @@
 import { createBrowserRouter } from "react-router";
+import { NotFoundPage } from "./routes/root/notFoundPage";
 import { RootError } from "./routes/root/rootError";
 import { RootLayout } from "./routes/root/rootLayout";
-import { NotFoundPage } from "./routes/root/notFoundPage";
 
 /**
  * Route tree, mounted under the app base (`/_`). Route modules are loaded
@@ -39,7 +39,10 @@ export const router = createBrowserRouter(
             { path: "modifiers/:id", lazy: () => import("./routes/admin/modifier/modifierDetail") },
             { path: "categories", lazy: () => import("./routes/admin/category/categoryListing") },
             { path: "categories/new", lazy: () => import("./routes/admin/category/categoryNew") },
-            { path: "categories/:id", lazy: () => import("./routes/admin/category/categoryDetail") },
+            {
+              path: "categories/:id",
+              lazy: () => import("./routes/admin/category/categoryDetail"),
+            },
             { path: "inventory", lazy: () => import("./routes/admin/inventory/inventoryListing") },
             { path: "team", lazy: () => import("./routes/admin/team/teamListing") },
             { path: "team/new", lazy: () => import("./routes/admin/team/teamNew") },

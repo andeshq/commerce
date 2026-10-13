@@ -1,4 +1,4 @@
-import { sql, type Kysely } from "kysely";
+import { type Kysely, sql } from "kysely";
 
 /**
  * Move unit cost (COGS) off `product_variants` into a staff-only table.
@@ -9,7 +9,8 @@ import { sql, type Kysely } from "kysely";
  * public variant shape safe by construction.
  */
 export async function up(db: Kysely<any>): Promise<void> {
-  await sql.raw(`
+  await sql
+    .raw(`
     create table commerce.product_variant_costs (
       variant_id uuid primary key references commerce.product_variants (id) on delete cascade,
       cost_cents bigint not null default 0,
@@ -31,12 +32,15 @@ export async function up(db: Kysely<any>): Promise<void> {
 
     create policy product_variant_costs_staff on commerce.product_variant_costs
       for all using (commerce.is_staff()) with check (commerce.is_staff());
-  `).execute(db);
+  `)
+    .execute(db);
 }
 
 export async function down(db: Kysely<any>): Promise<void> {
-  await sql.raw(`
+  await sql
+    .raw(`
     alter table commerce.product_variants add column cost_cents bigint;
     drop table if exists commerce.product_variant_costs;
-  `).execute(db);
+  `)
+    .execute(db);
 }

@@ -10,16 +10,24 @@ const optionalMoney = z
 
 export const modifierValueSchema = z.object({
   id: z.string().optional(),
-  name: z.string().trim().min(1, { error: () => m.validation_option_name() }),
+  name: z
+    .string()
+    .trim()
+    .min(1, { error: () => m.validation_option_name() }),
   price: optionalMoney,
 });
 
 export const modifierSchema = z
   .object({
-    name: z.string().trim().min(1, { error: () => m.validation_option_name() }),
+    name: z
+      .string()
+      .trim()
+      .min(1, { error: () => m.validation_option_name() }),
     selectionType: z.enum(["single", "multiple"]),
     required: z.boolean(),
-    values: z.array(modifierValueSchema).min(1, { error: () => m.validation_modifier_min_values() }),
+    values: z
+      .array(modifierValueSchema)
+      .min(1, { error: () => m.validation_modifier_min_values() }),
   })
   .superRefine((modifier, ctx) => {
     const seen = new Set<string>();

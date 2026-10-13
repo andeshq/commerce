@@ -1,4 +1,4 @@
-import { sql, type Kysely } from "kysely";
+import { type Kysely, sql } from "kysely";
 
 /**
  * Guest/session cart API, exposed over pgbase RPC (`/rest/rpc/cart_*`).
@@ -9,7 +9,8 @@ import { sql, type Kysely } from "kysely";
  * is revoked from `PUBLIC` so only these entry points are reachable.
  */
 export async function up(db: Kysely<any>): Promise<void> {
-  await sql.raw(`
+  await sql
+    .raw(`
     create or replace function commerce.default_location() returns uuid
       language sql stable security definer set search_path = ''
     as $$
@@ -271,11 +272,13 @@ export async function up(db: Kysely<any>): Promise<void> {
       to web_anon, web_customer, web_staff, web_admin;
     grant execute on function commerce.cart_set_address(text, text, jsonb)
       to web_anon, web_customer, web_staff, web_admin;
-  `).execute(db);
+  `)
+    .execute(db);
 }
 
 export async function down(db: Kysely<any>): Promise<void> {
-  await sql.raw(`
+  await sql
+    .raw(`
     drop function if exists commerce.cart_set_address(text, text, jsonb);
     drop function if exists commerce.cart_remove_item(text, uuid);
     drop function if exists commerce.cart_update_item(text, uuid, integer);
@@ -285,5 +288,6 @@ export async function down(db: Kysely<any>): Promise<void> {
     drop function if exists commerce.cart_payload(uuid);
     drop function if exists commerce.cart_by_token(text, boolean);
     drop function if exists commerce.default_location();
-  `).execute(db);
+  `)
+    .execute(db);
 }

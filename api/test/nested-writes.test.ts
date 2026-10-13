@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { randomUUID } from "node:crypto";
-import { createHarness, type Harness } from "./helpers/harness.ts";
 import type { App } from "../src/lib/app.ts";
+import { createHarness, type Harness } from "./helpers/harness.ts";
 
 /**
  * Nested writes: one request should be able to create and update a whole
@@ -34,10 +34,7 @@ async function signIn(email: string, password: string): Promise<string> {
   return cookieFrom(res);
 }
 
-async function rest(
-  path: string,
-  init?: RequestInit,
-): Promise<{ status: number; body: any }> {
+async function rest(path: string, init?: RequestInit): Promise<{ status: number; body: any }> {
   const res = await app.fetch(new Request(`http://localhost/api/rest${path}`, init));
   const text = await res.text();
   try {
@@ -98,10 +95,9 @@ describe("nested writes", () => {
     });
     expectCreated(optionRes.status);
 
-    const library = await rest(
-      `/options?select=id,option_values(id,value)&name=eq.${optionName}`,
-      { headers: { cookie: adminCookie } },
-    );
+    const library = await rest(`/options?select=id,option_values(id,value)&name=eq.${optionName}`, {
+      headers: { cookie: adminCookie },
+    });
     expect(library.status).toBe(200);
     const optionId = library.body[0].id as string;
     const values: Record<string, string> = Object.fromEntries(
