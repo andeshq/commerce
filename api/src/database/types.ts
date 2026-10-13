@@ -49,6 +49,21 @@ export interface DatabaseSchema {
     metadata: unknown;
   } & Timestamps;
 
+  discounts: {
+    id: Generated<string>;
+    code: string;
+    description: string | null;
+    type: "percentage" | "fixed";
+    value: number;
+    min_subtotal_cents: number | bigint;
+    starts_at: Date | null;
+    ends_at: Date | null;
+    usage_limit: number | null;
+    times_used: Generated<number>;
+    active: Generated<boolean>;
+    metadata: unknown;
+  } & Timestamps;
+
   collections: {
     id: Generated<string>;
     name: string;
@@ -210,6 +225,7 @@ export interface DatabaseSchema {
     billing_address: unknown;
     note: string | null;
     idempotency_key: string | null;
+    discount_code: string | null;
     placed_at: Generated<Date>;
     metadata: unknown;
   } & Timestamps;
@@ -285,6 +301,7 @@ export interface DatabaseSchema {
     shipping_address: unknown;
     converted_order_id: string | null;
     metadata: unknown;
+    discount_id: string | null;
     converted_at: Date | null;
   } & Timestamps;
 

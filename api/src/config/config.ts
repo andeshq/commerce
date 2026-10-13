@@ -54,6 +54,9 @@ export const EXPOSED_TABLES = [
   "product_info_sections",
   "variant_media",
   "variant_option_values",
+  "collections",
+  "product_collections",
+  "discounts",
   "inventory_locations",
   "inventory_levels",
   "inventory_movements",
@@ -67,6 +70,7 @@ export const EXPOSED_VIEWS: readonly string[] = [
   "catalog_variants",
   "storefront_products",
   "storefront_categories",
+  "storefront_collections",
 ];
 
 @singleton()
