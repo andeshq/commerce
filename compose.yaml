@@ -29,6 +29,7 @@ services:
 
   api:
     build: .
+    profiles: ["local"]
     restart: unless-stopped
     environment:
       DATABASE_URL: postgres://postgres:postgres@database:5432/commerce
